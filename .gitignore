@@ -1,0 +1,54 @@
+# .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyp
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+ENV.bak/
+*.sqlite3
+*.sqlite
+
+# Django
+*.log
+*.pot
+*.pyc
+.env
+db.sqlite3
+media
+
+# React / Node.js
+node_modules/
+/build/
+.npm/
+yarn-error.log
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*.bak
+*.bak.*
+*~
+
+# Ignore local database
+pgdata
+
+# Ignore backup files
+*.bak
+*.dump
+
+# Ignore Django migration files
+*/migrations/*
