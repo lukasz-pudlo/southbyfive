@@ -14,4 +14,4 @@ class Race(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('race_results:detail', kwargs={'pk': self.pk})
+        return reverse('races:detail', kwargs={'pk': self.pk})

@@ -1,4 +1,4 @@
 from django.shortcuts import render
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from race_results.models import Race
+from races.models import Race
