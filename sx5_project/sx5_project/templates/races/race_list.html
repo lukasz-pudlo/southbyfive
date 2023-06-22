@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Races</h1>
+
+  {% for race in races %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">{{ race.name }}</h5>
+        <p class="card-text">{{ race.description }}</p>
+        <a href="{% url 'races:detail' race.id %}" class="btn btn-primary">Details</a>
+      </div>
+    </div>
+  {% endfor %}
+
+  <a href="{% url 'races:new' %}" class="btn btn-primary">Add New Race</a>
+{% endblock %}

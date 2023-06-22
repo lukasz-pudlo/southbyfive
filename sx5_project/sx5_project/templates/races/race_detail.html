@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Race Details</h1>
+
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">{{ race.name }}</h5>
+      <p class="card-text">{{ race.description }}</p>
+      <a href="{% url 'races:edit' race.id %}" class="btn btn-primary">Edit</a>
+      <a href="{% url 'races:delete' race.id %}" class="btn btn-danger">Delete</a>
+    </div>
+  </div>
+
+  <a href="{% url 'races:list' %}" class="btn btn-secondary mt-3">Back to Races</a>
+{% endblock %}
