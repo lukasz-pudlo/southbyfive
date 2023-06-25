@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bootstrap5',
+    'location_field.apps.DefaultConfig',
 ]
 
 MIDDLEWARE = [
@@ -125,9 +126,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOCATION_FIELD = {
+    'provider.google.api': '//maps.google.com/maps/api/js',
+    'provider.google.api_key': os.getenv("GOOGLE_MAPS_API_KEY"),
+    'provider.google.api_libraries': '',
+    'provider.google.map.type': 'ROADMAP',
+}

@@ -1,8 +1,15 @@
 {% extends "base.html" %}
+{% load static %}
 {% load bootstrap5 %}
+
+{% block extra_css %}
+<link href="{% static 'races/css/style.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
   <h1>New Race</h1>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Adding jQuery -->
+  {{ form.media }} <!-- Adding media files -->
 
   <form method="post">
     {% csrf_token %}

@@ -1,11 +1,14 @@
 {% load bootstrap5 %}
 
+
 <!DOCTYPE html>
 <html>
     <head>
         <title>South by Five Races</title>
         {% bootstrap_css %}
         {% bootstrap_javascript %}
+        {% block extra_css %}
+        {% endblock %}
     </head>
     <body>
         <div class="container">
