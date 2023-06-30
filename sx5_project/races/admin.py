@@ -1,5 +1,8 @@
 from django.contrib import admin
 
-from races.models import Race
+from races.models import Race, Results, Runner
 
-admin.site.register(Race)
+models = [Race, Results, Runner]
+
+for model in models:
+    admin.site.register(model)
