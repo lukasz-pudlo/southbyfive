@@ -20,14 +20,20 @@ class Race(models.Model):
         return reverse('races:detail', kwargs={'pk': self.pk})
 
 
-class Results(models.Model):
-    race = models.ForeignKey(Race, on_delete=models.CASCADE)
-
-
 class Runner(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    results = models.ManyToManyField(Results, blank=True)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+
+
+class Result(models.Model):
+    race = models.ForeignKey(
+        Race, on_delete=models.CASCADE, blank=True, null=True)
+    runners = models.ForeignKey(
+        Runner, on_delete=models.CASCADE, blank=True, null=True)
+    time = models.TimeField(null=True)
+
+    def __str__(self):
+        return f'{self.runner} result for {self.race}'
