@@ -21,9 +21,26 @@ class Race(models.Model):
 
 
 class Runner(models.Model):
+    RUNNER_CATEGORIES = [
+        ('MS', 'MS'),
+        ('FS', 'FS'),
+        ('M40', 'M40'),
+        ('F40', 'F40'),
+        ('M50', 'M50'),
+        ('F50', 'F50'),
+        ('M60', 'M60'),
+        ('F60', 'F60'),
+        ('M70', 'M70'),
+        ('F70', 'F70'),
+        ('M80', 'M80'),
+        ('F80', 'F80'),
+    ]
+
     first_name = models.CharField(max_length=255)
     middle_name = models.CharField(max_length=255, blank=True, null=True)
     last_name = models.CharField(max_length=255)
+    category = models.CharField(
+        max_length=3, choices=RUNNER_CATEGORIES, null=True)
 
     def __str__(self):
         name_parts = [self.first_name, self.middle_name, self.last_name]
