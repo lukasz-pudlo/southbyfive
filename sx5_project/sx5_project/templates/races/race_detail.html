@@ -7,6 +7,12 @@
     <div class="card-body">
       <h5 class="card-title">{{ race.name }}</h5>
       <p class="card-text">{{ race.description }}</p>
+
+      <h5>Results</h5>
+      {% for result in results %}
+          <p>{{ result.runner }}: {{ result.time }}</p>
+      {% endfor %}
+      
       <a href="{% url 'races:edit' race.id %}" class="btn btn-primary">Edit</a>
       <a href="{% url 'races:delete' race.id %}" class="btn btn-danger">Delete</a>
     </div>

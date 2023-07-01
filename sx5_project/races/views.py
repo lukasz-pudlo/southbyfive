@@ -1,8 +1,9 @@
+from typing import Any, Dict
 from django.shortcuts import render
 from django.urls import reverse_lazy
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from races.models import Race
+from races.models import Race, Result, Runner
 
 from .forms import RaceForm
 
@@ -16,6 +17,11 @@ class RaceListView(ListView):
 class RaceDetailView(DetailView):
     model = Race
     template_name = 'races/race_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['results'] = self.object.result_set.all()
+        return context
 
 
 class RaceCreateView(CreateView):

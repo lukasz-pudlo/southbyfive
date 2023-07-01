@@ -31,9 +31,9 @@ class Runner(models.Model):
 class Result(models.Model):
     race = models.ForeignKey(
         Race, on_delete=models.CASCADE, blank=True, null=True)
-    runners = models.ForeignKey(
+    runner = models.ForeignKey(
         Runner, on_delete=models.CASCADE, blank=True, null=True)
-    time = models.TimeField(null=True)
+    time = models.DurationField(null=True)
 
     def __str__(self):
         return f'{self.runner} result for {self.race}'
