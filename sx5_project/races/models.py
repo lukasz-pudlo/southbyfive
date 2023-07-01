@@ -26,7 +26,8 @@ class Runner(models.Model):
     last_name = models.CharField(max_length=255)
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name}'
+        name_parts = [self.first_name, self.middle_name, self.last_name]
+        return ' '.join(part for part in name_parts if part)
 
 
 class Result(models.Model):
