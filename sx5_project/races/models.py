@@ -12,6 +12,8 @@ class Race(models.Model):
     race_date = models.DateField()
     date_added = models.DateTimeField(auto_now=True)
     date_modified = models.DateTimeField(auto_now_add=True)
+    race_file = models.FileField(
+        upload_to='races/%Y/%m/%d/', null=True, blank=True)
 
     def __str__(self):
         return self.name

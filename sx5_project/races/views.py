@@ -33,7 +33,7 @@ class RaceCreateView(CreateView):
 class RaceUpdateView(UpdateView):
     model = Race
     template_name = 'races/race_form.html'
-    fields = ['name', 'description', 'race_date']
+    fields = ['name', 'description', 'race_date', 'race_file']
 
 
 class RaceDeleteView(DeleteView):
