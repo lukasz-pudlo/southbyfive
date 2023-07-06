@@ -58,3 +58,6 @@ class Result(models.Model):
 
     def __str__(self):
         return f'{self.runner} result for {self.race}'
+
+    class Meta:
+        ordering = ['time']
