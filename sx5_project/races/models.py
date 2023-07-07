@@ -21,6 +21,9 @@ class Race(models.Model):
     def get_absolute_url(self):
         return reverse('races:detail', kwargs={'pk': self.pk})
 
+    class Meta:
+        ordering = ['date_added']
+
 
 class Runner(models.Model):
     RUNNER_CATEGORIES = [
