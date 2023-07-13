@@ -10,8 +10,8 @@ class Race(models.Model):
     coordinates = PlainLocationField(
         based_fields=['park'], zoom=13, default='55.82,-4.26')
     race_date = models.DateField()
-    date_added = models.DateTimeField(auto_now=True)
-    date_modified = models.DateTimeField(auto_now_add=True)
+    date_added = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
     race_file = models.FileField(
         upload_to='races/%Y/%m/%d/', null=True, blank=True)
 
@@ -22,7 +22,7 @@ class Race(models.Model):
         return reverse('races:detail', kwargs={'pk': self.pk})
 
     class Meta:
-        ordering = ['date_added']
+        ordering = ['-date_added']
 
 
 class Runner(models.Model):

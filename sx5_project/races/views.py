@@ -41,6 +41,7 @@ class RaceCreateView(CreateView):
     @transaction.atomic
     def form_valid(self, form):
         self.object = form.save()
+
         if self.request.FILES:
             excel_file = self.request.FILES['race_file']
             fs = FileSystemStorage()
@@ -80,6 +81,27 @@ class RaceUpdateView(UpdateView):
     model = Race
     template_name = 'races/race_form.html'
     fields = ['name', 'description', 'race_date', 'race_file']
+
+    def form_valid(self, form):
+        # If race_file has changed, delete old results and create new ones
+        if 'race_file' in form.changed_data:
+            self.object = form.save()
+
+            # Remove old results related to this race
+            Result.objects.filter(race=self.object).delete()
+
+            # Get the new data from the file
+            data = pd.read_excel(self.object.race_file.path)
+            for i, row in data.iterrows():
+                first_name, middle_name, last_name, category, time = row
+                runner, _ = Runner.objects.get_or_create(
+                    first_name=first_name, middle_name=middle_name, last_name=last_name, category=category)
+                Result.objects.get_or_create(
+                    race=self.object, runner=runner, time=pd.to_timedelta(time))
+
+            return super().form_valid(form)
+        else:
+            return super().form_valid(form)
 
 
 class RaceDeleteView(DeleteView):
