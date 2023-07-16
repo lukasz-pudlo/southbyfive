@@ -6,7 +6,8 @@ from datetime import timedelta
 
 class RaceForm(forms.ModelForm):
     race_date = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'})
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        required=False
     )
     race_file = forms.FileField()
 
