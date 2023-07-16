@@ -1,6 +1,5 @@
 from django.db import models
 from django.urls import reverse
-from location_field.models.plain import PlainLocationField
 
 
 class Race(models.Model):
@@ -11,6 +10,7 @@ class Race(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
     race_file = models.FileField(
         upload_to='races/%Y/%m/%d/', null=True, blank=True)
+    race_number = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.name

@@ -40,7 +40,15 @@ class RaceCreateView(CreateView):
     # This ensures that all database operations in this block are executed as a single transaction
     @transaction.atomic
     def form_valid(self, form):
-        self.object = form.save()
+        race = form.save(commit=False)
+
+        race_count = Race.objects.count()
+        race_number = race_count + 1
+        race.race_number = race_number
+
+        race.save()
+
+        self.object = race
 
         if self.request.FILES:
             excel_file = self.request.FILES['race_file']
