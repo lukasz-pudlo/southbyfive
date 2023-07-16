@@ -37,7 +37,6 @@ class RaceCreateView(CreateView):
     template_name = 'races/race_form.html'
     form_class = RaceForm
 
-    # This ensures that all database operations in this block are executed as a single transaction
     @transaction.atomic
     def form_valid(self, form):
         race = form.save(commit=False)
@@ -60,13 +59,12 @@ class RaceCreateView(CreateView):
 
             df = pd.read_excel(uploaded_file_path)
 
+            results = []
             for index, row in df.iterrows():
-                # Here, 'First Name', 'Middle Name', 'Last Name', 'Category', and 'Time' are the column names in the Excel file.
                 first_name = row['First Name']
                 middle_name = row['Middle Name']
                 last_name = row['Last Name']
                 category = row['Category']
-                # Convert time string to a pandas.Timedelta object.
                 time = pd.to_timedelta(row['Time'])
 
                 runner, created = Runner.objects.get_or_create(
@@ -76,11 +74,41 @@ class RaceCreateView(CreateView):
                     category=category
                 )
 
-                Result.objects.create(
+                result = Result(
                     race=self.object,
                     runner=runner,
                     time=time
                 )
+
+                result.save()
+                results.append(result)
+
+            # Calculate general position
+            results.sort(key=lambda res: res.time)
+            for i, result in enumerate(results, start=1):
+                result.general_position = i
+                result.save(update_fields=['general_position'])
+
+            # Calculate position for each gender
+            for gender_prefix in ['M', 'F']:
+                gender_results = [
+                    res for res in results if res.runner.category.startswith(gender_prefix)]
+                gender_results.sort(key=lambda res: res.time)
+
+                for i, result in enumerate(gender_results, start=1):
+                    result.gender_position = i
+                    result.save(update_fields=['gender_position'])
+
+            # Calculate position for each category
+            for category in Runner.RUNNER_CATEGORIES:
+                cat_code = category[0]
+                cat_results = [
+                    res for res in results if res.runner.category == cat_code]
+                cat_results.sort(key=lambda res: res.time)
+
+                for i, result in enumerate(cat_results, start=1):
+                    result.category_position = i
+                    result.save(update_fields=['category_position'])
 
         return super().form_valid(form)
 

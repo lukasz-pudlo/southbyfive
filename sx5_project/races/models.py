@@ -55,9 +55,24 @@ class Result(models.Model):
     runner = models.ForeignKey(
         Runner, on_delete=models.CASCADE, blank=True, null=True)
     time = models.DurationField(null=True)
+    general_position = models.PositiveIntegerField(null=True, blank=True)
+    gender_position = models.PositiveIntegerField(null=True, blank=True)
+    category_position = models.PositiveIntegerField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.runner} result for {self.race}'
 
     class Meta:
         ordering = ['time']
+
+
+class ResultWithPoints(models.Model):
+    result = models.ForeignKey(Result, on_delete=models.CASCADE)
+    version = models.PositiveIntegerField()
+    points = models.PositiveIntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.result.runner} result for {self.result.race} with points: {self.points}'
+
+    class Meta:
+        ordering = ['result__race__race_number', 'version']
