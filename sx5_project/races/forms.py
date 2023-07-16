@@ -8,14 +8,11 @@ class RaceForm(forms.ModelForm):
     race_date = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date'})
     )
-    park = forms.CharField()
-    coordinates = PlainLocationField(based_fields=['park'],
-                                     initial='55.82, -4.26')
     race_file = forms.FileField()
 
     class Meta:
         model = Race
-        fields = ['name', 'description', 'race_date', 'park', 'race_file']
+        fields = ['name', 'description', 'race_date', 'race_file']
 
 
 class ResultForm(forms.ModelForm):

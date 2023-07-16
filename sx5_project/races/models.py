@@ -5,11 +5,8 @@ from location_field.models.plain import PlainLocationField
 
 class Race(models.Model):
     name = models.CharField(max_length=255)
-    description = models.TextField()
-    park = models.CharField(default="Shawlands, Glasgow")
-    coordinates = PlainLocationField(
-        based_fields=['park'], zoom=13, default='55.82,-4.26')
-    race_date = models.DateField()
+    description = models.TextField(null=True, blank=True)
+    race_date = models.DateField(null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     race_file = models.FileField(
