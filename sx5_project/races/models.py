@@ -94,13 +94,14 @@ class Result(models.Model):
         ordering = ['time']
 
 
-class ResultWithPoints(models.Model):
-    result = models.ForeignKey(Result, on_delete=models.CASCADE)
+class ResultVersion(models.Model):
+    result = models.ForeignKey(
+        Result, on_delete=models.CASCADE, related_name='versions')
     version = models.PositiveIntegerField()
     points = models.PositiveIntegerField(null=True, blank=True)
 
     def __str__(self):
-        return f'{self.result.runner} result for {self.result.race} with points: {self.points}'
+        return f'Version {self.version} of {self.result.runner} result for {self.result.race} with points: {self.points}'
 
     class Meta:
         ordering = ['result__race__race_number', 'version']
