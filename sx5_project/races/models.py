@@ -18,6 +18,34 @@ class Race(models.Model):
     def get_absolute_url(self):
         return reverse('races:detail', kwargs={'pk': self.pk})
 
+    def calculate_positions(self):
+        results = list(self.result_set.all())
+
+        # Calculate general position
+        results.sort(key=lambda res: res.time)
+        for i, result in enumerate(results, start=1):
+            result.general_position = i
+            result.save(update_fields=['general_position'])
+
+        # Calculate position for each gender
+        for gender_prefix in ['M', 'F']:
+            gender_results = [
+                res for res in results if res.runner.category.startswith(gender_prefix)]
+            gender_results.sort(key=lambda res: res.time)
+            for i, result in enumerate(gender_results, start=1):
+                result.gender_position = i
+                result.save(update_fields=['gender_position'])
+
+        # Calculate position for each category
+        for category in Runner.RUNNER_CATEGORIES:
+            cat_code = category[0]
+            cat_results = [
+                res for res in results if res.runner.category == cat_code]
+            cat_results.sort(key=lambda res: res.time)
+            for i, result in enumerate(cat_results, start=1):
+                result.category_position = i
+                result.save(update_fields=['category_position'])
+
     class Meta:
         ordering = ['-date_added']
 

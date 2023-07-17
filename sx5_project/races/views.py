@@ -87,28 +87,7 @@ class RaceCreateView(CreateView):
             # Refresh results from db
             results = list(self.object.result_set.all())
 
-            # Calculate general position
-            results.sort(key=lambda res: res.time)
-            for i, result in enumerate(results, start=1):
-                result.general_position = i
-                result.save(update_fields=['general_position'])
-
-            for gender_prefix in ['M', 'F']:
-                gender_results = [
-                    res for res in results if res.runner.category.startswith(gender_prefix)]
-                gender_results.sort(key=lambda res: res.time)
-                for i, result in enumerate(gender_results, start=1):
-                    result.gender_position = i
-                    result.save(update_fields=['gender_position'])
-
-            for category in Runner.RUNNER_CATEGORIES:
-                cat_code = category[0]
-                cat_results = [
-                    res for res in results if res.runner.category == cat_code]
-                cat_results.sort(key=lambda res: res.time)
-                for i, result in enumerate(cat_results, start=1):
-                    result.category_position = i
-                    result.save(update_fields=['category_position'])
+            self.object.calculate_positions()
 
         return super().form_valid(form)
 
@@ -134,6 +113,8 @@ class RaceUpdateView(UpdateView):
                     first_name=first_name, middle_name=middle_name, last_name=last_name, category=category)
                 Result.objects.get_or_create(
                     race=self.object, runner=runner, time=pd.to_timedelta(time))
+
+            self.object.calculate_positions()
 
             return super().form_valid(form)
         else:
