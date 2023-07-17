@@ -15,6 +15,9 @@
                   <th scope="col">Name</th>
                   <th scope="col">Result</th>
                   <th scope="col">Category</th>
+                  <th scope="col">General Position</th>
+                  <th scope="col">Gender Position</th>
+                  <th scope="col">Category Position</th>
               </tr>
           </thead>
           <tbody>
@@ -23,7 +26,9 @@
                   <td>{{ result.runner }}</td>
                   <td>{{ result.time }}</td>
                   <td>{{ result.runner.category }}</td>
-                  <td>{{ result.runner.position }}</td>
+                  <td>{{ result.general_position }}</td>
+                  <td>{{ result.gender_position }}</td>
+                  <td>{{ result.category_position }}</td>
               </tr>
           {% endfor %}
           </tbody>
