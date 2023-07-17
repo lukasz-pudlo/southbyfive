@@ -91,33 +91,24 @@ class RaceCreateView(CreateView):
             results.sort(key=lambda res: res.time)
             for i, result in enumerate(results, start=1):
                 result.general_position = i
+                result.save(update_fields=['general_position'])
 
-            # Calculate position for each gender
             for gender_prefix in ['M', 'F']:
                 gender_results = [
                     res for res in results if res.runner.category.startswith(gender_prefix)]
                 gender_results.sort(key=lambda res: res.time)
-
                 for i, result in enumerate(gender_results, start=1):
                     result.gender_position = i
+                    result.save(update_fields=['gender_position'])
 
-            # Calculate position for each category
             for category in Runner.RUNNER_CATEGORIES:
                 cat_code = category[0]
                 cat_results = [
                     res for res in results if res.runner.category == cat_code]
                 cat_results.sort(key=lambda res: res.time)
-
                 for i, result in enumerate(cat_results, start=1):
                     result.category_position = i
-
-            # Save all results at once with the new positions
-            for result in results:
-                print(result.general_position,
-                      result.gender_position, result.category_position)
-
-                result.save(update_fields=[
-                            'general_position', 'gender_position', 'category_position'])
+                    result.save(update_fields=['category_position'])
 
         return super().form_valid(form)
 
