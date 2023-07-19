@@ -2,6 +2,9 @@ import pandas as pd
 import random
 from faker import Faker
 
+from races.models import Race, ResultVersion, RaceVersion
+from collections import Counter
+
 fake = Faker()
 
 # Categories for runners with corresponding base times (in minutes)
@@ -83,3 +86,48 @@ for race in races:
 
     # Save the Excel file
     writer.close()
+
+
+def create_result_versions(race):
+    """
+    Create a ResultVersion instance for each Result of a Race.
+    """
+
+    race_version_number = RaceVersion.objects.filter(race=race).count() + 1
+    race_version = RaceVersion.objects.create(
+        race=race, version_number=race_version_number)
+
+    for result in race.result_set.all():
+        general_points = result.general_position
+        gender_points = result.gender_position
+        category_points = result.category_position
+
+        ResultVersion.objects.create(
+            result=result,
+            race_version=race_version,
+            general_points=general_points,
+            gender_points=gender_points,
+            category_points=category_points
+        )
+
+    total_races = Race.objects.count()
+    if total_races > 2:
+        runner_ids = [result.runner_id for result in race.result_set.all()]
+        runner_participation_counts = Counter(runner_ids)
+        qualifying_runner_ids = [
+            runner_id for runner_id, count in runner_participation_counts.items() if count >= total_races - 1]
+
+        for runner_id in qualifying_runner_ids:
+            result = race.result_set.filter(runner_id=runner_id).first()
+            if result:
+                general_points = result.general_position
+                gender_points = result.gender_position
+                category_points = result.category_position
+
+                ResultVersion.objects.create(
+                    result=result,
+                    race_version=race_version,
+                    general_points=general_points,
+                    gender_points=gender_points,
+                    category_points=category_points
+                )

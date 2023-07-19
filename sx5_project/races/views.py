@@ -8,12 +8,13 @@ from typing import Any, Dict
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from pathlib import Path
+from races.utils import create_result_versions
 
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from races.models import Race, Result, Runner
+from races.models import Race, Result, Runner, RaceVersion
 
-from .forms import RaceForm
+from races.forms import RaceForm
 
 
 class RaceListView(ListView):
@@ -88,6 +89,7 @@ class RaceCreateView(CreateView):
             results = list(self.object.result_set.all())
 
             self.object.calculate_positions()
+            create_result_versions(self.object)
 
         return super().form_valid(form)
 
@@ -125,3 +127,19 @@ class RaceDeleteView(DeleteView):
     model = Race
     template_name = 'races/race_confirm_delete.html'
     success_url = reverse_lazy('races:list')
+
+
+class RaceVersionListView(ListView):
+    model = RaceVersion
+    template_name = 'race_versions/race_version_list.html'
+    context_object_name = 'race_versions'
+
+
+class RaceVersionDetailView(DetailView):
+    model = RaceVersion
+    template_name = 'race_versions/race_version_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['result_versions'] = self.object.resultversion_set.all()
+        return context

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{{ race_version.race.name }} - Version {{ race_version.version_number }}</h2>
+
+<h3>Results:</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Runner</th>
+            <th>General Points</th>
+            <th>Gender Points</th>
+            <th>Category Points</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for result_version in result_versions %}
+        <tr>
+            <td>{{ result_version.result.runner }}</td>
+            <td>{{ result_version.general_points }}</td>
+            <td>{{ result_version.gender_points }}</td>
+            <td>{{ result_version.category_points }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
