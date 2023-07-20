@@ -121,4 +121,4 @@ class ResultVersion(models.Model):
         return f'Version {self.version} of {self.result.runner} result for {self.result.race}'
 
     class Meta:
-        ordering = ['result__race__race_number', 'version']
+        ordering = ['general_points']
