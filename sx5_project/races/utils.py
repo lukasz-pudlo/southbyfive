@@ -3,7 +3,7 @@ import random
 from faker import Faker
 
 from races.models import Race, ResultVersion, RaceVersion, Result
-from collections import Counter
+from collections import Counter, defaultdict
 
 
 def generate_test_results():
@@ -125,14 +125,54 @@ def create_result_versions(new_race):
         race_version = RaceVersion.objects.create(
             race=race, version_number=new_version_number)
 
-        for runner_id in qualifying_runner_ids:
-            result = race.result_set.filter(runner_id=runner_id).first()
-            if result:
-                ResultVersion.objects.create(
-                    result=result,
-                    race_version=race_version,
-                    version=new_version_number,
-                    general_points=result.general_position,
-                    gender_points=result.gender_position,
-                    category_points=result.category_position
-                )
+        revised_results = race.result_set.filter(
+            runner_id__in=qualifying_runner_ids).all()
+        general_positions, gender_positions_mapping, category_positions_mapping = recalculate_positions(
+            revised_results)
+
+        for result in revised_results:
+            runner_id = result.runner_id
+            gender = get_gender_from_category(result.runner.category)
+
+            ResultVersion.objects.create(
+                result=result,
+                race_version=race_version,
+                version=new_version_number,
+                general_points=general_positions.get(runner_id, 0),
+                gender_points=gender_positions_mapping.get(
+                    runner_id, {}).get(gender, 0),
+                category_points=category_positions_mapping.get(
+                    runner_id, {}).get(result.runner.category, 0)
+            )
+
+
+def recalculate_positions(results):
+    sorted_results = sorted(results, key=lambda x: x.time)
+
+    general_positions = {}
+    gender_positions = defaultdict(int)
+    category_positions = defaultdict(int)
+    gender_positions_mapping = defaultdict(dict)
+    category_positions_mapping = defaultdict(dict)
+
+    for index, result in enumerate(sorted_results, 1):
+        runner_id = result.runner_id
+        gender = get_gender_from_category(result.runner.category)
+
+        general_positions[runner_id] = index
+        gender_positions[gender] += 1
+        category_positions[result.runner.category] += 1
+
+        gender_positions_mapping[runner_id][gender] = gender_positions[gender]
+        category_positions_mapping[runner_id][result.runner.category] = category_positions[result.runner.category]
+
+    return general_positions, gender_positions_mapping, category_positions_mapping
+
+
+def get_gender_from_category(category):
+    if category.startswith('F'):
+        return 'Female'
+    elif category.startswith('M'):
+        return 'Male'
+    else:
+        raise ValueError(f"Invalid category: {category}")
