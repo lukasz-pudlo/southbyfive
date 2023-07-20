@@ -12,7 +12,7 @@ from races.utils import create_result_versions
 
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from races.models import Race, Result, Runner, RaceVersion
+from races.models import Race, Result, Runner, RaceVersion, Classification
 
 from races.forms import RaceForm
 
@@ -143,4 +143,21 @@ class RaceVersionDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['result_versions'] = self.object.result_versions.all()
+        return context
+
+
+class ClassificationListView(ListView):
+    model = Classification
+    template_name = "classifications/classification_list.html"
+    context_object_name = 'classifications'
+
+
+class ClassificationDetailView(DetailView):
+    model = Classification
+    template_name = "classifications/classification_detail.html"
+    context_object_name = 'classification'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['results'] = self.object.classification_results.all()
         return context

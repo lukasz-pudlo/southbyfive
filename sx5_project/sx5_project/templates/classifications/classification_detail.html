@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Classification Details</h1>
+
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">{{ classification.race.name }} - Version {{ classification.version_number }}</h5>
+
+      <h5>Results</h5>
+      <table class="table">
+          <thead>
+              <tr>
+                  <th scope="col">Runner</th>
+                  <th scope="col">General Points</th>
+                  <th scope="col">Gender Points</th>
+                  <th scope="col">Category Points</th>
+              </tr>
+          </thead>
+          <tbody>
+          {% for result in results %}
+              <tr>
+                  <td>{{ result.runner }}</td>
+                  <td>{{ result.general_points }}</td>
+                  <td>{{ result.gender_points }}</td>
+                  <td>{{ result.category_points }}</td>
+              </tr>
+          {% endfor %}
+          </tbody>
+      </table>
+    </div>
+  </div>
+
+  <a href="{% url 'races:classification_list' %}" class="btn btn-secondary mt-3">Back to Classifications</a>
+{% endblock %}
