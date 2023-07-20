@@ -141,5 +141,5 @@ class RaceVersionDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['result_versions'] = self.object.resultversion_set.all()
+        context['result_versions'] = self.object.result_versions.all()
         return context

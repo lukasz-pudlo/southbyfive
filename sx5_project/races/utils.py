@@ -105,6 +105,7 @@ def create_result_versions(race):
         ResultVersion.objects.create(
             result=result,
             race_version=race_version,
+            version=race_version_number,
             general_points=general_points,
             gender_points=gender_points,
             category_points=category_points
@@ -120,14 +121,9 @@ def create_result_versions(race):
         for runner_id in qualifying_runner_ids:
             result = race.result_set.filter(runner_id=runner_id).first()
             if result:
-                general_points = result.general_position
-                gender_points = result.gender_position
-                category_points = result.category_position
-
-                ResultVersion.objects.create(
-                    result=result,
-                    race_version=race_version,
-                    general_points=general_points,
-                    gender_points=gender_points,
-                    category_points=category_points
-                )
+                result_version = ResultVersion.objects.get(
+                    result=result, race_version=race_version)
+                result_version.general_points = result.general_position
+                result_version.gender_points = result.gender_position
+                result_version.category_points = result.category_position
+                result_version.save()

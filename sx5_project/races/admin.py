@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from races.models import Race, Runner, Result, ResultVersion
+from races.models import Race, Runner, Result, ResultVersion, RaceVersion
 from races.forms import ResultForm, RaceForm
 
 
@@ -50,9 +50,23 @@ class ResultVersionAdmin(admin.ModelAdmin):
                        'gender_position', 'category_position')
 
 
+class RaceVersionAdmin(admin.ModelAdmin):
+
+    def name(self, obj):
+        return obj.race.name
+
+    def race_date(self, obj):
+        return obj.race.race_date
+
+    def race_number(self, obj):
+        return obj.race.race_number
+
+    list_display = ('id', 'name', 'race_date', 'race_number')
+
+
 models = [Race, Runner, Result, ResultVersion]
 admin_classes = {Race: RaceAdmin, Runner: RunnerAdmin,
-                 Result: ResultAdmin, ResultVersion: ResultVersionAdmin}
+                 Result: ResultAdmin, ResultVersion: ResultVersionAdmin, RaceVersion: RaceVersionAdmin}
 
 for model, admin_class in admin_classes.items():
     admin.site.register(model, admin_class)
