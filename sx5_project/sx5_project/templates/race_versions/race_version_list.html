@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Race Versions</h2>
-<ul>
-    {% for race_version in race_versions %}
-    <li>
-        <a href="{% url 'races:race_version_detail' race_version.pk %}">{{ race_version.race.name }} - Version {{ race_version.version_number }}</a>
-    </li>
-    {% endfor %}
-</ul>
+  <h1>Race Versions</h1>
+
+  {% for race_version in race_versions %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">{{ race_version.race.name }} - Version {{ race_version.version_number }}</h5>
+        <a href="{% url 'races:race_version_detail' race_version.pk %}" class="btn btn-primary">Details</a>
+      </div>
+    </div>
+  {% endfor %}
 {% endblock %}

@@ -61,7 +61,8 @@ class RaceVersionAdmin(admin.ModelAdmin):
     def race_number(self, obj):
         return obj.race.race_number
 
-    list_display = ('id', 'name', 'race_date', 'race_number')
+    list_display = ('id', 'name', 'race_date',
+                    'race_number')
 
 
 models = [Race, Runner, Result, ResultVersion]

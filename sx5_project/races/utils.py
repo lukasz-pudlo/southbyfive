@@ -2,7 +2,7 @@ import pandas as pd
 import random
 from faker import Faker
 
-from races.models import Race, ResultVersion, RaceVersion
+from races.models import Race, ResultVersion, RaceVersion, Result
 from collections import Counter
 
 fake = Faker()
@@ -88,42 +88,51 @@ for race in races:
     writer.close()
 
 
-def create_result_versions(race):
+def create_result_versions(new_race):
     """
     Create a ResultVersion instance for each Result of a Race.
     """
 
-    race_version_number = RaceVersion.objects.filter(race=race).count() + 1
-    race_version = RaceVersion.objects.create(
-        race=race, version_number=race_version_number)
+    total_races = Race.objects.count()
 
-    for result in race.result_set.all():
-        general_points = result.general_position
-        gender_points = result.gender_position
-        category_points = result.category_position
-
+    # Step 1: Create initial RaceVersion and its ResultVersions for the new race
+    race_version = RaceVersion.objects.create(race=new_race, version_number=1)
+    for result in new_race.result_set.all():
         ResultVersion.objects.create(
             result=result,
             race_version=race_version,
-            version=race_version_number,
-            general_points=general_points,
-            gender_points=gender_points,
-            category_points=category_points
+            version=1,
+            general_points=result.general_position,
+            gender_points=result.gender_position,
+            category_points=result.category_position
         )
 
-    total_races = Race.objects.count()
-    if total_races > 2:
-        runner_ids = [result.runner_id for result in race.result_set.all()]
-        runner_participation_counts = Counter(runner_ids)
-        qualifying_runner_ids = [
-            runner_id for runner_id, count in runner_participation_counts.items() if count >= total_races - 1]
+    # If there are only 2 races or less, we stop here
+    if total_races <= 2:
+        return
+
+    # Get runners who have participated in n-1 races
+    all_race_results = Result.objects.all().values('runner_id')
+    runner_participation_counts = Counter(
+        entry['runner_id'] for entry in all_race_results)
+    qualifying_runner_ids = [runner_id for runner_id,
+                             count in runner_participation_counts.items() if count >= total_races - 1]
+
+    # For each existing Race (including the new one), create an additional RaceVersion
+    for race in Race.objects.all():
+        current_version_number = RaceVersion.objects.filter(race=race).count()
+        new_version_number = current_version_number + 1
+        race_version = RaceVersion.objects.create(
+            race=race, version_number=new_version_number)
 
         for runner_id in qualifying_runner_ids:
             result = race.result_set.filter(runner_id=runner_id).first()
             if result:
-                result_version = ResultVersion.objects.get(
-                    result=result, race_version=race_version)
-                result_version.general_points = result.general_position
-                result_version.gender_points = result.gender_position
-                result_version.category_points = result.category_position
-                result_version.save()
+                ResultVersion.objects.create(
+                    result=result,
+                    race_version=race_version,
+                    version=new_version_number,
+                    general_points=result.general_position,
+                    gender_points=result.gender_position,
+                    category_points=result.category_position
+                )

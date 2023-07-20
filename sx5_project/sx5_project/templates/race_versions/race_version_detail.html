@@ -1,27 +1,35 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>{{ race_version.race.name }} - Version {{ race_version.version_number }}</h2>
+  <h1>Race Version Details</h1>
 
-<h3>Results:</h3>
-<table>
-    <thead>
-        <tr>
-            <th>Runner</th>
-            <th>General Points</th>
-            <th>Gender Points</th>
-            <th>Category Points</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for result_version in result_versions %}
-        <tr>
-            <td>{{ result_version.result.runner }}</td>
-            <td>{{ result_version.general_points }}</td>
-            <td>{{ result_version.gender_points }}</td>
-            <td>{{ result_version.category_points }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">{{ race_version.race.name }} - Version {{ race_version.version_number }}</h5>
+
+      <h5>Results</h5>
+      <table class="table">
+          <thead>
+              <tr>
+                  <th scope="col">Runner</th>
+                  <th scope="col">General Points</th>
+                  <th scope="col">Gender Points</th>
+                  <th scope="col">Category Points</th>
+              </tr>
+          </thead>
+          <tbody>
+          {% for result_version in result_versions %}
+              <tr>
+                  <td>{{ result_version.result.runner }}</td>
+                  <td>{{ result_version.general_points }}</td>
+                  <td>{{ result_version.gender_points }}</td>
+                  <td>{{ result_version.category_points }}</td>
+              </tr>
+          {% endfor %}
+          </tbody>
+      </table>
+    </div>
+  </div>
+
+  <a href="{% url 'races:race_version_list' %}" class="btn btn-secondary mt-3">Back to Race Versions</a>
 {% endblock %}
