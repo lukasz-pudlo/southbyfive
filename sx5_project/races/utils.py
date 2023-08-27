@@ -108,7 +108,7 @@ def create_result_versions(new_race):
             category_points=result.category_position
         )
 
-    # If there are only 2 races or less, we stop here
+    # If there are 2 races or less, we stop here
     if total_races <= 2:
         create_classification(new_race)
         return
