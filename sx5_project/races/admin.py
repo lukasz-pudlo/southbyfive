@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from races.models import Race, Runner, Result, ResultVersion, RaceVersion, Classification, ClassificationResult
+from races.models import Race, Runner, Result, Classification, ClassificationResult
+from race_versions.models import ResultVersion, RaceVersion
 from races.forms import ResultForm, RaceForm
 
 

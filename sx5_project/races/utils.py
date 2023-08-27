@@ -2,7 +2,8 @@ import pandas as pd
 import random
 from faker import Faker
 
-from races.models import Race, ResultVersion, RaceVersion, Result, Runner, Classification, ClassificationResult
+from races.models import Race, Result, Runner, Classification, ClassificationResult
+from race_versions.models import ResultVersion, RaceVersion
 from collections import Counter, defaultdict
 
 
@@ -181,46 +182,49 @@ def get_gender_from_category(category):
         raise ValueError(f"Invalid category: {category}")
 
 
+def create_classification_entries(new_race, current_race_version_number):
+    # Create the Classification object
+    classification, _ = Classification.objects.get_or_create(
+        race=new_race,
+        version_number=current_race_version_number
+    )
+
+    # Fetch all race versions up to the current version
+    race_versions = RaceVersion.objects.filter(
+        race=new_race,
+        version_number__lte=current_race_version_number
+    )
+
+    # Fetch only runners that have participated in at least one race
+    runners_with_results = Runner.objects.filter(
+        result__race__in=Race.objects.all()).distinct()
+
+    for runner in runners_with_results:
+        # For each runner, sum up the points from associated result versions
+        result_versions = ResultVersion.objects.filter(
+            result__runner=runner,
+            race_version__in=race_versions
+        )
+
+        total_general_points = sum(rv.general_points for rv in result_versions)
+        total_gender_points = sum(rv.gender_points for rv in result_versions)
+        total_category_points = sum(rv.category_points for rv in result_versions)
+
+        ClassificationResult.objects.update_or_create(
+            runner=runner,
+            classification=classification,
+            defaults={
+                'general_points': total_general_points,
+                'gender_points': total_gender_points,
+                'category_points': total_category_points
+            }
+        )
+
 def create_classification(new_race):
     total_races = Race.objects.count()
 
-    for current_race_version_number in range(1, total_races + 1):
-        # Create the Classification object
-        classification, _ = Classification.objects.get_or_create(
-            race=new_race,
-            version_number=current_race_version_number
-        )
-
-        # Fetch all race versions up to the current version
-        race_versions = RaceVersion.objects.filter(
-            race=new_race,
-            version_number__lte=current_race_version_number
-        )
-
-        # Fetch only runners that have participated in at least one race
-        runners_with_results = Runner.objects.filter(
-            result__race__in=Race.objects.all()).distinct()
-
-        for runner in runners_with_results:
-            # For each runner, sum up the points from associated result versions
-            result_versions = ResultVersion.objects.filter(
-                result__runner=runner,
-                race_version__in=race_versions
-            )
-
-            total_general_points = sum(
-                rv.general_points for rv in result_versions)
-            total_gender_points = sum(
-                rv.gender_points for rv in result_versions)
-            total_category_points = sum(
-                rv.category_points for rv in result_versions)
-
-            ClassificationResult.objects.update_or_create(
-                runner=runner,
-                classification=classification,
-                defaults={
-                    'general_points': total_general_points,
-                    'gender_points': total_gender_points,
-                    'category_points': total_category_points
-                }
-            )
+    if total_races <= 2:
+        create_classification_entries(new_race, 1)
+    else:
+        for current_race_version_number in range(1, total_races + 1):
+            create_classification_entries(new_race, current_race_version_number)

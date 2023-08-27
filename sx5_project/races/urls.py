@@ -1,5 +1,5 @@
 from django.urls import path
-from races.views import RaceListView, RaceDetailView, RaceCreateView, RaceUpdateView, RaceDeleteView, RaceVersionListView, RaceVersionDetailView, ClassificationListView, ClassificationDetailView
+from races.views import RaceListView, RaceDetailView, RaceCreateView, RaceUpdateView, RaceDeleteView, ClassificationListView, ClassificationDetailView
 
 app_name = 'races'
 
@@ -10,9 +10,6 @@ urlpatterns = [
     path('race/<int:pk>/edit/', RaceUpdateView.as_view(), name='edit'),
     path('race/<int:pk>/delete/',
          RaceDeleteView.as_view(), name='delete'),
-    path('race-versions/', RaceVersionListView.as_view(), name='race_version_list'),
-    path('race-versions/<int:pk>/', RaceVersionDetailView.as_view(),
-         name='race_version_detail'),
     path('classifications/', ClassificationListView.as_view(),
          name='classification_list'),
     path('classifications/<int:pk>/', ClassificationDetailView.as_view(),

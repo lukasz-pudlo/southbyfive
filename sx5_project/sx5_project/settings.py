@@ -37,6 +37,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'sx5_project',
     'races',
+    'race_versions',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

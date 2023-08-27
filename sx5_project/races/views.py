@@ -1,18 +1,16 @@
 import os
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-from django.shortcuts import get_list_or_404
 import pandas as pd
 from django.db import transaction
 from typing import Any, Dict
-from django.shortcuts import render
 from django.urls import reverse_lazy
 from pathlib import Path
 from races.utils import create_result_versions
 
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from races.models import Race, Result, Runner, RaceVersion, Classification
+from races.models import Race, Result, Runner, Classification
 
 from races.forms import RaceForm
 
@@ -127,23 +125,6 @@ class RaceDeleteView(DeleteView):
     model = Race
     template_name = 'races/race_confirm_delete.html'
     success_url = reverse_lazy('races:list')
-
-
-class RaceVersionListView(ListView):
-    model = RaceVersion
-    template_name = 'race_versions/race_version_list.html'
-    context_object_name = 'race_versions'
-
-
-class RaceVersionDetailView(DetailView):
-    model = RaceVersion
-    template_name = 'race_versions/race_version_detail.html'
-    context_object_name = 'race_version'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['result_versions'] = self.object.result_versions.all()
-        return context
 
 
 class ClassificationListView(ListView):
