@@ -1,6 +1,7 @@
 import pandas as pd
 import random
 from faker import Faker
+from django.db.models import Max
 
 from races.models import Race, Result, Runner, Classification, ClassificationResult
 from race_versions.models import ResultVersion, RaceVersion
@@ -108,6 +109,12 @@ def create_result_versions(new_race):
 
 
 def create_initial_race_version(new_race):
+    # Check if a RaceVersion with version_number=1 already exists for this race
+    exists = RaceVersion.objects.filter(
+        race=new_race, version_number=1).exists()
+    if exists:
+        return
+
     race_version = RaceVersion.objects.create(race=new_race, version_number=1)
     for result in new_race.result_set.all():
         ResultVersion.objects.create(
@@ -130,9 +137,10 @@ def recalculate_race_versions():
 
     for race in Race.objects.all():
         current_version_number = RaceVersion.objects.filter(
-            race=race).count() + 1
+            race=race).aggregate(Max('version_number'))['version_number__max'] or 0
+        new_version_number = current_version_number + 1
         race_version = RaceVersion.objects.create(
-            race=race, version_number=current_version_number)
+            race=race, version_number=new_version_number)
 
         revised_results = race.result_set.filter(
             runner_id__in=qualifying_runner_ids).all()
@@ -160,15 +168,21 @@ def create_classification(new_race):
     total_races = Race.objects.count()
 
     # Create only one new Classification version based on the total number of races
-    create_classification_entries(new_race, total_races)
+    create_classification_entries(new_race)
 
 
-def create_classification_entries(new_race, current_race_version_number):
+def create_classification_entries(new_race):
+    # Find the highest existing version number among all RaceVersion objects
+    highest_version = RaceVersion.objects.aggregate(Max('version_number'))[
+        'version_number__max'] or 0
+
+    # Create or get the Classification object for this race and version
     classification, _ = Classification.objects.get_or_create(
         race=new_race,
-        version_number=current_race_version_number
+        version_number=highest_version
     )
 
+    # Fetch the latest RaceVersion for each race
     race_versions = RaceVersion.objects.filter(
         race__in=Race.objects.all()
     ).order_by('race', '-version_number')
@@ -182,12 +196,13 @@ def create_classification_entries(new_race, current_race_version_number):
 
     # Fetch only runners that have participated in at least one race
     runners_with_results = Runner.objects.filter(
-        result__race__in=Race.objects.all()).distinct()
+        result__race__in=Race.objects.all()
+    ).distinct()
 
     for runner in runners_with_results:
         result_versions = ResultVersion.objects.filter(
             result__runner=runner,
-            race_version__in=race_versions
+            race_version__in=latest_race_versions
         )
 
         total_general_points = sum(rv.general_points for rv in result_versions)
