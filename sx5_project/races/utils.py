@@ -192,42 +192,32 @@ def create_classification_entries(new_race):
     qualifying_runner_ids = set(
         runner_id for runner_id, count in runner_participation_counts.items() if count >= total_races - 1)
 
-    # Find the highest existing version number among all RaceVersion objects
     highest_version = RaceVersion.objects.aggregate(Max('version_number'))[
         'version_number__max'] or 0
 
-    # Create or get the Classification object for this race and version
     classification, _ = Classification.objects.get_or_create(
-        race=new_race,
-        version_number=highest_version
-    )
+        race=new_race, version_number=highest_version)
 
-    # Fetch the latest RaceVersion for each race
     race_versions = RaceVersion.objects.filter(
-        race__in=Race.objects.all()
-    ).order_by('race', '-version_number')
+        race__in=Race.objects.all()).order_by('race', '-version_number')
+    latest_race_versions = {rv.race_id: rv for rv in race_versions}
 
-    latest_race_versions = {}
-    for rv in race_versions:
-        if rv.race_id not in latest_race_versions:
-            latest_race_versions[rv.race_id] = rv
-
-    latest_race_versions = latest_race_versions.values()
-
-    # Fetch only runners that have participated in at least n-1 races
     runners_with_results = Runner.objects.filter(
-        result__race__in=Race.objects.all(),
-        id__in=qualifying_runner_ids
-    ).distinct()
+        id__in=qualifying_runner_ids).distinct()
 
     for runner in runners_with_results:
         print(
             f"Debug: Creating ClassificationResult for runner id: {runner.id}")
 
-        result_versions = ResultVersion.objects.filter(
+        result_versions = list(ResultVersion.objects.filter(
             result__runner=runner,
-            race_version__in=latest_race_versions
-        )
+            race_version__in=latest_race_versions.values()
+        ))
+
+        # If the runner has participated in all n races, consider only the best n-1 results
+        if len(result_versions) == total_races:
+            result_versions = sorted(
+                result_versions, key=lambda x: x.general_points)[:-1]
 
         total_general_points = sum(rv.general_points for rv in result_versions)
         total_gender_points = sum(rv.gender_points for rv in result_versions)
