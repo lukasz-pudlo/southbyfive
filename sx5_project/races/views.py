@@ -38,6 +38,7 @@ class RaceCreateView(CreateView):
 
     @transaction.atomic
     def form_valid(self, form):
+        print("Debug: form_valid in RaceCreateView is being called.")
         race = form.save(commit=False)
 
         race_count = Race.objects.count()
@@ -46,7 +47,10 @@ class RaceCreateView(CreateView):
 
         race.save()
 
+        print(f"Debug: Race object ID after save: {race.id}")
+
         self.object = race
+        print(f"Debug: self.object ID after assignment: {self.object.id}")
 
         if self.request.FILES:
             excel_file = self.request.FILES['race_file']
@@ -82,11 +86,17 @@ class RaceCreateView(CreateView):
 
             # Save all results at once
             Result.objects.bulk_create(results)
+            print(f"Debug: Number of results saved: {len(results)}")
 
             # Refresh results from db
             results = list(self.object.result_set.all())
 
             self.object.calculate_positions()
+
+            # Now that all Result objects have been saved, call create_result_versions
+            print(
+                f"Debug: Race object ID before create_result_versions: {self.object.id}")
+
             create_result_versions(self.object)
 
         return super().form_valid(form)

@@ -91,40 +91,51 @@ def generate_test_results():
 
 
 def create_result_versions(new_race):
-    total_races = Race.objects.count()
+    # Update Result positions for the new_race
+    new_race.calculate_positions()
 
     # Create initial RaceVersion and its ResultVersions for the new race
     create_initial_race_version(new_race)
 
-    # Stop here for 1st and 2nd races
-    if total_races <= 2:
-        create_classification(new_race)
-        return
+    total_races = Race.objects.count()
 
-    # Perform recalculation for 3rd race onwards
-    recalculate_race_versions()
+    # When we have more than two races, we need to recalculate versions
+    if total_races > 2:
+        recalculate_race_versions()
 
-    # Update Classification
+    # Create or update the Classification
     create_classification(new_race)
 
 
 def create_initial_race_version(new_race):
-    # Check if a RaceVersion with version_number=1 already exists for this race
-    exists = RaceVersion.objects.filter(
-        race=new_race, version_number=1).exists()
-    if exists:
-        return
+    print(f"Debug: In create_initial_race_version, race id: {new_race.id}")
 
-    race_version = RaceVersion.objects.create(race=new_race, version_number=1)
-    for result in new_race.result_set.all():
-        ResultVersion.objects.create(
-            result=result,
-            race_version=race_version,
-            version=1,
-            general_points=result.general_position,
-            gender_points=result.gender_position,
-            category_points=result.category_position
-        )
+    initial_exists = RaceVersion.objects.filter(
+        race=new_race, version_number=1).exists()
+    print(f"Debug: Initial version exists: {initial_exists}")
+
+    if not initial_exists:
+        print("Debug: Creating new RaceVersion object")
+        race_version = RaceVersion.objects.create(
+            race=new_race, version_number=1)
+
+        for result in new_race.result_set.all():
+            print(f"Debug: Creating ResultVersion for result id: {result.id}")
+            ResultVersion.objects.create(
+                result=result,
+                race_version=race_version,
+                version=1,
+                general_points=result.general_position,
+                gender_points=result.gender_position,
+                category_points=result.category_position
+            )
+
+
+def create_classification(new_race):
+    total_races = Race.objects.count()
+    classification, _ = Classification.objects.get_or_create(
+        race=new_race, version_number=total_races)
+    create_classification_entries(new_race, classification)
 
 
 def recalculate_race_versions():
@@ -136,8 +147,8 @@ def recalculate_race_versions():
                              count in runner_participation_counts.items() if count >= total_races - 1]
 
     for race in Race.objects.all():
-        current_version_number = RaceVersion.objects.filter(
-            race=race).aggregate(Max('version_number'))['version_number__max'] or 0
+        current_version_number = RaceVersion.objects.filter(race=race).aggregate(
+            Max('version_number'))['version_number__max'] or 0
         new_version_number = current_version_number + 1
         race_version = RaceVersion.objects.create(
             race=race, version_number=new_version_number)
@@ -155,7 +166,7 @@ def recalculate_race_versions():
             ResultVersion.objects.create(
                 result=result,
                 race_version=race_version,
-                version=current_version_number,
+                version=new_version_number,  # This should be new_version_number
                 general_points=general_positions.get(runner_id, 0),
                 gender_points=gender_positions_mapping.get(
                     runner_id, {}).get(gender, 0),
@@ -172,6 +183,15 @@ def create_classification(new_race):
 
 
 def create_classification_entries(new_race):
+    total_races = Race.objects.count()
+
+    # Determine qualifying runners
+    all_race_results = Result.objects.all().values('runner_id')
+    runner_participation_counts = Counter(
+        entry['runner_id'] for entry in all_race_results)
+    qualifying_runner_ids = set(
+        runner_id for runner_id, count in runner_participation_counts.items() if count >= total_races - 1)
+
     # Find the highest existing version number among all RaceVersion objects
     highest_version = RaceVersion.objects.aggregate(Max('version_number'))[
         'version_number__max'] or 0
@@ -194,12 +214,16 @@ def create_classification_entries(new_race):
 
     latest_race_versions = latest_race_versions.values()
 
-    # Fetch only runners that have participated in at least one race
+    # Fetch only runners that have participated in at least n-1 races
     runners_with_results = Runner.objects.filter(
-        result__race__in=Race.objects.all()
+        result__race__in=Race.objects.all(),
+        id__in=qualifying_runner_ids
     ).distinct()
 
     for runner in runners_with_results:
+        print(
+            f"Debug: Creating ClassificationResult for runner id: {runner.id}")
+
         result_versions = ResultVersion.objects.filter(
             result__runner=runner,
             race_version__in=latest_race_versions
