@@ -1,11 +1,11 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, re_path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('races/', include(('races.urls', 'races'), namespace='races')),
+    re_path(r'^races/?', include(('races.urls', 'races'), namespace='races')),
     path('race-versions/', include(('race_versions.urls',
          'race-versions'),  namespace='race-versions')),
     path('accounts/', include('django.contrib.auth.urls')),
