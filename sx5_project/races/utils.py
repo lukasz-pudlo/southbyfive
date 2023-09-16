@@ -3,8 +3,9 @@ import random
 from faker import Faker
 from django.db.models import Max
 
-from races.models import Race, Result, Runner, Classification, ClassificationResult
+from races.models import Race, Result, Runner
 from race_versions.models import ResultVersion, RaceVersion
+from classifications.models import Classification, ClassificationResult
 from collections import Counter, defaultdict
 
 

@@ -10,7 +10,7 @@ from races.utils import create_result_versions
 
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from races.models import Race, Result, Runner, Classification
+from races.models import Race, Result, Runner
 
 from races.forms import RaceForm
 
@@ -135,20 +135,3 @@ class RaceDeleteView(DeleteView):
     model = Race
     template_name = 'races/race_confirm_delete.html'
     success_url = reverse_lazy('races:list')
-
-
-class ClassificationListView(ListView):
-    model = Classification
-    template_name = "classifications/classification_list.html"
-    context_object_name = 'classifications'
-
-
-class ClassificationDetailView(DetailView):
-    model = Classification
-    template_name = "classifications/classification_detail.html"
-    context_object_name = 'classification'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['results'] = self.object.classification_results.all()
-        return context

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'sx5_project',
     'races',
     'race_versions',
+    'classifications',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
