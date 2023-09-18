@@ -7,7 +7,7 @@
     <div class="card mb-3">
       <div class="card-body">
         <h5 class="card-title">{{ classification.race.name }} - Version {{ classification.version_number }}</h5>
-        <a href="{% url 'races:classification_detail' classification.pk %}" class="btn btn-primary">Details</a>
+        <a href="{% url 'classifications:classification_detail' classification.pk %}" class="btn btn-primary">Details</a>
       </div>
     </div>
   {% endfor %}
