@@ -5,7 +5,7 @@ app_name = 'classifications'
 
 urlpatterns = [
     path('', ClassificationListView.as_view(),
-         name='classification_list'),
+         name='list'),
     path('classification/<int:pk>/', ClassificationDetailView.as_view(),
-         name='classification_detail')
+         name='detail')
 ]
