@@ -105,7 +105,7 @@ def create_result_versions(new_race):
         recalculate_race_versions()
 
     # Create or update the Classification
-    create_classification(new_race)
+    create_classification_entries(new_race)
 
 
 def create_initial_race_version(new_race):
@@ -130,13 +130,6 @@ def create_initial_race_version(new_race):
                 gender_points=result.gender_position,
                 category_points=result.category_position
             )
-
-
-def create_classification(new_race):
-    total_races = Race.objects.count()
-    classification, _ = Classification.objects.get_or_create(
-        race=new_race, version_number=total_races)
-    create_classification_entries(new_race, classification)
 
 
 def recalculate_race_versions():
@@ -176,11 +169,11 @@ def recalculate_race_versions():
             )
 
 
-def create_classification(new_race):
-    total_races = Race.objects.count()
+# def create_classification(new_race):
+#     total_races = Race.objects.count()
 
-    # Create only one new Classification version based on the total number of races
-    create_classification_entries(new_race)
+#     # Create only one new Classification version based on the total number of races
+#     create_classification_entries(new_race)
 
 
 def create_classification_entries(new_race):
