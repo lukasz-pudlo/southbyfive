@@ -12,7 +12,7 @@ class Classification(models.Model):
         ordering = ['race', 'version_number']
 
     def __str__(self):
-        return f"Classification Version {self.version_number} of {self.race.name}"
+        return f"Classification after {self.race.name}"
 
 
 class ClassificationResult(models.Model):
