@@ -1,13 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Classification Details</h1>
-
   <div class="card">
     <div class="card-body">
-      <h5 class="card-title">{{ classification.race.name }} - Version {{ classification.version_number }}</h5>
-
-      <h5>Results</h5>
+      <h5 class="card-title">Classification after {{ classification.race.name }}</h5>
       <table class="table">
           <thead>
               <tr>
@@ -31,5 +27,5 @@
     </div>
   </div>
 
-  <a href="{% url 'classifications:classification_list' %}" class="btn btn-secondary mt-3">Back to Classifications</a>
+  <a href="{% url 'classifications:list' %}" class="btn btn-secondary mt-3">Back to Classifications</a>
 {% endblock %}
