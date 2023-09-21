@@ -6,12 +6,12 @@ from classifications.models import Classification, ClassificationResult
 class ClassificationAdmin(admin.ModelAdmin):
 
     # Define methods to fetch attributes from the related Race instance
-    def race_name(self, obj):
-        return obj.race.name
+    def classification_name(self, obj):
+        return f"Classification after {obj.race.name}"
 
     # Adjust the list_display and other attributes
-    list_display = ('id', 'race_name', 'version_number')
-    readonly_fields = ('race_name', )
+    list_display = ('id', 'classification_name')
+    readonly_fields = ('classification_name', )
     ordering = ['race', 'version_number']
 
     def get_queryset(self, request):
@@ -25,7 +25,7 @@ class ClassificationResultAdmin(admin.ModelAdmin):
         return obj.runner.first_name + " " + obj.runner.last_name
 
     def classification_version(self, obj):
-        return f"Version {obj.classification.version_number} of {obj.classification.race.name}"
+        return f"Classification after {obj.classification.race.name}"
 
     # Adjust the list_display and other attributes
     list_display = ('id', 'runner_name', 'classification_version',
