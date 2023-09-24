@@ -7,6 +7,7 @@ from typing import Any, Dict
 from django.urls import reverse_lazy
 from pathlib import Path
 from races.utils import create_result_versions
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -31,7 +32,7 @@ class RaceDetailView(DetailView):
         return context
 
 
-class RaceCreateView(CreateView):
+class RaceCreateView(LoginRequiredMixin, CreateView):
     model = Race
     template_name = 'races/race_form.html'
     form_class = RaceForm
@@ -102,7 +103,7 @@ class RaceCreateView(CreateView):
         return super().form_valid(form)
 
 
-class RaceUpdateView(UpdateView):
+class RaceUpdateView(LoginRequiredMixin, UpdateView):
     model = Race
     template_name = 'races/race_form.html'
     fields = ['name', 'description', 'race_date', 'race_file']
