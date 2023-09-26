@@ -26,6 +26,7 @@ ENV.bak/
 .env
 db.sqlite3
 media
+requirements.txt
 
 # React / Node.js
 node_modules/
