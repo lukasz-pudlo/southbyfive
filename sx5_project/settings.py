@@ -137,13 +137,6 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOCATION_FIELD = {
-    'provider.google.api': '//maps.google.com/maps/api/js',
-    'provider.google.api_key': os.getenv("GOOGLE_MAPS_API_KEY"),
-    'provider.google.api_libraries': '',
-    'provider.google.map.type': 'ROADMAP',
-}
-
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 LOGIN_REDIRECT_URL = '/races'

@@ -29,3 +29,11 @@ This document outlines the specific requirements for a series of races, with a f
 4. **Automatic Recalculation**: This process of recalculating points and adjusting runner participation requirements should happen automatically each time a new race is added.
 
 5. **Data Integrity**: We want to keep the original results of each race intact. The updated points calculations and adjustments to runner participation requirements should be stored in a way that does not modify the original `Race`, `Runner`, and `Result` models.
+
+6. **Configuration**: After cloning the repository, add a .env file with the following configuration:
+   - DJANGO_SECRET_KEY
+   - POSTGRES_DB
+   - POSTGRES_USER
+   - POSTGRES_PASSWORD
+
+   Run pipenv install, pipenv shell, docker compose up -d, navigate to sx5_project and run python manage.py runserver. 
