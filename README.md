@@ -37,3 +37,9 @@ This document outlines the specific requirements for a series of races, with a f
    - POSTGRES_PASSWORD
 
    Run pipenv install, pipenv shell, docker compose up -d, navigate to sx5_project and run python manage.py runserver. 
+
+   docker compose build
+   docker compose up -d
+   docker compose exec web python manage.py migrate
+   docker-compose exec web python manage.py createsuperuser
+

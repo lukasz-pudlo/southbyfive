@@ -53,3 +53,4 @@ pgdata
 
 # Ignore Django migration files
 */migrations/*
+

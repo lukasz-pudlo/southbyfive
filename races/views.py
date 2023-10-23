@@ -1,6 +1,7 @@
 import os
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
+from django.core.files.uploadedfile import InMemoryUploadedFile
+
 import pandas as pd
 from django.db import transaction
 from typing import Any, Dict
@@ -8,6 +9,8 @@ from django.urls import reverse_lazy
 from pathlib import Path
 from races.utils import create_result_versions
 from django.contrib.auth.mixins import LoginRequiredMixin
+
+
 
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -55,35 +58,30 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
 
         if self.request.FILES:
             excel_file = self.request.FILES['race_file']
-            fs = FileSystemStorage()
-            filename = fs.save(excel_file.name, excel_file)
-            uploaded_file_url = fs.url(filename)
+            if isinstance(excel_file, InMemoryUploadedFile):
+                df = pd.read_excel(excel_file)
 
-            uploaded_file_path = os.path.join(settings.MEDIA_ROOT, filename)
+                results = []
+                for index, row in df.iterrows():
+                    first_name = row['First Name']
+                    middle_name = row['Middle Name']
+                    last_name = row['Last Name']
+                    category = row['Category']
+                    time = pd.to_timedelta(row['Time'])
 
-            df = pd.read_excel(uploaded_file_path)
+                    runner, created = Runner.objects.get_or_create(
+                        first_name=first_name,
+                        middle_name=middle_name,
+                        last_name=last_name,
+                        category=category
+                    )
 
-            results = []
-            for index, row in df.iterrows():
-                first_name = row['First Name']
-                middle_name = row['Middle Name']
-                last_name = row['Last Name']
-                category = row['Category']
-                time = pd.to_timedelta(row['Time'])
-
-                runner, created = Runner.objects.get_or_create(
-                    first_name=first_name,
-                    middle_name=middle_name,
-                    last_name=last_name,
-                    category=category
-                )
-
-                result = Result(
-                    race=self.object,
-                    runner=runner,
-                    time=time
-                )
-                results.append(result)
+                    result = Result(
+                        race=self.object,
+                        runner=runner,
+                        time=time
+                    )
+                    results.append(result)
 
             # Save all results at once
             Result.objects.bulk_create(results)
