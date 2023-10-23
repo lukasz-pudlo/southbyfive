@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'bootstrap5',
     'location_field.apps.DefaultConfig',
     'django_extensions',
+    'storages',
 ]
 
 MIDDLEWARE = [
