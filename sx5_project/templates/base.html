@@ -1,3 +1,4 @@
+{% load static %}
 {% load bootstrap5 %}
 
 <!DOCTYPE html>
@@ -5,7 +6,7 @@
     <head>
         <title>South by Five Races</title>
         {% bootstrap_css %}
-        <link rel="stylesheet" href="/static/css/minty.css">
+        <link rel="stylesheet" href="{% static 'css/minty.css' %}">
         {% bootstrap_javascript %}
         {% block extra_css %}
         {% endblock %}
