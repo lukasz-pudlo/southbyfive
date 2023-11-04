@@ -1,45 +1,30 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Race Details</h1>
-
-  <div class="card">
+<div class="card">
     <div class="card-body">
-      <h5 class="card-title">{{ race.name }}</h5>
-      <p class="card-text">{{ race.description }}</p>
+        <h5 class="card-title">{{ race.name }}</h5>
+        <p class="card-text">{{ race.description }}</p>
 
-      <h5>Results</h5>
-      <table class="table">
-          <thead>
-              <tr>
-                  <th scope="col">Name</th>
-                  <th scope="col">Result</th>
-                  <th scope="col">Category</th>
-                  <th scope="col">General Position</th>
-                  <th scope="col">Gender Position</th>
-                  <th scope="col">Category Position</th>
-              </tr>
-          </thead>
-          <tbody>
-          {% for result in results %}
-              <tr>
-                  <td>{{ result.runner }}</td>
-                  <td>{{ result.time }}</td>
-                  <td>{{ result.runner.category }}</td>
-                  <td>{{ result.general_position }}</td>
-                  <td>{{ result.gender_position }}</td>
-                  <td>{{ result.category_position }}</td>
-              </tr>
-          {% endfor %}
-          </tbody>
-      </table>
 
-      <a href="{% url 'races:edit' race.id %}" class="btn btn-primary">Edit</a>
-      <a href="{% url 'races:delete' race.id %}" class="btn btn-danger">Delete</a>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="race-results-tab" data-bs-toggle="tab" href="#race-results" role="tab" aria-controls="race-results" aria-selected="true">Race Results</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="classification-results-tab" data-bs-toggle="tab" href="#classification-results" role="tab" aria-controls="classification-results" aria-selected="false">Classification Results</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="race-results" role="tabpanel" aria-labelledby="race-results-tab">
+                {% include 'races/race_results.html' %}
+            </div>
+            <div class="tab-pane fade" id="classification-results" role="tabpanel" aria-labelledby="classification-results-tab">
+                {% include 'classifications/classification_results.html' %}
+            </div>
+        </div>
     </div>
-  </div>
+</div>
 
-  <a href="{% url 'races:list' %}" class="btn btn-secondary mt-3">Back to Races</a>
-
-  
 {% endblock %}

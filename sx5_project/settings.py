@@ -61,6 +61,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CSRF_TRUSTED_ORIGINS = ['https://southbyfive.run']
+
+
 ROOT_URLCONF = 'sx5_project.urls'
 APPEND_SLASH = True
 
@@ -75,6 +78,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'races.context_processors.race_list',
             ],
         },
     },

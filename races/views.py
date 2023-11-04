@@ -9,6 +9,7 @@ from django.urls import reverse_lazy
 from pathlib import Path
 from races.utils import create_result_versions
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect
 
 
 
@@ -17,12 +18,25 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from races.models import Race, Result, Runner
 
 from races.forms import RaceForm
+from classifications.models import ClassificationResult
+
+def home(request):
+    first_race = Race.objects.last()
+    if first_race is not None:
+        return redirect('races:detail', first_race.id)
+    else:
+        return redirect('races:list')
 
 
 class RaceListView(ListView):
     model = Race
     template_name = 'races/race_list.html'
     context_object_name = 'races'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['races'] = Race.objects.all()
+        return context
 
 
 class RaceDetailView(DetailView):
@@ -31,8 +45,15 @@ class RaceDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['results'] = self.object.result_set.all()
+        race = self.object
+        context['results'] = race.result_set.all()
+        context['classification_results'] = ClassificationResult.objects.filter(
+            classification__race=race
+        )
         return context
+
+
+
 
 
 class RaceCreateView(LoginRequiredMixin, CreateView):
@@ -64,16 +85,16 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
                 results = []
                 for index, row in df.iterrows():
                     first_name = row['First Name']
-                    middle_name = row['Middle Name']
                     last_name = row['Last Name']
                     category = row['Category']
+                    club = row['Club'] or 'Unattached'
                     time = pd.to_timedelta(row['Time'])
 
                     runner, created = Runner.objects.get_or_create(
                         first_name=first_name,
-                        middle_name=middle_name,
                         last_name=last_name,
-                        category=category
+                        category=category,
+                        club=club
                     )
 
                     result = Result(
@@ -117,9 +138,9 @@ class RaceUpdateView(LoginRequiredMixin, UpdateView):
             # Get the new data from the file
             data = pd.read_excel(self.object.race_file.path)
             for i, row in data.iterrows():
-                first_name, middle_name, last_name, category, time = row
+                first_name, last_name, category, club, time = row
                 runner, _ = Runner.objects.get_or_create(
-                    first_name=first_name, middle_name=middle_name, last_name=last_name, category=category)
+                    first_name=first_name, last_name=last_name, category=category, club=club)
                 Result.objects.get_or_create(
                     race=self.object, runner=runner, time=pd.to_timedelta(time))
 

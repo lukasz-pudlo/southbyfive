@@ -1,6 +1,5 @@
 from django import forms
 from .models import Race, Result
-from location_field.forms.plain import PlainLocationField
 from datetime import timedelta
 
 

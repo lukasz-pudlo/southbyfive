@@ -1,0 +1,42 @@
+.nav-link-lg {
+    font-size: 1.2rem;
+}
+
+.navbar {
+    background-color: #78c2ad !important;
+}
+
+.navbar-nav .nav-item .nav-link.active {
+    background-color: #66a894 !important;
+    /* Slightly darker shade of #78c2ad */
+    border-radius: 0.25rem !important;
+    /* Optional: adds rounded corners to the active nav-link */
+}
+
+
+/* Default padding for larger screens */
+.container {
+    padding-top: 2em;
+}
+
+/* Reduce padding for medium screens */
+@media (max-width: 768px) {
+    .container {
+        padding-top: 1.5em;
+    }
+}
+
+/* Reduce padding for small screens */
+@media (max-width: 576px) {
+    .container {
+        padding-top: 1em;
+    }
+}
+
+
+/* Media Query for Mobile Devices */
+@media (max-width: 767px) {
+    .nav-link-lg {
+        font-size: 1rem;
+    }
+}

@@ -67,13 +67,13 @@ class Runner(models.Model):
     ]
 
     first_name = models.CharField(max_length=255)
-    middle_name = models.CharField(max_length=255, blank=True, null=True)
     last_name = models.CharField(max_length=255)
     category = models.CharField(
         max_length=3, choices=RUNNER_CATEGORIES, null=True)
+    club = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        name_parts = [self.first_name, self.middle_name, self.last_name]
+        name_parts = [self.first_name, self.last_name]
         return ' '.join(part for part in name_parts if part)
 
 
@@ -86,6 +86,7 @@ class Result(models.Model):
     general_position = models.PositiveIntegerField(null=True, blank=True)
     gender_position = models.PositiveIntegerField(null=True, blank=True)
     category_position = models.PositiveIntegerField(null=True, blank=True)
+    club_position = models.PositiveIntegerField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.runner} result for {self.race}'

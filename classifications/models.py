@@ -23,6 +23,7 @@ class ClassificationResult(models.Model):
     general_points = models.PositiveIntegerField(null=True, blank=True)
     gender_points = models.PositiveIntegerField(null=True, blank=True)
     category_points = models.PositiveIntegerField(null=True, blank=True)
+    club_points =models.PositiveIntegerField(null=True, blank=True)
 
     class Meta:
         ordering = ['general_points']

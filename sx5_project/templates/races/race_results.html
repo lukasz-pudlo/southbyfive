@@ -1,0 +1,28 @@
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Result</th>
+                <th scope="col">Category</th>
+                <th scope="col">General Position</th>
+                <th scope="col">Gender Position</th>
+                <th scope="col">Category Position</th>
+                <th scope="col">Club</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for result in results %}
+            <tr>
+                <td>{{ result.runner }}</td>
+                <td>{{ result.time }}</td>
+                <td>{{ result.runner.category }}</td>
+                <td>{{ result.general_position }}</td>
+                <td>{{ result.gender_position }}</td>
+                <td>{{ result.category_position }}</td>
+                <td>{{ result.runner.club }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
