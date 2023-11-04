@@ -14,11 +14,12 @@ def generate_test_results():
 
     # Categories for runners with corresponding base times (in minutes)
     categories = {
-        'MS': (15, 20), 'FS': (16, 21),
-        'M40': (18, 23), 'F40': (19, 24),
-        'M50': (20, 25), 'F50': (21, 26),
-        'M60': (25, 30), 'F60': (26, 31),
-        'M70': (30, 35), 'F70': (31, 36)
+        'MS': (15, 20), 'FS': (16, 21), 'NBS': (15, 20),
+        'M40': (18, 23), 'F40': (19, 24), 'NB40': (19, 24),
+        'M50': (20, 25), 'F50': (21, 26), 'NB50': (21, 26),
+        'M60': (25, 30), 'F60': (26, 31), 'NB60': (26, 31),
+        'M70': (30, 35), 'F70': (31, 36), 'NB70': (31, 36),
+        'M80': (35, 40), 'F80': (37, 42), 'NB80': (45, 50),
     }
 
     races = ['kings', 'linn', 'rouken', 'pollok', 'bellahouston', 'queens']
@@ -32,14 +33,21 @@ def generate_test_results():
 
     # Generate data for runners
     runners = {}
-    for _ in range(100):
+    # Generate a list of fake clubs
+    clubs = [fake.company() for _ in range(10)]
+
+    for i in range(100):
         first_name = fake.first_name()
-        middle_name = fake.first_name()
         last_name = fake.last_name()
+        participant_number = str(i+1)
         category, base_time = random.choice(list(categories.items()))
+
+        # 85% chance to assign a club, 15% to leave it empty
+        club = random.choice(clubs) if random.random() < 0.85 else ""
+
         # Store each runner's category and base time
         time = generate_time(base_time)
-        runners[(first_name, middle_name, last_name, category)] = time
+        runners[(first_name, last_name, participant_number, category, club)] = time
 
     # 65% of participants will take part in all races
     all_races_runners = random.sample(list(runners.keys()), 65)
@@ -68,7 +76,7 @@ def generate_test_results():
 
         # Convert data to DataFrame
         df = pd.DataFrame(
-            data, columns=['First Name', 'Middle Name', 'Last Name', 'Category', 'Time'])
+            data, columns=['First Name', 'Last Name', 'Participant Number', 'Category', 'Club', 'Time'])
 
         # Define text format for Excel
         writer = pd.ExcelWriter(f'{race}.xlsx', engine='xlsxwriter')
@@ -85,7 +93,7 @@ def generate_test_results():
         cell_format.set_num_format('@')
 
         # Apply cell format to range of data
-        worksheet.set_column('A:E', None, cell_format)
+        worksheet.set_column('A:F', None, cell_format)
 
         # Save the Excel file
         writer.close()
@@ -274,5 +282,7 @@ def get_gender_from_category(category):
         return 'Female'
     elif category.startswith('M'):
         return 'Male'
+    elif category.startswith('N'):
+        return 'Non-binary'
     else:
         raise ValueError(f"Invalid category: {category}")

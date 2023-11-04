@@ -18,7 +18,8 @@ class RaceAdmin(admin.ModelAdmin):
 
 
 class RunnerAdmin(admin.ModelAdmin):
-    list_display = ('id', 'first_name', 'last_name', 'club', 'category')
+    list_display = ('id', 'first_name', 'last_name',
+                    'participant_number', 'club', 'category')
 
 
 class ResultVersionAdmin(admin.ModelAdmin):

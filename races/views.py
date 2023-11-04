@@ -3,6 +3,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 import pandas as pd
+from pandas import isnull
 from django.db import transaction
 from typing import Any, Dict
 from django.urls import reverse_lazy
@@ -12,13 +13,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 
 
-
-
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from races.models import Race, Result, Runner
 
 from races.forms import RaceForm
 from classifications.models import ClassificationResult
+
 
 def home(request):
     first_race = Race.objects.last()
@@ -46,14 +46,11 @@ class RaceDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         race = self.object
-        context['results'] = race.result_set.all()
+        context['results'] = race.result_set.select_related('runner').all()
         context['classification_results'] = ClassificationResult.objects.filter(
             classification__race=race
-        )
+        ).select_related('runner', 'classification')
         return context
-
-
-
 
 
 class RaceCreateView(LoginRequiredMixin, CreateView):
@@ -86,13 +83,16 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
                 for index, row in df.iterrows():
                     first_name = row['First Name']
                     last_name = row['Last Name']
+                    participant_number = row['Participant Number']
                     category = row['Category']
-                    club = row['Club'] or 'Unattached'
+                    club = row['Club'] if not isnull(
+                        row['Club']) else 'Unattached'
                     time = pd.to_timedelta(row['Time'])
 
                     runner, created = Runner.objects.get_or_create(
                         first_name=first_name,
                         last_name=last_name,
+                        participant_number=participant_number,
                         category=category,
                         club=club
                     )
@@ -155,3 +155,7 @@ class RaceDeleteView(DeleteView):
     model = Race
     template_name = 'races/race_confirm_delete.html'
     success_url = reverse_lazy('races:list')
+
+
+def custom_404(request, exception):
+    return redirect('home')
