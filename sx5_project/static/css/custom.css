@@ -15,7 +15,7 @@
 }
 
 .navbar-nav .nav-item .nav-link.active {
-    background-color: #66a894 !important;
+    background-color: #df1f1e !important;
     /* Slightly darker shade of #78c2ad */
     border-radius: 0.25rem !important;
     /* Optional: adds rounded corners to the active nav-link */
@@ -31,6 +31,71 @@
     vertical-align: middle !important;
     text-align: center !important;
 }
+
+/* Define a class for each park's active state with the desired background color */
+.park-active-red {
+    background-color: #df1f1e !important;
+}
+
+.park-active-orange {
+    background-color: #eda51f !important;
+}
+
+.park-active-yellow {
+    background-color: #ece020 !important;
+}
+
+.park-active-green {
+    background-color: #49ad3c !important;
+}
+
+.park-active-blue {
+    background-color: #418fcf !important;
+}
+
+.park-active-purple {
+    background-color: #68267e !important;
+}
+
+
+.navbar-toggler {
+    background-image: linear-gradient(to bottom,
+            #df1f1e 0%,
+            /* Red */
+            #df1f1e 16.666%,
+            /* Red */
+            #eda51f 16.666%,
+            /* Orange */
+            #eda51f 33.333%,
+            /* Orange */
+            #ece020 33.333%,
+            /* Yellow */
+            #ece020 50%,
+            /* Yellow */
+            #49ad3c 50%,
+            /* Green */
+            #49ad3c 66.666%,
+            /* Green */
+            #418fcf 66.666%,
+            /* Blue */
+            #418fcf 83.333%,
+            /* Blue */
+            #68267e 83.333%,
+            /* Purple */
+            #68267e 100%) !important;
+    /* Purple */
+    color: #fff !important;
+    /* Ensure the color of the toggler icon is white */
+    border: none !important;
+    /* Remove any border */
+    outline: none !important;
+    /* Remove any outline */
+    box-shadow: none !important;
+    /* Remove any box shadow */
+    margin-bottom: 2vh;
+}
+
+
 
 /* Reduce padding for medium screens */
 @media (max-width: 768px) {
