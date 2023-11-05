@@ -3,7 +3,15 @@
 }
 
 .navbar {
-    background-color: #78c2ad !important;
+    background-color: black !important;
+}
+
+.navbar-light .navbar-brand {
+    color: white !important;
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: white !important;
 }
 
 .navbar-nav .nav-item .nav-link.active {
@@ -17,6 +25,11 @@
 /* Default padding for larger screens */
 .container {
     padding-top: 2em;
+}
+
+.align-middle {
+    vertical-align: middle !important;
+    text-align: center !important;
 }
 
 /* Reduce padding for medium screens */
