@@ -3,11 +3,20 @@
 }
 
 .navbar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
     background-color: black !important;
 }
 
+.navbar-brand,
+.navbar-toggler {
+    margin-top: auto !important;
+    margin-bottom: auto !important;
+}
+
 .navbar-light .navbar-brand {
-    color: white !important;
+    font-size: 1.8rem;
 }
 
 .navbar-light .navbar-nav .nav-link {
@@ -50,10 +59,9 @@
 }
 
 .nav-item .nav-link {
-    color: black !important
+    color: black !important;
 }
 
-/* Define classes for each park color */
 .kings-park-color {
     background-color: #df1f1e !important;
 }
@@ -79,16 +87,26 @@
     background-color: #68267e !important;
 }
 
-.nav-item .nav-link.queens-park-color .nav-link.active {
+.nav-item .nav-link.active.kings-park-color {
     color: white !important;
 }
 
+.nav-item .nav-link.active.linn-park-color {
+    color: white !important;
+}
 
+.nav-item .nav-link.active.pollok-park-color {
+    color: white !important;
+}
 
+.nav-item .nav-link.active.bellahouston-park-color {
+    color: white !important;
+}
 
+.nav-item .nav-link.active.queens-park-color {
+    color: white !important;
+}
 
-
-/* Default padding for larger screens */
 .container {
     padding-top: 2em;
 }
@@ -98,64 +116,61 @@
     text-align: center !important;
 }
 
-
 .navbar-toggler {
     background-image: linear-gradient(to bottom,
             #df1f1e 0%,
-            /* Red */
             #df1f1e 16.666%,
-            /* Red */
             #eda51f 16.666%,
-            /* Orange */
             #eda51f 33.333%,
-            /* Orange */
             #ece020 33.333%,
-            /* Yellow */
             #ece020 50%,
-            /* Yellow */
             #49ad3c 50%,
-            /* Green */
             #49ad3c 66.666%,
-            /* Green */
             #418fcf 66.666%,
-            /* Blue */
             #418fcf 83.333%,
-            /* Blue */
             #68267e 83.333%,
-            /* Purple */
             #68267e 100%) !important;
-    /* Purple */
     color: #fff !important;
-    /* Ensure the color of the toggler icon is white */
     border: none !important;
-    /* Remove any border */
     outline: none !important;
-    /* Remove any outline */
     box-shadow: none !important;
-    /* Remove any box shadow */
     margin-bottom: 2vh;
 }
 
-
-
-/* Reduce padding for medium screens */
-@media (max-width: 768px) {
-    .container {
-        padding-top: 1.5em;
-    }
-}
-
-/* Reduce padding for small screens */
-@media (max-width: 576px) {
-    .container {
-        padding-top: 1em;
-    }
-}
-
-
-/* Media Query for Mobile Devices */
 @media (max-width: 767px) {
     .nav-link-lg {
         font-size: 1rem;
+    }
+
+    .navbar-light .navbar-brand {
+        color: white !important;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .navbar-light .navbar-brand {
+        color: white !important;
+        /* Visibility fix for tablet devices */
+    }
+}
+
+@media (min-width: 992px) {
+    .navbar-brand {
+        background-image: linear-gradient(to bottom,
+                #df1f1e 0%,
+                #df1f1e 16.666%,
+                #eda51f 16.666%,
+                #eda51f 33.333%,
+                #ece020 33.333%,
+                #ece020 50%,
+                #49ad3c 50%,
+                #49ad3c 66.666%,
+                #418fcf 66.666%,
+                #418fcf 83.333%,
+                #68267e 83.333%,
+                #68267e 100%) !important;
+        border-radius: 5%;
+        padding-left: 0.25em;
+        padding-right: 0.25em;
     }
 }
