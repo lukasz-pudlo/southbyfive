@@ -50,6 +50,10 @@ class RaceDetailView(DetailView):
         context['classification_results'] = ClassificationResult.objects.filter(
             classification__race=race
         ).select_related('runner', 'classification')
+
+        context['active_park_name'] = race.name
+        context['active_tab'] = self.request.GET.get('tab', 'race-results')
+
         return context
 
 

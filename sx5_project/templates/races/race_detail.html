@@ -6,28 +6,32 @@
         <h5 class="card-title">{{ race.name }}</h5>
         <p class="card-text">{{ race.description }}</p>
 
-
-
+        {% with active_park_name|slugify as active_class_suffix %}
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
-                <a class="nav-link active" id="race-results-tab" data-bs-toggle="tab" href="#race-results" role="tab" aria-controls="race-results" aria-selected="true">Race Results</a>
+                <a class="nav-link {% if active_tab == 'race-results' %}active {{ active_class_suffix }}-color{% endif %}"
+                href="{{ request.path }}?tab=race-results"
+                role="tab">Race Results</a>
             </li>
             <li class="nav-item" role="presentation">
-                <a class="nav-link" id="classification-results-tab" data-bs-toggle="tab" href="#classification-results" role="tab" aria-controls="classification-results" aria-selected="false">Classification Results</a>
+                <a class="nav-link {% if active_tab == 'classification-results' %}active {{ active_class_suffix }}-color{% endif %}"
+                href="{{ request.path }}?tab=classification-results"
+                role="tab">Classification Results</a>
             </li>
         </ul>
+        {% endwith %}
+
         <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="race-results" role="tabpanel" aria-labelledby="race-results-tab">
+            <div class="tab-pane fade {% if active_tab == 'race-results' %}show active{% endif %}" id="race-results" role="tabpanel" aria-labelledby="race-results-tab">
                 {% load cache %}
                 {% cache 500 race_results race.id %}
                     {% include 'races/race_results.html' %}
                 {% endcache %}
             </div>
-            <div class="tab-pane fade" id="classification-results" role="tabpanel" aria-labelledby="classification-results-tab">
+            <div class="tab-pane fade {% if active_tab == 'classification-results' %}show active{% endif %}" id="classification-results" role="tabpanel" aria-labelledby="classification-results-tab">
                 {% include 'classifications/classification_results.html' %}
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}

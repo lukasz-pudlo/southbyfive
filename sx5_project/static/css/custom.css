@@ -15,11 +15,77 @@
 }
 
 .navbar-nav .nav-item .nav-link.active {
-    background-color: #df1f1e !important;
-    /* Slightly darker shade of #78c2ad */
     border-radius: 0.25rem !important;
-    /* Optional: adds rounded corners to the active nav-link */
 }
+
+/* King's Park - Red */
+.navbar-nav .nav-item:nth-child(1) .nav-link.active {
+    background-color: #df1f1e !important;
+}
+
+/* Linn Park - Orange */
+.navbar-nav .nav-item:nth-child(2) .nav-link.active {
+    background-color: #eda51f !important;
+}
+
+/* Rouken Glen - Yellow */
+.navbar-nav .nav-item:nth-child(3) .nav-link.active {
+    background-color: #ece020 !important;
+    color: black !important;
+}
+
+/* Pollok Park - Green */
+.navbar-nav .nav-item:nth-child(4) .nav-link.active {
+    background-color: #49ad3c !important;
+}
+
+/* Bellahouston Park - Blue */
+.navbar-nav .nav-item:nth-child(5) .nav-link.active {
+    background-color: #418fcf !important;
+}
+
+/* Queen's Park - Purple */
+.navbar-nav .nav-item:nth-child(6) .nav-link.active {
+    background-color: #68267e !important;
+}
+
+.nav-item .nav-link {
+    color: black !important
+}
+
+/* Define classes for each park color */
+.kings-park-color {
+    background-color: #df1f1e !important;
+}
+
+.linn-park-color {
+    background-color: #eda51f !important;
+}
+
+.rouken-glen-color {
+    background-color: #ece020 !important;
+    color: black !important;
+}
+
+.pollok-park-color {
+    background-color: #49ad3c !important;
+}
+
+.bellahouston-park-color {
+    background-color: #418fcf !important;
+}
+
+.queens-park-color {
+    background-color: #68267e !important;
+}
+
+.nav-item .nav-link.queens-park-color .nav-link.active {
+    color: white !important;
+}
+
+
+
+
 
 
 /* Default padding for larger screens */
@@ -30,31 +96,6 @@
 .align-middle {
     vertical-align: middle !important;
     text-align: center !important;
-}
-
-/* Define a class for each park's active state with the desired background color */
-.park-active-red {
-    background-color: #df1f1e !important;
-}
-
-.park-active-orange {
-    background-color: #eda51f !important;
-}
-
-.park-active-yellow {
-    background-color: #ece020 !important;
-}
-
-.park-active-green {
-    background-color: #49ad3c !important;
-}
-
-.park-active-blue {
-    background-color: #418fcf !important;
-}
-
-.park-active-purple {
-    background-color: #68267e !important;
 }
 
 
