@@ -29,7 +29,10 @@
                 {% endcache %}
             </div>
             <div class="tab-pane fade {% if active_tab == 'classification-results' %}show active{% endif %}" id="classification-results" role="tabpanel" aria-labelledby="classification-results-tab">
-                {% include 'classifications/classification_results.html' %}
+                {% load cache %}
+                {% cache 500 classification_results classification.id %}
+                    {% include 'classifications/classification_results.html' %}
+                {% endcache %}
             </div>
         </div>
     </div>

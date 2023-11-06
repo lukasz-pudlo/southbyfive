@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from race_versions.models import RaceVersion
+from django.db.models import Prefetch
+from race_versions.models import RaceVersion, ResultVersion
 from django.views.generic import ListView, DetailView
 
 
@@ -16,6 +17,10 @@ class RaceVersionDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['result_versions'] = self.object.race_versions_result_versions.all()
+        race_version = self.object
+        result_versions_prefetch = Prefetch(
+            'race_versions_result_versions', queryset=ResultVersion.objects.all().select_related('related_model_if_any'))
+        context['result_versions'] = RaceVersion.objects.prefetch_related(
+            result_versions_prefetch).get(id=race_version.id).race_versions_result_versions.all()
 
         return context
