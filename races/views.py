@@ -46,7 +46,12 @@ class RaceDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         race = self.object
-        context['results'] = race.result_set.select_related('runner').all()
+
+        # Ordering results by general_position, then gender_position, then category_position
+        context['results'] = race.result_set.select_related('runner').order_by(
+            'general_position', 'gender_position', 'category_position'
+        )
+
         context['classification_results'] = ClassificationResult.objects.filter(
             classification__race=race
         ).select_related('runner', 'classification')

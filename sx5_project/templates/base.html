@@ -25,12 +25,12 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    {% for park_name, race in race_navbar.items %}
+                    {% for park_name, details in race_navbar_with_dates.items %}
                         <li class="nav-item">
-                            {% if race %}
-                                <a class="nav-link {% if request.resolver_match.url_name == 'detail' and request.resolver_match.kwargs.pk == race.pk %}active{% endif %}" href="{% url 'races:detail' pk=race.pk %}">{{ park_name }}</a>
+                            {% if details.race %}
+                                <a class="nav-link {% if request.resolver_match.url_name == 'detail' and request.resolver_match.kwargs.pk == details.race.pk %}active{% endif %}" href="{% url 'races:detail' pk=details.race.pk %}">{{ park_name }}</a>
                             {% else %}
-                                <a class="nav-link disabled" href="#">{{ park_name }} - Awaiting results</a>
+                                <a class="nav-link disabled" href="#">{{ park_name }} - {{ details.date|date:"d/m/Y" }}</a>
                             {% endif %}
                         </li>
                     {% endfor %}

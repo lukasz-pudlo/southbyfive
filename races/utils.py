@@ -213,9 +213,6 @@ def create_classification_entries(new_race):
             race_version__in=latest_race_versions.values()
         ))
 
-        print(
-            f"Number of ResultVersion for runner {runner.id}: {len(result_versions)}")
-
         # If the runner has participated in all n races, consider only the best n-1 results
         if total_races > 1 and len(result_versions) == total_races:
             result_versions = sorted(
@@ -227,15 +224,6 @@ def create_classification_entries(new_race):
             rv.category_points for rv in result_versions)
         # total_club_points = sum(
         #     rv.club_points for rv in result_versions)
-
-        print(
-            f"Total general points for runner {runner.id}: {total_general_points}")
-        print(
-            f"Total gender points for runner {runner.id}: {total_gender_points}")
-        print(
-            f"Total category points for runner {runner.id}: {total_category_points}")
-        # print(
-        #     f"Total club points for runner {runner.id}: {total_club_points}")
 
         ClassificationResult.objects.update_or_create(
             runner=runner,

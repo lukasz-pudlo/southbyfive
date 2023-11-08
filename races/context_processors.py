@@ -1,4 +1,5 @@
 from .models import Race
+from datetime import date
 
 
 def race_list(request):
@@ -22,3 +23,27 @@ def race_navbar(request):
              for name in park_names}
 
     return {'race_navbar': races}
+
+
+def race_dates_context(request):
+    race_dates = {
+        "King's Park": date(2023, 11, 5),
+        'Linn Park': date(2023, 11, 19),
+        'Rouken Glen': date(2023, 12, 3),
+        'Pollok Park': date(2023, 12, 17),
+        'Bellahouston Park': date(2024, 1, 7),
+        "Queen's Park": date(2024, 1, 21),
+    }
+
+    # If your races are stored in a database and some might not have a date,
+    # you could check if they exist and then provide a default date from race_dates
+    race_navbar_with_dates = {}
+    for race_name, race_date in race_dates.items():
+        race = Race.objects.filter(name=race_name).first()
+        race_navbar_with_dates[race_name] = {
+            'race': race,
+            'date': race_date,
+            'has_passed': date.today() > race_date
+        }
+
+    return {'race_navbar_with_dates': race_navbar_with_dates}

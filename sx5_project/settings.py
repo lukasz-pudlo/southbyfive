@@ -81,6 +81,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'races.context_processors.race_list',
                 'races.context_processors.race_navbar',
+                'races.context_processors.race_dates_context'
             ],
         },
     },
