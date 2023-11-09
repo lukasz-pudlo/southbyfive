@@ -92,7 +92,14 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
                     category = row['Category']
                     club = row['Club'] if not isnull(
                         row['Club']) else 'Unattached'
-                    time = pd.to_timedelta(row['Time'])
+
+                    time_str = row['Time']
+                    if time_str == "DNF":
+                        time = None
+                        dnf = True
+                    else:
+                        time = pd.to_timedelta(time_str)
+                        dnf = False
 
                     runner, created = Runner.objects.get_or_create(
                         first_name=first_name,
@@ -105,7 +112,8 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
                     result = Result(
                         race=self.object,
                         runner=runner,
-                        time=time
+                        time=time,
+                        dnf=dnf
                     )
                     results.append(result)
 

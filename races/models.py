@@ -22,18 +22,24 @@ class Race(models.Model):
         results = list(self.result_set.all())
 
         # Calculate general position
-        results.sort(key=lambda res: res.time)
-        for i, result in enumerate(results, start=1):
+        results.sort(key=lambda res: (res.time is None, res.time))
+        for i, result in enumerate((res for res in results if res.time is not None), start=1):
             result.general_position = i
+            result.save(update_fields=['general_position'])
+        for result in (res for res in results if res.time is None):
+            result.general_position = None
             result.save(update_fields=['general_position'])
 
         # Calculate position for each gender
         for gender_prefix in ['M', 'F', 'N']:
             gender_results = [
                 res for res in results if res.runner.category.startswith(gender_prefix)]
-            gender_results.sort(key=lambda res: res.time)
-            for i, result in enumerate(gender_results, start=1):
+            gender_results.sort(key=lambda res: (res.time is None, res.time))
+            for i, result in enumerate((res for res in gender_results if res.time is not None), start=1):
                 result.gender_position = i
+                result.save(update_fields=['gender_position'])
+            for result in (res for res in gender_results if res.time is None):
+                result.gender_position = None
                 result.save(update_fields=['gender_position'])
 
         # Calculate position for each category
@@ -41,9 +47,12 @@ class Race(models.Model):
             cat_code = category[0]
             cat_results = [
                 res for res in results if res.runner.category == cat_code]
-            cat_results.sort(key=lambda res: res.time)
-            for i, result in enumerate(cat_results, start=1):
+            cat_results.sort(key=lambda res: (res.time is None, res.time))
+            for i, result in enumerate((res for res in cat_results if res.time is not None), start=1):
                 result.category_position = i
+                result.save(update_fields=['category_position'])
+            for result in (res for res in cat_results if res.time is None):
+                result.category_position = None
                 result.save(update_fields=['category_position'])
 
     class Meta:
@@ -94,9 +103,10 @@ class Result(models.Model):
     gender_position = models.PositiveIntegerField(null=True, blank=True)
     category_position = models.PositiveIntegerField(null=True, blank=True)
     club_position = models.PositiveIntegerField(null=True, blank=True)
+    dnf = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.runner} result for {self.race}'
 
     class Meta:
-        ordering = ['time']
+        ordering = ['dnf', 'time']

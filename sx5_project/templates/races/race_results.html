@@ -17,11 +17,39 @@
             <tr>
                 <td class="align-middle">{{ result.runner }}</td>
                 <td class="align-middle">{{ result.runner.participant_number }}</td>
-                <td class="align-middle">{{ result.time }}</td>
+                <td class="align-middle">
+                    {% if result.time %}
+                        {{ result.time }}
+                    {% else %}
+                        DNF
+                    {% endif %}
+                </td>
+                
                 <td class="align-middle">{{ result.runner.category }}</td>
-                <td class="align-middle">{{ result.general_position }}</td>
-                <td class="align-middle">{{ result.gender_position }}</td>
-                <td class="align-middle">{{ result.category_position }}</td>
+                <td class="align-middle">
+                    {% if result.general_position != None %}
+                        {{ result.general_position }}
+                    {% else %}
+                        <!-- This will display nothing if general_position is None -->
+                    {% endif %}
+                </td>
+                
+                <td class="align-middle">
+                    {% if result.gender_position != None %}
+                        {{ result.gender_position }}
+                    {% else %}
+                        <!-- This will display nothing if general_position is None -->
+                    {% endif %}
+                </td>
+
+                <td class="align-middle">
+                    {% if result.category_position != None %}
+                        {{ result.category_position }}
+                    {% else %}
+                        <!-- This will display nothing if general_position is None -->
+                    {% endif %}
+                </td>
+                
                 <td class="align-middle">{{ result.runner.club }}</td>
             </tr>
         {% endfor %}

@@ -128,7 +128,7 @@ def create_initial_race_version(new_race):
         race_version = RaceVersion.objects.create(
             race=new_race, version_number=1)
 
-        for result in new_race.result_set.all():
+        for result in new_race.result_set.exclude(dnf=True):
             print(f"Debug: Creating ResultVersion for result id: {result.id}")
             ResultVersion.objects.create(
                 result=result,
@@ -157,6 +157,7 @@ def recalculate_race_versions():
             race=race, version_number=new_version_number)
 
         revised_results = race.result_set.filter(
+            dnf=False,
             runner_id__in=qualifying_runner_ids).all()
 
         # Add club_positions_mapping to the below list once ready
@@ -209,6 +210,7 @@ def create_classification_entries(new_race):
             f"Debug: Creating ClassificationResult for runner id: {runner.id}")
 
         result_versions = list(ResultVersion.objects.filter(
+            result__dnf=False,
             result__runner=runner,
             race_version__in=latest_race_versions.values()
         ))
@@ -238,7 +240,10 @@ def create_classification_entries(new_race):
 
 
 def recalculate_positions(results):
-    sorted_results = sorted(results, key=lambda x: x.time)
+    sorted_results = sorted(
+        [result for result in results if not result.dnf],
+        key=lambda x: x.time or pd.Timedelta.max
+    )
 
     general_positions = {}
     gender_positions = defaultdict(int)

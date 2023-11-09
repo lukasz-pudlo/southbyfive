@@ -13,6 +13,7 @@
 .navbar-toggler {
     margin-top: auto !important;
     margin-bottom: auto !important;
+    align-self: center !important;
 }
 
 .navbar-light .navbar-brand {
@@ -134,16 +135,17 @@
     border: none !important;
     outline: none !important;
     box-shadow: none !important;
-    margin-bottom: 2vh;
 }
 
 @media (max-width: 767px) {
     .nav-link-lg {
-        font-size: 1rem;
+        font-size: 1rem !important;
+        align-self: center !important;
     }
 
     .navbar-light .navbar-brand {
         color: white !important;
+        align-self: center !important;
     }
 }
 
@@ -151,6 +153,27 @@
     .navbar-light .navbar-brand {
         color: white !important;
         /* Visibility fix for tablet devices */
+    }
+}
+
+@media (min-width: 992px) {
+    .navbar-brand {
+        background-image: linear-gradient(to bottom,
+                #df1f1e 0%,
+                #df1f1e 16.666%,
+                #eda51f 16.666%,
+                #eda51f 33.333%,
+                #ece020 33.333%,
+                #ece020 50%,
+                #49ad3c 50%,
+                #49ad3c 66.666%,
+                #418fcf 66.666%,
+                #418fcf 83.333%,
+                #68267e 83.333%,
+                #68267e 100%) !important;
+        border-radius: 5%;
+        padding-left: 0.25em;
+        padding-right: 0.25em;
     }
 }
 
