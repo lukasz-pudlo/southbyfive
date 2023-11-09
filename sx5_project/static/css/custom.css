@@ -137,6 +137,14 @@
     box-shadow: none !important;
 }
 
+.info {
+    color: black !important;
+}
+
+.info a {
+    color: #68267e !important;
+}
+
 @media (max-width: 767px) {
     .nav-link-lg {
         font-size: 1rem !important;

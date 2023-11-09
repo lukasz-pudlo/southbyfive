@@ -7,7 +7,7 @@
       <div class="card-body">
         <h5 class="card-title">{{ race.name }}</h5>
         <p class="card-text">{{ race.description }}</p>
-        <a href="{% url 'races:detail' race.id %}" class="btn btn-primary">Details</a>
+        <a href="{% url 'races:detail' slug=race.slug %}" class="btn btn-primary">Details</a>
       </div>
     </div>
   {% endfor %}

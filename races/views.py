@@ -11,6 +11,7 @@ from pathlib import Path
 from races.utils import create_result_versions
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
+from django.urls import reverse
 
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -23,7 +24,7 @@ from classifications.models import ClassificationResult
 def home(request):
     first_race = Race.objects.last()
     if first_race is not None:
-        return redirect('races:detail', first_race.id)
+        return redirect('races:detail', slug=first_race.slug)
     else:
         return redirect('races:list')
 
@@ -42,6 +43,7 @@ class RaceListView(ListView):
 class RaceDetailView(DetailView):
     model = Race
     template_name = 'races/race_detail.html'
+    slug_field = 'slug'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -135,6 +137,8 @@ class RaceUpdateView(LoginRequiredMixin, UpdateView):
     model = Race
     template_name = 'races/race_form.html'
     fields = ['name', 'description', 'race_date', 'race_file']
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
 
     def form_valid(self, form):
         # If race_file has changed, delete old results and create new ones
@@ -163,6 +167,8 @@ class RaceUpdateView(LoginRequiredMixin, UpdateView):
 class RaceDeleteView(DeleteView):
     model = Race
     template_name = 'races/race_confirm_delete.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
     success_url = reverse_lazy('races:list')
 
 

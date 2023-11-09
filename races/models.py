@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from django.utils.text import slugify
 
 
 class Race(models.Model):
@@ -11,12 +12,18 @@ class Race(models.Model):
     race_file = models.FileField(
         upload_to='races/%Y/%m/%d/', null=True, blank=True)
     race_number = models.IntegerField(null=True, blank=True)
+    slug = models.SlugField(max_length=255, unique=True, null=True)
 
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        if not self.slug:  # If the slug hasn't been set yet.
+            self.slug = slugify(self.name)
+        super(Race, self).save(*args, **kwargs)
+
     def get_absolute_url(self):
-        return reverse('races:detail', kwargs={'pk': self.pk})
+        return reverse('races:detail', kwargs={'slug': self.slug})
 
     def calculate_positions(self):
         results = list(self.result_set.all())

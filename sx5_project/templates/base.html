@@ -14,6 +14,9 @@
     {% bootstrap_javascript %}
     {% block extra_css %}
     {% endblock %}
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+    <link rel="shortcut icon" href="{% static 'favicon.png' %}" type="image/png">
 </head>
 <body>
 
@@ -29,14 +32,14 @@
                     {% for park_name, details in race_navbar_with_dates.items %}
                         <li class="nav-item">
                             {% if details.race %}
-                                <a class="nav-link {% if request.resolver_match.url_name == 'detail' and request.resolver_match.kwargs.pk == details.race.pk %}active{% endif %}" href="{% url 'races:detail' pk=details.race.pk %}">{{ park_name }}</a>
+                                <a class="nav-link {% if request.resolver_match.url_name == 'detail' and request.resolver_match.kwargs.slug == details.race.slug %}active{% endif %}" href="{% url 'races:detail' slug=details.race.slug %}">{{ park_name }}</a>
                             {% else %}
                                 <a class="nav-link disabled" href="#">{{ park_name }} - {{ details.date|date:"d/m/Y" }}</a>
                             {% endif %}
                         </li>
                     {% endfor %}
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Contact</a>
+                        <a class="nav-link" href="{% url 'info:contact' %}">Contact</a>
                     </li>
                 </ul>                                                                        
             </div>

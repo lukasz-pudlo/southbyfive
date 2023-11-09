@@ -13,10 +13,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('', RedirectView.as_view(url='races/', permanent=False)),
     path('', home, name='home'),
-    path('races/2023/', include(('races.urls', 'races'), namespace='races')),
+    path('races/', include(('races.urls', 'races'), namespace='races')),
     path('race-versions/', include(('race_versions.urls',
          'race-versions'),  namespace='race-versions')),
     path('classifications/', include(('classifications.urls',
          'classifications'), namespace='classifications')),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('info/', include('info.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
