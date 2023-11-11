@@ -35,8 +35,6 @@ def race_dates_context(request):
         "Queen's Park": date(2024, 1, 21),
     }
 
-    # If your races are stored in a database and some might not have a date,
-    # you could check if they exist and then provide a default date from race_dates
     race_navbar_with_dates = {}
     for race_name, race_date in race_dates.items():
         race = Race.objects.filter(name=race_name).first()
