@@ -9,11 +9,5 @@
             "ContainerPort": "8000"
         }
     ],
-    "Volumes": [
-        {
-            "HostDirectory": "/var/app/current",
-            "ContainerDirectory": "/var/www/html"
-        }
-    ],
     "Logging": "/var/app/containerlogs"
 }
