@@ -82,7 +82,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 DEBUG = False
 
 ALLOWED_HOSTS = ['southbyfive.run', 'www.southbyfive.run', 'localhost', '127.0.0.1',
-                 '.southbyfive.run', 'southbyfive.eu-west-1.elasticbeanstalk.com']
+                 '.southbyfive.run', 'southbyfive.eu-west-1.elasticbeanstalk.com', 'http://southbyfive-app-env.eba-vma6ktp3.eu-west-1.elasticbeanstalk.com']
 
 
 # Application definition
