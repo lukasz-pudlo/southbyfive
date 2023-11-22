@@ -173,7 +173,7 @@ else:
         }
     }
 
-Database configuration
+# Database configuration
 rds_credentials = get_rds_credentials()
 DATABASES = {
     'default': {
