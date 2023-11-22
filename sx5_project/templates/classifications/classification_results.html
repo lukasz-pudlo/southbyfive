@@ -11,7 +11,7 @@
         <tbody>
             {% for result in classification_results %}
                 {% if result.general_points != 0 or result.gender_points != 0 or result.category_points != 0 %}
-                <tr>
+                <tr class="{{ race.hover_class }}">
                     <td class="align-middle">{{ result.runner }}</td>
                     <td class="align-middle">{{ result.general_points }}</td>
                     <td class="align-middle">{{ result.gender_points }}</td>

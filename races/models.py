@@ -62,6 +62,18 @@ class Race(models.Model):
                 result.category_position = None
                 result.save(update_fields=['category_position'])
 
+    @property
+    def hover_class(self):
+        race_to_class = {
+            "King's Park": 'kings-park-hover',
+            "Linn Park": 'linn-park-hover',
+            "Rouken Glen": 'rouken-glen-hover',
+            "Pollok Park": 'pollok-park-hover',
+            "Bellahouston Park": 'bellahouston-park-hover',
+            "Queen's Park": 'queens-park-hover',
+        }
+        return race_to_class.get(self.name, 'default-hover')
+
     class Meta:
         ordering = ['-date_added']
 

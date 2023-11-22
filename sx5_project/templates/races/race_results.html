@@ -14,7 +14,7 @@
         </thead>
         <tbody>
         {% for result in results %}
-            <tr>
+            <tr class="{{ race.hover_class }}">
                 <td class="align-middle">{{ result.runner }}</td>
                 <td class="align-middle">{{ result.runner.participant_number }}</td>
                 <td class="align-middle">

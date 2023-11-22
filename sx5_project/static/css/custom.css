@@ -2,9 +2,39 @@
     font-size: 1.2rem !important;
 }
 
-.table tbody tr:hover td {
+/* .table tbody tr:hover td {
     background-color: #f19a99 !important;
+} */
+
+.kings-park-hover:hover td {
+    background-color: #df1f1e !important;
 }
+
+.linn-park-hover:hover td {
+    background-color: #eda51f !important;
+}
+
+.rouken-glen-hover:hover td {
+    background-color: #ece020 !important;
+}
+
+.pollok-park-hover:hover td {
+    background-color: #49ad3c !important;
+}
+
+.bellahouston-park-hover:hover td {
+    background-color: #418fcf !important;
+}
+
+.queens-park-hover:hover td {
+    background-color: #68267e !important;
+}
+
+.default-hover:hover td {
+    background-color: #f19a99 !important;
+    /* Default color */
+}
+
 
 
 .navbar {
