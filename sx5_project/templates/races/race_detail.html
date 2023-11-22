@@ -13,11 +13,13 @@
                 href="{{ request.path }}?tab=race-results"
                 role="tab">Race Results</a>
             </li>
+            {% if classification_results %}
             <li class="nav-item" role="presentation">
                 <a class="nav-link {% if active_tab == 'classification-results' %}active {{ active_class_suffix }}-color{% endif %}"
                 href="{{ request.path }}?tab=classification-results"
                 role="tab">Overall Classification Results</a>
             </li>
+            {% endif %}
         </ul>
         {% endwith %}
 
