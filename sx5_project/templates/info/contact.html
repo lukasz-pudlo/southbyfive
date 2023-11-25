@@ -1,26 +1,75 @@
-<!-- sx5_project/templates/info/contact.html -->
-
 {% extends "base.html" %}
 
 {% block content %}
 <div class="container">
     <div class="info">
+        <h2>Classification Calculation</h2>
+        <h3>Calculation Rules</h3>
+        <p>
+            Runners will be allocated points after each race, based on their general position, position in their gender category, 
+            and position in their age category. The runner who finished 1st in a given category will be allocated 1 point, 
+            the runner who finished 2nd will be allocated 2 points, etc. Runners need to take part in at least 5 out of 6 races to be included in 
+            the final classification. If a runner takes part in all 6 races, their best 5 results will be used when calculating the overall classification result. 
+            Classification results are available from the 3rd race onwards. For a runner that has taken part in all races at any given point, the
+            worst result will be removed when calculating the overall classification result.
+        </p>
+        <h3>Scenario 1: Consistent Participation with Varied Results</h3>
+        <p>
+            Races Participated: Alex runs in all 6 races.<br>
+            Race Results:<br>
+            Race 1: 3rd overall.<br>
+            Race 2: 5th overall.<br>
+            Race 3: 4th overall.<br>
+            Race 4: 2nd overall.<br>
+            Race 5: 6th overall.<br>
+            Race 6: 1st overall.<br>
+            Points Calculation: Alex's worst result (6th in Race 5) is dropped. Points from the best 5 races are:<br>
+            Total = 3 (Race 1) + 5 (Race 2) + 4 (Race 3) + 2 (Race 4) + 1 (Race 6) = 15 points.
+        </p>
+        <h3>Scenario 2: Minimum Participation</h3>
+        <p>
+            Races Participated: Alex only runs in 5 races.<br>
+            Race Results:<br>
+            Race 1: 2nd overall.<br>
+            Race 2: Did not participate.<br>
+            Race 3: 3rd overall.<br>
+            Race 4: 4th overall.<br>
+            Race 5: 1st overall.<br>
+            Race 6: 5th overall.<br>
+            Points Calculation: Since Alex ran only 5 races, points from all these races are counted:<br>
+            Total = 2 (Race 1) + 3 (Race 3) + 4 (Race 4) + 1 (Race 5) + 5 (Race 6) = 15 points.
+        </p>
+        <h3>Scenario 3: High Participation with One Poor Result</h3>
+        <p>
+            Races Participated: Alex runs in all 6 races.<br>
+            Race Results:<br>
+            Race 1: 1st overall.<br>
+            Race 2: 2nd overall.<br>
+            Race 3: 3rd overall.<br>
+            Race 4: 10th overall (poor performance).<br>
+            Race 5: 4th overall.<br>
+            Race 6: 2nd overall.<br>
+            Points Calculation: Alex's worst result (10th in Race 4) is dropped. Points from the best 5 races are:<br>
+            Total = 1 (Race 1) + 2 (Race 2) + 3 (Race 3) + 4 (Race 5) + 2 (Race 6) = 12 points.
+        </p>
+    </div>
+
+    <br>
+
+    <div class="info">
         <h2>Social Media</h2>
-        <p>We are on a variety of social media platforms:
-        <br>
-        <a href="https://www.facebook.com/acorntrails" target="_blank">Facebook</a>
-        <br>
-        <a href="https://twitter.com/AcornTrailsUK" target="_blank">Twitter</a>
-        <br>
-        <a href="https://www.instagram.com/acorntrails/" target="_blank">Instagram</a>
-        <br>
+        <p>We are on a variety of social media platforms:<br>
+        <a href="https://www.facebook.com/acorntrails" target="_blank">Facebook</a><br>
+        <a href="https://twitter.com/AcornTrailsUK" target="_blank">Twitter</a><br>
+        <a href="https://www.instagram.com/acorntrails/" target="_blank">Instagram</a><br>
         <a href="https://www.strava.com/clubs/acorntrails" target="_blank">Strava</a></p>
     </div>
 
+    <br>
+
     <div class="info">
         <h2>Email</h2>
-        <p>Drop us an email if you have any queries, we're always happy to hear from you, and value the feedback we get - hopefully positive, but we can take on board your constructive criticisms too: 
-
+        <p>Drop us an email if you have any queries, we are always happy to hear from you, and value the feedback we get - hopefully positive, but we can take on board your constructive criticisms too: 
         <a href="mailto:hello@acorntrails.run" target="_blank">hello@acorntrails.run</a></p>
     </div>
 </div>

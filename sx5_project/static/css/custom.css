@@ -1,3 +1,53 @@
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 15px;
+    font-family: 'Arial', sans-serif;
+}
+
+.info {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.info h2 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.info h3 {
+    color: #555;
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.info p {
+    color: #666;
+    line-height: 1.6;
+}
+
+.info a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.info a:hover {
+    text-decoration: underline;
+}
+
+.info ul {
+    padding-left: 20px;
+}
+
+
+
+
+
+
 .nav-link-lg {
     font-size: 1.2rem !important;
 }
