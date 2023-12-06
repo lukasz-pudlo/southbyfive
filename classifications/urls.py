@@ -6,6 +6,6 @@ app_name = 'classifications'
 urlpatterns = [
     path('', ClassificationListView.as_view(),
          name='list'),
-    path('classification/<int:pk>/', ClassificationDetailView.as_view(),
+    path('classification/<slug:slug>/', ClassificationDetailView.as_view(),
          name='detail')
 ]

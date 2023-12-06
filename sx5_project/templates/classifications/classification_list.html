@@ -6,7 +6,7 @@
     <div class="card mb-3">
       <div class="card-body">
         <h5 class="card-title">Classification after {{ classification.race.name }}</h5>
-        <a href="{% url 'classifications:detail' classification.pk %}" class="btn btn-primary">Details</a>
+        <a href="{% url 'classifications:detail' slug=classification.slug %}" class="btn btn-primary">Details</a>
       </div>
     </div>
   {% endfor %}

@@ -14,6 +14,7 @@ class ClassificationDetailView(DetailView):
     model = Classification
     template_name = "classifications/classification_detail.html"
     context_object_name = 'classification'
+    slug_field = 'slug'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

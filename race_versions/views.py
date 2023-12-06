@@ -22,5 +22,4 @@ class RaceVersionDetailView(DetailView):
             'race_versions_result_versions', queryset=ResultVersion.objects.all().select_related('related_model_if_any'))
         context['result_versions'] = RaceVersion.objects.prefetch_related(
             result_versions_prefetch).get(id=race_version.id).race_versions_result_versions.all()
-
         return context

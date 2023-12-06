@@ -20,6 +20,8 @@ from races.models import Race, Result, Runner
 from races.forms import RaceForm
 from classifications.models import ClassificationResult
 
+from classifications.views import ClassificationDetailView
+
 
 def home(request):
     first_race = Race.objects.last()
@@ -54,13 +56,9 @@ class RaceDetailView(DetailView):
             'general_position', 'gender_position', 'category_position'
         )
 
-        total_races = Race.objects.count()
-
-        if total_races > 2:
-
-            context['classification_results'] = ClassificationResult.objects.filter(
-                classification__race=race
-            ).select_related('runner', 'classification')
+        context['classification_results'] = ClassificationResult.objects.filter(
+            classification__race=race
+        ).select_related('runner', 'classification')
 
         context['active_park_name'] = race.name
         context['active_tab'] = self.request.GET.get('tab', 'race-results')
