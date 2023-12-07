@@ -20,6 +20,8 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+# Fetch credentials from Secrets Manager
+
 
 def get_secret(secret_name, region_name="eu-west-1"):
     # Create a Secrets Manager client
@@ -100,7 +102,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bootstrap5',
-    'location_field.apps.DefaultConfig',
     'django_extensions',
     'storages',
 ]
@@ -147,7 +148,7 @@ WSGI_APPLICATION = 'sx5_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# Database configuration
+# Database configuration for deployment to AWS Elastic Beanstalk.
 # rds_credentials = get_rds_credentials()
 # DATABASES = {
 #     'default': {
@@ -160,6 +161,7 @@ WSGI_APPLICATION = 'sx5_project.wsgi.application'
 #     }
 # }
 
+# Database configuration for local development, but with access to RDS database.
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -171,6 +173,7 @@ WSGI_APPLICATION = 'sx5_project.wsgi.application'
 #     }
 # }
 
+# Database configuration for local development, with local database.
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -182,12 +185,29 @@ DATABASES = {
     }
 }
 
-# # S3 configuration
+# S3 bucket configuration for deployment to AWS Elastic Beanstalk.
 # s3_credentials = get_s3_credentials()
 # AWS_ACCESS_KEY_ID = s3_credentials.get("AWS_ACCESS_KEY_ID")
 # AWS_SECRET_ACCESS_KEY = s3_credentials.get("AWS_SECRET_ACCESS_KEY")
 # AWS_STORAGE_BUCKET_NAME = s3_credentials.get("AWS_STORAGE_BUCKET_NAME")
 # AWS_S3_REGION_NAME = s3_credentials.get("AWS_S3_REGION_NAME")
+# AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+
+# # # Static files (CSS, JavaScript, images)
+# AWS_STATIC_LOCATION = 'static'
+# STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+# # # Media files (uploads)
+# AWS_MEDIA_LOCATION = 'media'
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_MEDIA_LOCATION)
+
+# S3 bucket configuration for local development but with access to AWS S3 bucket.
+# AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+# AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+# AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+# AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
 # AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
 # # Static files (CSS, JavaScript, images)
@@ -200,7 +220,7 @@ DATABASES = {
 # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 # MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_MEDIA_LOCATION)
 
-# Use local storage for static and media files
+# Local static and media configuration for local development.
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -253,19 +273,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 LOGIN_REDIRECT_URL = '/races'
-
-# AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-# AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-# AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
-# AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
-# AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
-
-# # Static files (CSS, JavaScript, images)
-# AWS_STATIC_LOCATION = 'static'
-# STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
-# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-# # Media files (uploads)
-# AWS_MEDIA_LOCATION = 'media'
-# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-# MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_MEDIA_LOCATION)

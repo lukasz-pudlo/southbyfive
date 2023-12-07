@@ -2,6 +2,7 @@
     <table class="table">
         <thead>
             <tr>
+                <th scope="col" class="align-middle">Position</th>
                 <th scope="col" class="align-middle">Runner</th>
                 <th scope="col" class="align-middle">General Points</th>
                 <th scope="col" class="align-middle">Gender Points</th>
@@ -12,6 +13,7 @@
             {% for result in classification_results %}
                 {% if result.general_points != 0 or result.gender_points != 0 or result.category_points != 0 %}
                 <tr class="{{ race.hover_class }}">
+                    <td class="align-middle">{{ forloop.counter }}</td> <!-- Display the position using forloop.counter -->
                     <td class="align-middle">{{ result.runner }}</td>
                     <td class="align-middle">{{ result.general_points }}</td>
                     <td class="align-middle">{{ result.gender_points }}</td>
