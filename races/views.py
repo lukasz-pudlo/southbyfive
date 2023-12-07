@@ -99,8 +99,8 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
 
                     time_str = row['Time']
                     if time_str == "DNF":
-                        time = None
-                        dnf = True
+                        time = "02:00:00"
+                        dnf = False
                     else:
                         # This will handle microseconds if they are present
                         time = pd.to_timedelta(time_str)

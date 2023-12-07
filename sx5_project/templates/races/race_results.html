@@ -21,7 +21,11 @@
                 <td class="align-middle">{{ result.runner.participant_number }}</td>
                 <td class="align-middle">
                     {% if result.time %}
-                        {{ result.time|format_timedelta }}
+                        {% if result.time|format_timedelta == "02:00:00" %}
+                            DNF
+                        {% else %}
+                            {{ result.time|format_timedelta }}
+                        {% endif %}
                     {% else %}
                         DNF
                     {% endif %}
