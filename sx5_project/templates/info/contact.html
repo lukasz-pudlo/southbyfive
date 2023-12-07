@@ -3,54 +3,45 @@
 {% block content %}
 <div class="container">
     <div class="info">
-        <h2>Classification Calculation</h2>
+        <h2>Classification Calculation</h2><br>
         <h3>Calculation Rules</h3>
         <p>
             Runners will be allocated points after each race, based on their general position, position in their gender category, 
             and position in their age category. The runner who finished 1st in a given category will be allocated 1 point, 
-            the runner who finished 2nd will be allocated 2 points, etc. Runners need to take part in at least 5 out of 6 races to be included in 
+            the runner who finished 2nd will be allocated 2 points, etc. <br><br> Runners need to take part in at least 5 out of 6 races to be included in 
             the final classification. If a runner takes part in all 6 races, their best 5 results will be used when calculating the overall classification result. 
             Classification results are available from the 3rd race onwards. For a runner that has taken part in all races at any given point, the
-            worst result will be removed when calculating the overall classification result.
-        </p>
+            worst result will be removed when calculating the overall classification result. <br><br> You can track changes in the classification by clicking on the
+            "Classification Results" on the race results page for each race. If at any point in the race series you have participated in all the races, your worst result 
+            will be removed from the general classification. If a runner who was ahead of you in the general classification fails to participate in the minimum amount of races at
+            point in the race series, for example, if someone was ahead of you in King's Park, but then didn't take part in Linn Park and Rouken Glen, they are removed from the general
+            classification, and you will move up one position. 
+        </p><br>
         <h3>Scenario 1: Consistent Participation with Varied Results</h3>
         <p>
-            Races Participated: Alex runs in all 6 races.<br>
+            Races Participated: Alex runs in all 6 races.<br><br>
             Race Results:<br>
-            Race 1: 3rd overall.<br>
-            Race 2: 5th overall.<br>
-            Race 3: 4th overall.<br>
-            Race 4: 2nd overall.<br>
-            Race 5: 6th overall.<br>
-            Race 6: 1st overall.<br>
-            Points Calculation: Alex's worst result (6th in Race 5) is dropped. Points from the best 5 races are:<br>
-            Total = 3 (Race 1) + 5 (Race 2) + 4 (Race 3) + 2 (Race 4) + 1 (Race 6) = 15 points.
-        </p>
-        <h3>Scenario 2: Minimum Participation</h3>
+            - King's Park: 3rd overall.<br>
+            - Linn Park: 5th overall.<br>
+            - Rouken Glen: 4th overall.<br>
+            - Pollok Park: 2nd overall.<br>
+            - Bellahouston Park: 6th overall.<br>
+            - Queen's Park: 1st overall.<br><br
+            Points Calculation: Alex's worst result (6th at Bellahouston Park) is dropped. Points from the best 5 races are:<br>
+            Total = 3 (King's Park) + 5 (Linn Park) + 4 (Rouken Glen) + 2 (Pollok Park) + 1 (Queen's Park) = 15 points.
+        </p><br>
+        <h3>Scenario 2: Alex runs in 5 races.</h3>
         <p>
-            Races Participated: Alex only runs in 5 races.<br>
+            Races Participated: Alex misses 1 race.<br><br>
             Race Results:<br>
-            Race 1: 2nd overall.<br>
-            Race 2: Did not participate.<br>
-            Race 3: 3rd overall.<br>
-            Race 4: 4th overall.<br>
-            Race 5: 1st overall.<br>
-            Race 6: 5th overall.<br>
-            Points Calculation: Since Alex ran only 5 races, points from all these races are counted:<br>
-            Total = 2 (Race 1) + 3 (Race 3) + 4 (Race 4) + 1 (Race 5) + 5 (Race 6) = 15 points.
-        </p>
-        <h3>Scenario 3: High Participation with One Poor Result</h3>
-        <p>
-            Races Participated: Alex runs in all 6 races.<br>
-            Race Results:<br>
-            Race 1: 1st overall.<br>
-            Race 2: 2nd overall.<br>
-            Race 3: 3rd overall.<br>
-            Race 4: 10th overall (poor performance).<br>
-            Race 5: 4th overall.<br>
-            Race 6: 2nd overall.<br>
-            Points Calculation: Alex's worst result (10th in Race 4) is dropped. Points from the best 5 races are:<br>
-            Total = 1 (Race 1) + 2 (Race 2) + 3 (Race 3) + 4 (Race 5) + 2 (Race 6) = 12 points.
+            - King's Park: 2nd overall.<br>
+            - Linn Park: Did not participate.<br>
+            - Rouken Glen: 3rd overall.<br>
+            - Pollok Park: 4th overall.<br>
+            - Bellahouston Park: 1st overall.<br>
+            - Queen's Park: 5th overall.<br><br>
+            Points Calculation: Since Alex ran in 5 races, points from all these races are counted:<br>
+            Total = 2 (King's Park) + 3 (Rouken Glen) + 4 (Pollok Park) + 1 (Bellahouston Park) + 5 (Queen's Park) = 15 points.
         </p>
     </div>
 
