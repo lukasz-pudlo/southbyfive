@@ -18,6 +18,8 @@ class RaceForm(forms.ModelForm):
 class ResultForm(forms.ModelForm):
     minutes = forms.IntegerField(min_value=0)
     seconds = forms.IntegerField(min_value=0, max_value=59)
+    microseconds = forms.IntegerField(
+        min_value=0, max_value=999999, required=False)
 
     class Meta:
         model = Result
@@ -27,9 +29,11 @@ class ResultForm(forms.ModelForm):
         instance = super().save(commit=False)
         minutes = self.cleaned_data.get('minutes')
         seconds = self.cleaned_data.get('seconds')
+        microseconds = self.cleaned_data.get('microseconds', 0)
 
         if minutes is not None and seconds is not None:
-            instance.time = timedelta(minutes=minutes, seconds=seconds)
+            instance.time = timedelta(
+                minutes=minutes, seconds=seconds, microseconds=microseconds)
 
         if commit:
             instance.save()
