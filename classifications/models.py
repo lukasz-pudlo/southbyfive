@@ -43,7 +43,7 @@ class ClassificationResult(models.Model):
     club_points = models.PositiveIntegerField(null=True, blank=True)
 
     class Meta:
-        ordering = ['general_points']
+        ordering = ['general_points', 'gender_points', 'category_points']
 
     def __str__(self):
         return f'Classification Result for {self.runner} in {self.classification}'

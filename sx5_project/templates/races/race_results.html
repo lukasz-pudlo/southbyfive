@@ -1,3 +1,5 @@
+{% load time_filters %}
+
 <div class="table-responsive">
     <table class="table">
         <thead>
@@ -19,7 +21,7 @@
                 <td class="align-middle">{{ result.runner.participant_number }}</td>
                 <td class="align-middle">
                     {% if result.time %}
-                        {{ result.time }}
+                        {{ result.time|format_timedelta }}
                     {% else %}
                         DNF
                     {% endif %}
