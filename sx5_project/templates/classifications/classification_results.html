@@ -1,5 +1,5 @@
 <div class="table-responsive">
-    <table id="myTable" class="table">
+    <table id="classificationTable" class="table">
         <thead>
             <tr>
                 <th scope="col" class="align-middle">Position</th>
@@ -29,45 +29,39 @@
 
 {% block extra_js %}
 <script>
-    // Custom sorting function
-    $.fn.dataTable.ext.type.order['category-pre'] = function (data) {
-        console.log("Sorting data: ", data); // Debugging line
-
-        switch (data) {
-            case 'MS':    return 1;
-            case 'FS':    return 2;
-            case 'NBS':   return 3;
-            case 'M40':   return 4;
-            case 'F40':   return 5;
-            case 'NB40':  return 6;
-            case 'M50':   return 7;
-            case 'F50':   return 8;
-            case 'NB50':  return 9;
-            case 'M60':   return 10;
-            case 'F60':   return 11;
-            case 'NB60':  return 12;
-            case 'M70':   return 13;
-            case 'F70':   return 14;
-            case 'NB70':  return 15;
-            case 'M80':   return 16;
-            case 'F80':   return 17;
-            case 'NB80':  return 18;
-            default:      return 19;
-        }
+    // Define the custom sort type for ascending order
+    jQuery.fn.dataTableExt.oSort['category-pre-asc'] = function(a, b) {
+        var categoryOrder = {
+            'MS': 1, 'FS': 2, 'NBS': 3, 'M40': 4, 'F40': 5, 
+            'NB40': 6, 'M50': 7, 'F50': 8, 'NB50': 9, 'M60': 10, 
+            'F60': 11, 'NB60': 12, 'M70': 13, 'F70': 14, 
+            'NB70': 15, 'M80': 16, 'F80': 17, 'NB80': 18
+        };
+        return (categoryOrder[a] < categoryOrder[b]) ? -1 : ((categoryOrder[a] > categoryOrder[b]) ? 1 : 0);
     };
 
+    // Define the custom sort type for descending order
+    jQuery.fn.dataTableExt.oSort['category-pre-desc'] = function(a, b) {
+        var categoryOrder = {
+            'MS': 1, 'FS': 2, 'NBS': 3, 'M40': 4, 'F40': 5, 
+            'NB40': 6, 'M50': 7, 'F50': 8, 'NB50': 9, 'M60': 10, 
+            'F60': 11, 'NB60': 12, 'M70': 13, 'F70': 14, 
+            'NB70': 15, 'M80': 16, 'F80': 17, 'NB80': 18
+        };
+        return (categoryOrder[a] < categoryOrder[b]) ? 1 : ((categoryOrder[a] > categoryOrder[b]) ? -1 : 0);
+    };
 
     $(document).ready(function() {
-        $('#myTable').DataTable({
-            "columnDefs": [
-                { "type": "category-pre", "targets": [2] } // Use custom sorting for the Category column
-            ],
-            "order": [[2, 'asc']], // Default order
-            "paging": false, // Disable pagination
-            "info": false, // Hide the 'Showing 1 to N of N entries' info
-            "pageLength": -1 // Show all rows
+        $('#classificationTable').DataTable({
+            "paging": false,
+            "info": false,
+            "pageLength": -1,
+            "columnDefs": [{
+                "type": "category-pre",
+                "targets": [2] // Apply custom sorting to the Category column
+            }]
         });
     });
-
 </script>
 {% endblock %}
+
