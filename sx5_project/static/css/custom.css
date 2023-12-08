@@ -367,3 +367,19 @@
         justify-content: space-evenly !important;
     }
 }
+
+@media (min-width: 1300px) {
+    .navbar-expand-lg .navbar-nav {
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        /* Center items */
+    }
+
+    .navbar {
+        max-width: 1300px !important;
+        /* Navbar won't extend beyond 1300px */
+        margin: 0 auto !important;
+        /* Center the navbar in the available space */
+    }
+}
