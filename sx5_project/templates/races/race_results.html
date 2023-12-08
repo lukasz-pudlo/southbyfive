@@ -1,7 +1,7 @@
 {% load time_filters %}
 
 <div class="table-responsive">
-    <table class="table">
+    <table id="resultsTable" class="table">
         <thead>
             <tr>
                 <th scope="col" class="align-middle">Name</th>
@@ -15,6 +15,13 @@
             </tr>
         </thead>
         <tbody>
+            <div id="filterContainer" class="d-flex align-items-center">
+                <button id="filterMale" class="btn filter-btn filter-btn-male">Male</button>
+                <button id="filterFemale" class="btn filter-btn filter-btn-female">Female</button>
+                <button id="filterNonBinary" class="btn filter-btn filter-btn-nonbinary">Non-Binary</button>
+                <button id="filterClear" class="btn filter-btn filter-btn-clear">Clear Filter</button>
+            </div>
+            
         {% for result in results %}
             <tr class="{{ race.hover_class }}">
                 <td class="align-middle">{{ result.runner }}</td>
@@ -62,3 +69,67 @@
         </tbody>
     </table>
 </div>
+
+
+{% block extra_js %}
+<script>
+    // Define the custom sort type for ascending order
+    jQuery.fn.dataTableExt.oSort['category-pre-asc'] = function(a, b) {
+        var categoryOrder = {
+            'MS': 1, 'FS': 2, 'NBS': 3, 'M40': 4, 'F40': 5, 
+            'NB40': 6, 'M50': 7, 'F50': 8, 'NB50': 9, 'M60': 10, 
+            'F60': 11, 'NB60': 12, 'M70': 13, 'F70': 14, 
+            'NB70': 15, 'M80': 16, 'F80': 17, 'NB80': 18
+        };
+        return (categoryOrder[a] < categoryOrder[b]) ? -1 : ((categoryOrder[a] > categoryOrder[b]) ? 1 : 0);
+    };
+
+    // Define the custom sort type for descending order
+    jQuery.fn.dataTableExt.oSort['category-pre-desc'] = function(a, b) {
+        var categoryOrder = {
+            'MS': 1, 'FS': 2, 'NBS': 3, 'M40': 4, 'F40': 5, 
+            'NB40': 6, 'M50': 7, 'F50': 8, 'NB50': 9, 'M60': 10, 
+            'F60': 11, 'NB60': 12, 'M70': 13, 'F70': 14, 
+            'NB70': 15, 'M80': 16, 'F80': 17, 'NB80': 18
+        };
+        return (categoryOrder[a] < categoryOrder[b]) ? 1 : ((categoryOrder[a] > categoryOrder[b]) ? -1 : 0);
+    };
+
+    $(document).ready(function() {
+        // Initialize the DataTable and store the reference in the 'table' variable
+        var table = $('#resultsTable').DataTable({
+            "paging": false,
+            "info": false,
+            "pageLength": -1,
+            "order": [[4, 'asc']], // Set the default sorting to the 5th column (index 4)
+            "columnDefs": [{
+                "type": "category-pre",
+                "targets": [3]
+            }]
+        });
+
+        // Filter function
+        function filterByGender(genderPrefix) {
+            table.columns(3).search('^' + genderPrefix, true, false).draw();
+        }
+
+
+        // Event handlers for the buttons
+        $('#filterMale').on('click', function() {
+            filterByGender('^M'); // Regex for categories starting with 'M'
+        });
+
+        $('#filterFemale').on('click', function() {
+            filterByGender('^F'); // Regex for categories starting with 'F'
+        });
+
+        $('#filterNonBinary').on('click', function() {
+            filterByGender('^N'); // Regex for categories starting with 'N'
+        });
+
+        $('#filterClear').on('click', function() {
+            table.columns(3).search('').draw(); // Clear the filter
+        });
+    });
+</script>
+{% endblock %}

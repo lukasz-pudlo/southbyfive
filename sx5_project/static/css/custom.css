@@ -225,6 +225,98 @@
     color: #68267e !important;
 }
 
+.dataTables_filter {
+    float: left !important;
+    /* Aligns the search box to the right */
+    text-align: left !important;
+    /* Aligns the text within the search box to the right */
+}
+
+#filterContainer {
+    display: flex !important;
+    /* Align items in a row */
+    justify-content: center !important;
+    /* Center items horizontally */
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+
+    flex-wrap: wrap !important;
+}
+
+#filterContainerClassification {
+    display: flex !important;
+    /* Align items in a row */
+    justify-content: center !important;
+    /* Center items horizontally */
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+
+    flex-wrap: wrap !important;
+}
+
+#filterContainer .btn {
+    margin: 5px !important;
+    /* Space around buttons */
+    white-space: nowrap !important;
+    /* Prevent text from wrapping */
+}
+
+#filterContainerClassification .btn {
+    margin: 5px !important;
+    /* Space around buttons */
+    white-space: nowrap !important;
+    /* Prevent text from wrapping */
+}
+
+.active-filter {
+    background-color: #007bff;
+    /* Example: blue background */
+    color: white !important;
+    /* White text */
+    border-color: #007bff !important;
+    /* Blue border */
+}
+
+
+.filter-btn {
+    width: 120px !important;
+    /* Fixed width for all buttons */
+    height: 40px !important;
+    /* Fixed height for all buttons */
+    margin: 5px !important;
+    /* Margin around buttons */
+    color: white !important;
+    /* Text color */
+    font-size: 16px !important;
+    /* Text size */
+    border-radius: 5px !important;
+    /* Rounded corners */
+    border: none !important;
+    /* No border */
+}
+
+/* Custom colors for each button */
+.filter-btn-male {
+    background-color: #df1f1e !important;
+    /* Example blue for male */
+}
+
+.filter-btn-female {
+    background-color: #418fcf !important;
+    /* Example red for female */
+}
+
+.filter-btn-nonbinary {
+    background-color: #68267e !important;
+    /* Example green for non-binary */
+}
+
+.filter-btn-clear {
+    background-color: #6c757d !important;
+    /* Example grey for clear */
+}
+
+
 @media (max-width: 767px) {
     .nav-link-lg {
         font-size: 1rem !important;

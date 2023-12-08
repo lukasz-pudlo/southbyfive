@@ -11,6 +11,14 @@
             </tr>
         </thead>
         <tbody>
+            <div id="filterContainerClassification" class="d-flex align-items-center">
+                <button id="filterMaleClassification" class="btn filter-btn filter-btn-male">Male</button>
+                <button id="filterFemaleClassification" class="btn filter-btn filter-btn-female">Female</button>
+                <button id="filterNonBinaryClassification" class="btn filter-btn filter-btn-nonbinary">Non-Binary</button>
+                <button id="filterClearClassification" class="btn filter-btn filter-btn-clear">Clear Filter</button>
+            </div>
+
+
             {% for result in classification_results %}
                 {% if result.general_points != 0 or result.gender_points != 0 or result.category_points != 0 %}
                 <tr class="{{ race.hover_class }}">
@@ -51,17 +59,38 @@
         return (categoryOrder[a] < categoryOrder[b]) ? 1 : ((categoryOrder[a] > categoryOrder[b]) ? -1 : 0);
     };
 
-    $(document).ready(function() {
-        $('#classificationTable').DataTable({
+
+    var classificationTable = $('#classificationTable').DataTable({
             "paging": false,
             "info": false,
             "pageLength": -1,
             "columnDefs": [{
                 "type": "category-pre",
-                "targets": [2] // Apply custom sorting to the Category column
+                "targets": [2]
             }]
         });
-    });
+
+        function filterByGenderClassification(genderPrefix) {
+            classificationTable.columns(2).search('^' + genderPrefix, true, false).draw();
+        }
+
+        // Adjust IDs in event handlers
+        $('#filterMaleClassification').on('click', function() {
+            filterByGenderClassification('^M');
+        });
+
+        $('#filterFemaleClassification').on('click', function() {
+            filterByGenderClassification('^F');
+        });
+
+        $('#filterNonBinaryClassification').on('click', function() {
+            filterByGenderClassification('^N');
+        });
+
+        $('#filterClearClassification').on('click', function() {
+            classificationTable.columns(2).search('').draw();
+        });
+    
 </script>
 {% endblock %}
 
