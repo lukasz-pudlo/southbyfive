@@ -4,7 +4,7 @@
             <tr>
                 <th scope="col" class="align-middle">Runner</th>
                 <th scope="col" class="align-middle">Category</th>
-                <th scope="col" class="align-middle">Position</th>
+                <th scope="col" class="align-middle">Overall Position</th>
                 <th scope="col" class="align-middle">General Points</th>
                 <th scope="col" class="align-middle">Gender Points</th>
                 <th scope="col" class="align-middle">Category Points</th>               
@@ -73,23 +73,34 @@
 
         function filterByGenderClassification(genderPrefix) {
             classificationTable.columns(1).search('^' + genderPrefix, true, false).draw();
+            classificationTable.order([[4, 'asc']]).draw(); // Sort by "Gender Points" (5th column)
+        }
+
+        function setColumnName(gender) {
+            var columnName = gender ? gender + " Position" : "Overall Position";
+            $('#classificationTable th').eq(2).text(columnName);
         }
 
         // Adjust IDs in event handlers
         $('#filterMaleClassification').on('click', function() {
             filterByGenderClassification('^M');
+            setColumnName("Male");
         });
 
         $('#filterFemaleClassification').on('click', function() {
             filterByGenderClassification('^F');
+            setColumnName("Female");
         });
 
         $('#filterNonBinaryClassification').on('click', function() {
             filterByGenderClassification('^N');
+            setColumnName("Non-Binary");
         });
 
         $('#filterClearClassification').on('click', function() {
             classificationTable.columns(1).search('').draw();
+            classificationTable.order([[2, 'asc']]).draw(); // Revert to default sorting by "Overall Position" (3rd column)
+            setColumnName(null); // Reset the column name
         });
     
 </script>
