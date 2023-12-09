@@ -130,14 +130,17 @@
             setColumnName("Non-Binary");
         });
 
+        // $('#filterClearClassification').on('click', function() {
+        //     classificationTable.columns(1).search('').draw();
+        //     classificationTable.order([[2, 'asc']]).draw(); // Revert to default sorting by "Overall Position" (3rd column)
+        //     setColumnName(null); // Reset the column name
+        //     toggleSorting(true); // Re-enable sorting
+        //     isFilterActive = false;
+        // });
         $('#filterClearClassification').on('click', function() {
-            classificationTable.columns(1).search('').draw();
-            classificationTable.order([[2, 'asc']]).draw(); // Revert to default sorting by "Overall Position" (3rd column)
-            setColumnName(null); // Reset the column name
-            toggleSorting(true); // Re-enable sorting
-            isFilterActive = false;
+            window.location.href = '{{ request.path }}?tab=classification-results';
         });
-    
+
 </script>
 {% endblock %}
 
