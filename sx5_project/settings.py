@@ -186,47 +186,47 @@ DATABASES = {
 }
 
 # S3 bucket configuration for deployment to AWS Elastic Beanstalk.
-s3_credentials = get_s3_credentials()
-AWS_ACCESS_KEY_ID = s3_credentials.get("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = s3_credentials.get("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = s3_credentials.get("AWS_STORAGE_BUCKET_NAME")
-AWS_S3_REGION_NAME = s3_credentials.get("AWS_S3_REGION_NAME")
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+# s3_credentials = get_s3_credentials()
+# AWS_ACCESS_KEY_ID = s3_credentials.get("AWS_ACCESS_KEY_ID")
+# AWS_SECRET_ACCESS_KEY = s3_credentials.get("AWS_SECRET_ACCESS_KEY")
+# AWS_STORAGE_BUCKET_NAME = s3_credentials.get("AWS_STORAGE_BUCKET_NAME")
+# AWS_S3_REGION_NAME = s3_credentials.get("AWS_S3_REGION_NAME")
+# AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
-# # Static files (CSS, JavaScript, images)
-AWS_STATIC_LOCATION = 'static'
-STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# # # Static files (CSS, JavaScript, images)
+# AWS_STATIC_LOCATION = 'static'
+# STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-# # Media files (uploads)
-AWS_MEDIA_LOCATION = 'media'
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_MEDIA_LOCATION)
+# # # Media files (uploads)
+# AWS_MEDIA_LOCATION = 'media'
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_MEDIA_LOCATION)
 
 # S3 bucket configuration for local development but with access to AWS S3 bucket.
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
-AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+# AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+# AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+# AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+# AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
+# AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
-# Static files (CSS, JavaScript, images)
-AWS_STATIC_LOCATION = 'static'
-STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# # Static files (CSS, JavaScript, images)
+# AWS_STATIC_LOCATION = 'static'
+# STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-# Media files (uploads)
-AWS_MEDIA_LOCATION = 'media'
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_MEDIA_LOCATION)
+# # Media files (uploads)
+# AWS_MEDIA_LOCATION = 'media'
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_MEDIA_LOCATION)
 
-# Local static and media configuration for local development.
+# # Local static and media configuration for local development.
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Ensure STATICFILES_STORAGE is set to the default
-# STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 
 # Password validation

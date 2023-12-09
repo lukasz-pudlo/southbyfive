@@ -59,12 +59,24 @@
         return (categoryOrder[a] < categoryOrder[b]) ? 1 : ((categoryOrder[a] > categoryOrder[b]) ? -1 : 0);
     };
 
+    var isFilterActive = false;
+
 
     var classificationTable = $('#classificationTable').DataTable({
             "paging": false,
             "info": false,
             "order": [[2, 'asc']], // Set the default sorting to the 3rd column (index 2)
             "pageLength": -1,
+            "drawCallback": function(settings) {
+                if (isFilterActive) {
+                    var api = this.api();
+                    var rowIndex = 1;
+                    api.rows({page: 'current'}).every(function() {
+                        this.cell(this.index(), 2).data(rowIndex++);
+                    });
+                }
+            },
+
             "columnDefs": [{
                 "type": "category-pre",
                 "targets": [1]
@@ -72,13 +84,34 @@
         });
 
         function filterByGenderClassification(genderPrefix) {
+            isFilterActive = true;
             classificationTable.columns(1).search('^' + genderPrefix, true, false).draw();
             classificationTable.order([[4, 'asc']]).draw(); // Sort by "Gender Points" (5th column)
+            toggleSorting(false); // Disable sorting
+
         }
 
         function setColumnName(gender) {
             var columnName = gender ? gender + " Position" : "Overall Position";
             $('#classificationTable th').eq(2).text(columnName);
+        }
+
+        function toggleSorting(enable) {
+            classificationTable.columns().every(function (index) {
+                classificationTable.column(index).settings()[0].aoColumns[index].bSortable = enable;
+            });
+
+            // Directly modify the inline style of the headers
+            if (enable) {
+                $('#classificationTable th').css('background-image', ''); // Reset to default
+            } else {
+                $('#classificationTable th').css('background-image', 'none'); // Remove sorting arrows
+            }
+
+
+            // Redraw table to apply the updated settings
+            classificationTable.draw();
+
         }
 
         // Adjust IDs in event handlers
@@ -101,6 +134,8 @@
             classificationTable.columns(1).search('').draw();
             classificationTable.order([[2, 'asc']]).draw(); // Revert to default sorting by "Overall Position" (3rd column)
             setColumnName(null); // Reset the column name
+            toggleSorting(true); // Re-enable sorting
+            isFilterActive = false;
         });
     
 </script>

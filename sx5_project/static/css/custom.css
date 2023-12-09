@@ -318,6 +318,21 @@
     /* Example grey for clear */
 }
 
+/* Hide sorting arrows when sorting is disabled */
+#classificationTable th.sorting_disabled.sorting::after,
+#classificationTable th.sorting_disabled.sorting::before,
+#classificationTable th.sorting_disabled.sorting_asc::after,
+#classificationTable th.sorting_disabled.sorting_asc::before,
+#classificationTable th.sorting_disabled.sorting_desc::after,
+#classificationTable th.sorting_disabled.sorting_desc::before {
+    display: none !important;
+}
+
+
+
+
+
+
 
 @media (max-width: 767px) {
     .nav-link-lg {
