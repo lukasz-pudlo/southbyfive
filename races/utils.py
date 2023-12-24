@@ -137,7 +137,6 @@ def create_initial_race_version(new_race):
                 general_points=result.general_position,
                 gender_points=result.gender_position,
                 category_points=result.category_position,
-                # club_points=result.club_position
             )
 
 
@@ -160,7 +159,6 @@ def recalculate_race_versions():
             dnf=False,
             runner_id__in=qualifying_runner_ids).all()
 
-        # Add club_positions_mapping to the below list once ready
         general_positions, gender_positions_mapping, category_positions_mapping = recalculate_positions(
             revised_results)
 
@@ -171,14 +169,12 @@ def recalculate_race_versions():
             ResultVersion.objects.create(
                 result=result,
                 race_version=race_version,
-                version=new_version_number,  # This should be new_version_number
+                version=new_version_number,
                 general_points=general_positions.get(runner_id, 0),
                 gender_points=gender_positions_mapping.get(
                     runner_id, {}).get(gender, 0),
                 category_points=category_positions_mapping.get(
-                    runner_id, {}).get(result.runner.category, 0),
-                # club_points=club_positions_mapping.get(
-                #     runner_id, {}).get(result.runner.club, 0)
+                    runner_id, {}).get(result.runner.category, 0)
             )
 
 
@@ -224,8 +220,6 @@ def create_classification_entries(new_race):
         total_gender_points = sum(rv.gender_points for rv in result_versions)
         total_category_points = sum(
             rv.category_points for rv in result_versions)
-        # total_club_points = sum(
-        #     rv.club_points for rv in result_versions)
 
         ClassificationResult.objects.update_or_create(
             runner=runner,
@@ -234,7 +228,6 @@ def create_classification_entries(new_race):
                 'general_points': total_general_points,
                 'gender_points': total_gender_points,
                 'category_points': total_category_points,
-                # 'club_points': total_club_points
             }
         )
 
@@ -248,10 +241,8 @@ def recalculate_positions(results):
     general_positions = {}
     gender_positions = defaultdict(int)
     category_positions = defaultdict(int)
-    club_positions = defaultdict(int)
     gender_positions_mapping = defaultdict(dict)
     category_positions_mapping = defaultdict(dict)
-    # club_positions_mapping = defaultdict(dict)
 
     for index, result in enumerate(sorted_results, 1):
         runner_id = result.runner_id
@@ -260,13 +251,10 @@ def recalculate_positions(results):
         general_positions[runner_id] = index
         gender_positions[gender] += 1
         category_positions[result.runner.category] += 1
-        # club_positions[result.runner.club] += 1
 
         gender_positions_mapping[runner_id][gender] = gender_positions[gender]
         category_positions_mapping[runner_id][result.runner.category] = category_positions[result.runner.category]
-        # club_positions_mapping[runner_id][result.runner.club] = club_positions[result.runner.club]
 
-    # Add club_positions_mapping to the below list once ready
     return general_positions, gender_positions_mapping, category_positions_mapping
 
 
