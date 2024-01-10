@@ -24,9 +24,9 @@ from classifications.views import ClassificationDetailView
 
 
 def home(request):
-    first_race = Race.objects.last()
-    if first_race is not None:
-        return redirect('races:detail', slug=first_race.slug)
+    last_race = Race.objects.first()
+    if last_race is not None:
+        return redirect('races:detail', slug=last_race.slug)
     else:
         return redirect('races:list')
 
@@ -96,8 +96,8 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
                     category = row['Category']
                     club = row['Club'] if not isnull(
                         row['Club']) else 'Unattached'
-
                     time_str = row['Time']
+
                     if time_str == "DNF":
                         time = "02:00:00"
                         dnf = False
