@@ -128,7 +128,7 @@ def create_initial_race_version(new_race):
         race_version = RaceVersion.objects.create(
             race=new_race, version_number=1)
 
-        for result in new_race.result_set.exclude(dnf=True):
+        for result in new_race.result_set.all():
             print(f"Debug: Creating ResultVersion for result id: {result.id}")
             ResultVersion.objects.create(
                 result=result,
@@ -156,7 +156,6 @@ def recalculate_race_versions():
             race=race, version_number=new_version_number)
 
         revised_results = race.result_set.filter(
-            dnf=False,
             runner_id__in=qualifying_runner_ids).all()
 
         general_positions, gender_positions_mapping, category_positions_mapping = recalculate_positions(
@@ -190,23 +189,29 @@ def create_classification_entries(new_race):
 
     highest_version = RaceVersion.objects.aggregate(Max('version_number'))[
         'version_number__max'] or 0
+    print(highest_version)
 
     classification, _ = Classification.objects.get_or_create(
         race=new_race, version_number=highest_version)
 
     race_versions = RaceVersion.objects.filter(
-        race__in=Race.objects.all()).order_by('race', '-version_number')
+        race__in=Race.objects.all()).order_by('race', 'version_number')
     latest_race_versions = {rv.race_id: rv for rv in race_versions}
+    print('Printing race_versions')
+    print(race_versions)
+    print('Printing latest_race_versions')
+    for race_id, race_version in latest_race_versions.items():
+        print(f"Race ID: {race_id}, Race Version: {race_version}")
 
     runners_with_results = Runner.objects.filter(
         id__in=qualifying_runner_ids).distinct()
+    print(runners_with_results)
 
     for runner in runners_with_results:
         print(
             f"Debug: Creating ClassificationResult for runner id: {runner.id}")
 
         result_versions = list(ResultVersion.objects.filter(
-            result__dnf=False,
             result__runner=runner,
             race_version__in=latest_race_versions.values()
         ))
@@ -234,7 +239,7 @@ def create_classification_entries(new_race):
 
 def recalculate_positions(results):
     sorted_results = sorted(
-        [result for result in results if not result.dnf],
+        [result for result in results],
         key=lambda x: x.time or pd.Timedelta.max
     )
 

@@ -185,7 +185,7 @@ DATABASES = {
     }
 }
 
-# S3 bucket configuration for deployment to AWS Elastic Beanstalk.
+# # S3 bucket configuration for deployment to AWS Elastic Beanstalk.
 # s3_credentials = get_s3_credentials()
 # AWS_ACCESS_KEY_ID = s3_credentials.get("AWS_ACCESS_KEY_ID")
 # AWS_SECRET_ACCESS_KEY = s3_credentials.get("AWS_SECRET_ACCESS_KEY")
@@ -198,7 +198,7 @@ DATABASES = {
 # STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
 # STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-# # # Media files (uploads)
+# # Media files (uploads)
 # AWS_MEDIA_LOCATION = 'media'
 # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 # MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_MEDIA_LOCATION)
@@ -224,7 +224,6 @@ DATABASES = {
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 # Ensure STATICFILES_STORAGE is set to the default
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
