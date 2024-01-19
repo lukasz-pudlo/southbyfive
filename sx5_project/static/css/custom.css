@@ -52,27 +52,27 @@
 } */
 
 .kings-park-hover:hover td {
-    background-color: #df1f1e !important;
+    background-color: rgb(223, 31, 30, .8) !important;
 }
 
 .linn-park-hover:hover td {
-    background-color: #eda51f !important;
+    background-color: rgb(237, 165, 31, .8) !important;
 }
 
 .rouken-glen-hover:hover td {
-    background-color: #ece020 !important;
+    background-color: rgb(236, 224, 32, .8) !important;
 }
 
 .pollok-park-hover:hover td {
-    background-color: #49ad3c !important;
+    background-color: rgb(73, 173, 60, .8) !important;
 }
 
 .bellahouston-park-hover:hover td {
-    background-color: #418fcf !important;
+    background-color: rgb(65, 143, 207, .8) !important;
 }
 
 .queens-park-hover:hover td {
-    background-color: #68267e !important;
+    background-color: rgb(104, 38, 126, .8) !important;
 }
 
 .default-hover:hover td {

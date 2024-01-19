@@ -148,7 +148,7 @@ WSGI_APPLICATION = 'sx5_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# Database configuration for deployment to AWS Elastic Beanstalk.
+# # Database configuration for deployment to AWS Elastic Beanstalk.
 # rds_credentials = get_rds_credentials()
 # DATABASES = {
 #     'default': {
@@ -161,7 +161,7 @@ WSGI_APPLICATION = 'sx5_project.wsgi.application'
 #     }
 # }
 
-# Database configuration for local development, but with access to RDS database.
+# # Database configuration for local development, but with access to RDS database.
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -203,7 +203,7 @@ DATABASES = {
 # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 # MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_MEDIA_LOCATION)
 
-# S3 bucket configuration for local development but with access to AWS S3 bucket.
+# # S3 bucket configuration for local development but with access to AWS S3 bucket.
 # AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 # AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 # AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
