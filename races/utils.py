@@ -7,6 +7,7 @@ from races.models import Race, Result, Runner
 from race_versions.models import ResultVersion, RaceVersion
 from classifications.models import Classification, ClassificationResult
 from collections import Counter, defaultdict
+from django.db.models import Count
 
 
 def generate_test_results():
@@ -272,3 +273,9 @@ def get_gender_from_category(category):
         return 'Non-binary'
     else:
         raise ValueError(f"Invalid category: {category}")
+
+
+def get_list_of_runners_who_completed_five_races():
+    runners = Runner.objects.annotate(
+        num_races=Count('result')).filter(num_races=5)
+    return runners
