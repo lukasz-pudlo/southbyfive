@@ -25,22 +25,43 @@ def generate_all_races_runners_list():
     runner_participation_counts = Counter(
         entry['runner_id'] for entry in all_race_results)
 
-    # Filter runner IDs that have participated in all races
-    all_races_runner_ids = [
-        runner_id for runner_id, count in runner_participation_counts.items() if count == total_races
+    # Filter runner IDs that have participated in 6 races. This can be changed to any number between 1 - 6 or to total_races
+    six_races_runner_ids = [
+        runner_id for runner_id, count in runner_participation_counts.items() if count == 6
     ]
 
-    all_races_runners = Runner.objects.filter(id__in=all_races_runner_ids)
+    six_races_runners = Runner.objects.filter(id__in=six_races_runner_ids)
+
+    # Filter runner IDs that have participated in 5 races
+    five_races_runner_ids = [
+        runner_id for runner_id, count in runner_participation_counts.items() if count == 5
+    ]
+
+    five_races_runners = Runner.objects.filter(id__in=five_races_runner_ids)
 
     # Prepare the list of runner names
-    runner_names = [runner.__str__() for runner in all_races_runners]
+    six_races_runner_names = [runner.__str__() for runner in six_races_runners]
 
-    # Write the list to a text file
-    with open('all_races_runner_list.txt', 'w') as file:
-        for name in runner_names:
+    # Prepare the list of runner names
+    five_races_runner_names = [runner.__str__()
+                               for runner in five_races_runners]
+
+    # Write the lists to a text file
+    with open('six_races_runner_list.txt', 'w') as file:
+        file.write(
+            f"{len(six_races_runner_names)} participated in six races\n")
+        for name in six_races_runner_names:
             file.write(name + '\n')
 
-    print("List of runners who participated in all races generated.")
+    print("List of runners who participated in six races generated.")
+
+    with open('five_races_runner_list.txt', 'w') as file:
+        file.write(
+            f"{len(five_races_runner_names)} participated in five races\n")
+        for name in five_races_runner_names:
+            file.write(name + '\n')
+
+    print("List of runners who participated in five races generated.")
 
 
 if __name__ == "__main__":
