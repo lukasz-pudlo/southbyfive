@@ -10,64 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-import boto3
-import json
-from botocore.exceptions import ClientError
-
 from pathlib import Path
 import os
 
 from dotenv import load_dotenv
 load_dotenv()
-
-# Fetch credentials from Secrets Manager
-
-
-def get_secret(secret_name, region_name="eu-west-1"):
-    # Create a Secrets Manager client
-    session = boto3.session.Session()
-    client = session.client(
-        service_name='secretsmanager', region_name=region_name)
-
-    try:
-        get_secret_value_response = client.get_secret_value(
-            SecretId=secret_name)
-    except ClientError as e:
-        raise e
-    else:
-        if 'SecretString' in get_secret_value_response:
-            return json.loads(get_secret_value_response['SecretString'])
-
-
-def get_rds_credentials():
-    if 'RDS_DB_NAME' in os.environ:
-        # Fetch RDS credentials from Secrets Manager
-        secret_name = "Sx5EbRdsCredentials"
-        return get_secret(secret_name)
-    else:
-        # Local database credentials
-        return {
-            'NAME': os.getenv("POSTGRES_DB"),
-            'USER': os.getenv("POSTGRES_USER"),
-            'PASSWORD': os.getenv("POSTGRES_PASSWORD"),
-            'HOST': os.getenv("POSTGRES_HOST"),
-            'PORT': os.getenv("POSTGRES_PORT"),
-        }
-
-
-def get_s3_credentials():
-    if 'AWS_STORAGE_BUCKET_NAME' in os.environ:
-        # Fetch S3 credentials from Secrets Manager
-        secret_name = "Sx5S3BucketCredentials"
-        return get_secret(secret_name)
-    else:
-        # Local S3 credentials
-        return {
-            'AWS_ACCESS_KEY_ID': os.getenv("AWS_ACCESS_KEY_ID"),
-            'AWS_SECRET_ACCESS_KEY': os.getenv("AWS_SECRET_ACCESS_KEY"),
-            'AWS_STORAGE_BUCKET_NAME': os.getenv("AWS_STORAGE_BUCKET_NAME"),
-            'AWS_S3_REGION_NAME': os.getenv("AWS_S3_REGION_NAME"),
-        }
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
