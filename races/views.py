@@ -1,26 +1,17 @@
-import os
-from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
-
 import pandas as pd
 from pandas import isnull
 from django.db import transaction
-from typing import Any, Dict
 from django.urls import reverse_lazy
-from pathlib import Path
 from races.utils import create_result_versions
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
-from django.urls import reverse
-
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from races.models import Race, Result, Runner
 
 from races.forms import RaceForm
 from classifications.models import ClassificationResult
-
-from classifications.views import ClassificationDetailView
 
 
 def home(request):
