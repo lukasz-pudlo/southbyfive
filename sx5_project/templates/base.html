@@ -34,10 +34,10 @@
                 <ul class="navbar-nav">
                     {% for park_name, details in race_navbar_with_dates.items %}
                         <li class="nav-item">
-                            {% if details.race %}
-                                <a class="nav-link {% if request.resolver_match.url_name == 'detail' and request.resolver_match.kwargs.slug == details.race.slug %}active{% endif %}" href="{% url 'races:detail' slug=details.race.slug %}">{{ park_name }}</a>
+                            {% if details.race and details.race.season_start_year and details.race.slug %}
+                                <a class="nav-link {% if request.resolver_match.url_name == 'detail' and request.resolver_match.kwargs.slug == details.race.slug %}active{% endif %}" href="{% url 'races:detail' year=details.race.season_start_year slug=details.race.slug %}">{{ park_name }}</a>
                             {% else %}
-                                <a class="nav-link disabled" href="#">{{ park_name }} - {{ details.date|date:"d/m/Y" }}</a>
+                                <a class="nav-link disabled" href="#">{{ park_name }}</a>
                             {% endif %}
                         </li>
                     {% endfor %}
@@ -48,7 +48,7 @@
             </div>
             
         </div>
-    </nav>
+    </nav>    
 
     <div class="container">
         {% block content %}

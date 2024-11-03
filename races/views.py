@@ -38,7 +38,14 @@ class RaceListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['races'] = Race.objects.all()
+        season_year = self.request.GET.get('season')
+        if season_year:
+            context['races'] = Race.objects.filter(
+                season_start_year=season_year)
+        else:
+            context['races'] = Race.objects.all()
+        context['seasons'] = Race.objects.values_list(
+            'season_start_year', flat=True).distinct()
         return context
 
 
@@ -46,6 +53,10 @@ class RaceDetailView(DetailView):
     model = Race
     template_name = 'races/race_detail.html'
     slug_field = 'slug'
+
+    def get_object(self, queryset=None):
+        # Retrieve the race based on slug and year (season_start_year)
+        return Race.objects.get(slug=self.kwargs['slug'], season_start_year=self.kwargs['year'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

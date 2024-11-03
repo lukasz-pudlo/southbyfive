@@ -3,7 +3,7 @@
 {% block content %}
 <div class="card">
     <div class="card-body">
-        <h5 class="card-title">{{ race.name }}</h5>
+        <h5 class="card-title">{{ race.name }}{% if race.season_start_year %} ({{ race.season_start_year }}/{{ race.season_start_year|add:1 }}){% endif %}</h5>
         <p class="card-text">{{ race.description }}</p>
 
         {% with active_park_name|slugify as active_class_suffix %}
@@ -15,9 +15,9 @@
             </li>
             {% if classification_results %}
             <li class="nav-item" role="presentation">
-                    <a class="nav-link {% if active_tab == 'classification-results' %}active {{ active_class_suffix }}-color{% endif %}"
-                    href="{{ request.path }}?tab=classification-results"
-                    role="tab">Classification Results</a>
+                <a class="nav-link {% if active_tab == 'classification-results' %}active {{ active_class_suffix }}-color{% endif %}"
+                href="{{ request.path }}?tab=classification-results"
+                role="tab">Classification Results</a>
             </li>
             {% endif %}
         </ul>

@@ -7,6 +7,7 @@ class Race(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     race_date = models.DateField(null=True, blank=True)
+    season_start_year = models.PositiveIntegerField(null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     race_file = models.FileField(
@@ -19,11 +20,11 @@ class Race(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:  # If the slug hasn't been set yet.
-            self.slug = slugify(self.name)
+            self.slug = f"{slugify(self.name)}-{self.season_start_year}"
         super(Race, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('races:detail', kwargs={'slug': self.slug})
+        return reverse('races:detail', kwargs={'year': self.season_start_year, 'slug': self.slug})
 
     def calculate_positions(self):
         results = list(self.result_set.all())
