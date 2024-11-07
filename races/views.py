@@ -16,10 +16,15 @@ from classifications.models import ClassificationResult
 
 def home(request):
     last_race = Race.objects.first()
-    if last_race is not None:
-        # Pass both `year` and `slug` for the `races:detail` URL
+    # Retrieve distinct season years for the Seasons dropdown
+    seasons = Race.objects.values_list(
+        'season_start_year', flat=True).distinct().order_by('season_start_year')
+
+    if last_race and last_race.season_start_year and last_race.slug:
+        # Redirect to the detail view with both `year` and `slug` for the last race
         return redirect('races:detail', year=last_race.season_start_year, slug=last_race.slug)
     else:
+        # Fallback to the race list if no valid race is available
         return redirect('races:list')
 
 
@@ -28,16 +33,37 @@ class RaceListView(ListView):
     template_name = 'races/race_list.html'
     context_object_name = 'races'
 
+    def get(self, request, *args, **kwargs):
+        season = self.kwargs.get('season')
+
+        if season:
+            # Set the selected season in the session
+            request.session['selected_season'] = season
+
+            # Get the most recent race in the specified season
+            recent_race = Race.objects.filter(
+                season_start_year=season).order_by('-race_date').first()
+
+            if recent_race:
+                # Redirect to the most recent race's detail page
+                return redirect('races:detail', year=recent_race.season_start_year, slug=recent_race.slug)
+
+        # If no season or race is found, display the full race list
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        season = self.kwargs.get(
+            'season') or self.request.session.get('selected_season')
+        if season:
+            queryset = queryset.filter(season_start_year=season)
+        return queryset
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        season_year = self.request.GET.get('season')
-        if season_year:
-            context['races'] = Race.objects.filter(
-                season_start_year=season_year)
-        else:
-            context['races'] = Race.objects.all()
-        context['seasons'] = Race.objects.values_list(
-            'season_start_year', flat=True).distinct()
+        # Add selected season to the context
+        context['selected_season'] = self.kwargs.get(
+            'season') or self.request.session.get('selected_season')
         return context
 
 
@@ -47,13 +73,22 @@ class RaceDetailView(DetailView):
     slug_field = 'slug'
 
     def get_object(self, queryset=None):
-        # Retrieve the race based on slug and year (season_start_year)
-        return Race.objects.get(slug=self.kwargs['slug'], season_start_year=self.kwargs['year'])
+        season_year = self.kwargs.get('year')
+        slug = self.kwargs.get('slug')
+        print(
+            f"Attempting to retrieve Race with season_start_year={season_year} and slug={slug}")
+
+        race = Race.objects.get(slug=slug, season_start_year=season_year)
+
+        self.request.session['selected_season'] = season_year
+        return race
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        race = self.object
+        # Pass the selected season to the context for consistent use in templates
+        context['selected_season'] = int(self.kwargs.get('year'))
 
+        race = self.object
         # Ordering results by general_position, then gender_position, then category_position
         context['results'] = race.result_set.select_related('runner').order_by(
             'general_position', 'gender_position', 'category_position'

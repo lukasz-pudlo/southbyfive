@@ -10,5 +10,6 @@ urlpatterns = [
          RaceDetailView.as_view(), name='detail'),
     path('race/<slug:slug>/edit/', RaceUpdateView.as_view(), name='edit'),
     path('race/<slug:slug>/delete/',
-         RaceDeleteView.as_view(), name='delete')
+         RaceDeleteView.as_view(), name='delete'),
+    path('<int:season>/', RaceListView.as_view(), name='season_races'),
 ]

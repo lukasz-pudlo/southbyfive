@@ -81,7 +81,7 @@ BASE_DIR = Path(__file__).resolve().parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['southbyfive.run', 'www.southbyfive.run', 'localhost', '127.0.0.1',
                  '.southbyfive.run', 'southbyfive.eu-west-1.elasticbeanstalk.com', 'http://southbyfive-app-env.eba-vma6ktp3.eu-west-1.elasticbeanstalk.com', '.ngrok-free.app']
@@ -136,7 +136,9 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'races.context_processors.race_list',
                 'races.context_processors.race_navbar',
-                'races.context_processors.race_dates_context'
+                'races.context_processors.race_dates_context',
+                'races.context_processors.available_seasons',
+                'races.context_processors.race_navbar_with_dates',
             ],
         },
     },
@@ -272,10 +274,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 LOGIN_REDIRECT_URL = '/races'
-
-
-print("Database name:", os.getenv('DEV_POSTGRES_DB'))
-print("User:", os.getenv('DEV_POSTGRES_USER'))
-print("Password:", os.getenv('DEV_POSTGRES_PASSWORD'))
-print("Host:", os.getenv('DEV_POSTGRES_HOST'))
-print("Port:", os.getenv('POSTGRES_PORT'))

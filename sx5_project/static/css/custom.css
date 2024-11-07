@@ -398,3 +398,20 @@
         /* Center the navbar in the available space */
     }
 }
+
+/* Dropdown menu styling for dark theme */
+.navbar .dropdown-menu {
+    background-color: black !important;
+}
+
+.navbar .dropdown-menu .dropdown-item {
+    color: white !important;
+    background-color: black !important;
+}
+
+.navbar .dropdown-menu .dropdown-item:hover,
+.navbar .dropdown-menu .dropdown-item:focus {
+    background-color: #333 !important;
+    /* Slightly lighter shade on hover */
+    color: white !important;
+}

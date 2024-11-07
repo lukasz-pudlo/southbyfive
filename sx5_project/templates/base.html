@@ -33,17 +33,30 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     {% for park_name, details in race_navbar_with_dates.items %}
-                        <li class="nav-item">
-                            {% if details.race and details.race.season_start_year and details.race.slug %}
-                                <a class="nav-link {% if request.resolver_match.url_name == 'detail' and request.resolver_match.kwargs.slug == details.race.slug %}active{% endif %}" href="{% url 'races:detail' year=details.race.season_start_year slug=details.race.slug %}">{{ park_name }}</a>
-                            {% else %}
-                                <a class="nav-link disabled" href="#">{{ park_name }}</a>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
+                    <li class="nav-item">
+                        {% if details.race %}
+                            <a class="nav-link {% if request.resolver_match.url_name == 'detail' and request.resolver_match.kwargs.slug == details.race.slug %}active{% endif %}"
+                               href="{% url 'races:detail' year=details.race.season_start_year slug=details.race.slug %}">
+                                {{ park_name }}
+                            </a>
+                        {% else %}
+                            <a class="nav-link disabled" href="#">{{ park_name }}</a>
+                        {% endif %}
+                    </li>
+                  {% endfor %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'info:contact' %}">Info</a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="seasonDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Seasons
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="seasonDropdown">
+                            {% for season_start_year in seasons %}
+                                <a class="dropdown-item" href="{% url 'races:season_races' season=season_start_year %}">{{ season_start_year }}/{{ season_start_year|add:1 }}</a>
+                            {% endfor %}
+                        </div>
+                    </li>                    
                 </ul>                                                                        
             </div>
             
