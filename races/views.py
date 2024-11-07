@@ -17,7 +17,8 @@ from classifications.models import ClassificationResult
 def home(request):
     last_race = Race.objects.first()
     if last_race is not None:
-        return redirect('races:detail', slug=last_race.slug)
+        # Pass both `year` and `slug` for the `races:detail` URL
+        return redirect('races:detail', year=last_race.season_start_year, slug=last_race.slug)
     else:
         return redirect('races:list')
 
