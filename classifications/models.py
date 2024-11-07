@@ -20,7 +20,7 @@ class Classification(models.Model):
     @property
     def name(self):
         # Returns the name of the classification as the race name + ' Classification'
-        return f"{self.race.name} - Classification"
+        return f"{self.race.slug} - Classification"
 
     def save(self, *args, **kwargs):
         # Set the slug based on the classification name

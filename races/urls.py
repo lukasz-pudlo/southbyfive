@@ -6,8 +6,10 @@ app_name = 'races'
 urlpatterns = [
     path('', RaceListView.as_view(), name='list'),
     path('race/new/', RaceCreateView.as_view(), name='new'),
-    path('2023/race/<slug:slug>/', RaceDetailView.as_view(), name='detail'),
+    path('<int:year>/race/<slug:slug>/',
+         RaceDetailView.as_view(), name='detail'),
     path('race/<slug:slug>/edit/', RaceUpdateView.as_view(), name='edit'),
     path('race/<slug:slug>/delete/',
-         RaceDeleteView.as_view(), name='delete')
+         RaceDeleteView.as_view(), name='delete'),
+    path('<int:season>/', RaceListView.as_view(), name='season_races'),
 ]

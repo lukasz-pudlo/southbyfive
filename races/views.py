@@ -1,18 +1,11 @@
-import os
-from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
-
 import pandas as pd
 from pandas import isnull
 from django.db import transaction
-from typing import Any, Dict
 from django.urls import reverse_lazy
-from pathlib import Path
 from races.utils import create_result_versions
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
-from django.urls import reverse
-
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from races.models import Race, Result, Runner
@@ -20,14 +13,18 @@ from races.models import Race, Result, Runner
 from races.forms import RaceForm
 from classifications.models import ClassificationResult
 
-from classifications.views import ClassificationDetailView
-
 
 def home(request):
     last_race = Race.objects.first()
-    if last_race is not None:
-        return redirect('races:detail', slug=last_race.slug)
+    # Retrieve distinct season years for the Seasons dropdown
+    seasons = Race.objects.values_list(
+        'season_start_year', flat=True).distinct().order_by('season_start_year')
+
+    if last_race and last_race.season_start_year and last_race.slug:
+        # Redirect to the detail view with both `year` and `slug` for the last race
+        return redirect('races:detail', year=last_race.season_start_year, slug=last_race.slug)
     else:
+        # Fallback to the race list if no valid race is available
         return redirect('races:list')
 
 
@@ -36,9 +33,37 @@ class RaceListView(ListView):
     template_name = 'races/race_list.html'
     context_object_name = 'races'
 
+    def get(self, request, *args, **kwargs):
+        season = self.kwargs.get('season')
+
+        if season:
+            # Set the selected season in the session
+            request.session['selected_season'] = season
+
+            # Get the most recent race in the specified season
+            recent_race = Race.objects.filter(
+                season_start_year=season).order_by('-race_date').first()
+
+            if recent_race:
+                # Redirect to the most recent race's detail page
+                return redirect('races:detail', year=recent_race.season_start_year, slug=recent_race.slug)
+
+        # If no season or race is found, display the full race list
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        season = self.kwargs.get(
+            'season') or self.request.session.get('selected_season')
+        if season:
+            queryset = queryset.filter(season_start_year=season)
+        return queryset
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['races'] = Race.objects.all()
+        # Add selected season to the context
+        context['selected_season'] = self.kwargs.get(
+            'season') or self.request.session.get('selected_season')
         return context
 
 
@@ -47,11 +72,20 @@ class RaceDetailView(DetailView):
     template_name = 'races/race_detail.html'
     slug_field = 'slug'
 
+    def get_object(self, queryset=None):
+        season_year = self.kwargs.get('year')
+        slug = self.kwargs.get('slug')
+
+        race = Race.objects.get(slug=slug, season_start_year=season_year)
+
+        self.request.session['selected_season'] = season_year
+        return race
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        race = self.object
+        context['selected_season'] = int(self.kwargs.get('year'))
 
-        # Ordering results by general_position, then gender_position, then category_position
+        race = self.object
         context['results'] = race.result_set.select_related('runner').order_by(
             'general_position', 'gender_position', 'category_position'
         )
@@ -74,22 +108,19 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
     @transaction.atomic
     def form_valid(self, form):
         race = form.save(commit=False)
-
         race_count = Race.objects.count()
         race_number = race_count + 1
         race.race_number = race_number
 
         race.save()
-
         self.object = race
 
         if self.request.FILES:
             excel_file = self.request.FILES['race_file']
             if isinstance(excel_file, InMemoryUploadedFile):
                 df = pd.read_excel(excel_file)
-
                 results = []
-                for index, row in df.iterrows():
+                for _, row in df.iterrows():
                     first_name = row['First Name']
                     last_name = row['Last Name']
                     participant_number = row['Participant Number']
@@ -102,7 +133,6 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
                         time = "02:00:00"
                         dnf = False
                     else:
-                        # This will handle microseconds if they are present
                         time = pd.to_timedelta(time_str)
                         dnf = False
 
@@ -127,11 +157,11 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
 
             # Refresh results from db
             results = list(self.object.result_set.all())
-
             self.object.calculate_positions()
 
-            # Now that all Result objects have been saved, call create_result_versions
-            create_result_versions(self.object)
+            # Call create_result_versions with the race's season_start_year
+            create_result_versions(
+                self.object, season_start_year=race.season_start_year)
 
         return super().form_valid(form)
 
@@ -144,7 +174,6 @@ class RaceUpdateView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg = 'slug'
 
     def form_valid(self, form):
-        # If race_file has changed, delete old results and create new ones
         if 'race_file' in form.changed_data:
             self.object = form.save()
 
@@ -153,14 +182,20 @@ class RaceUpdateView(LoginRequiredMixin, UpdateView):
 
             # Get the new data from the file
             data = pd.read_excel(self.object.race_file.path)
-            for i, row in data.iterrows():
+            for _, row in data.iterrows():
                 first_name, last_name, category, club, time = row
                 runner, _ = Runner.objects.get_or_create(
-                    first_name=first_name, last_name=last_name, category=category, club=club)
+                    first_name=first_name, last_name=last_name, category=category, club=club
+                )
                 Result.objects.get_or_create(
-                    race=self.object, runner=runner, time=pd.to_timedelta(time))
+                    race=self.object, runner=runner, time=pd.to_timedelta(time)
+                )
 
             self.object.calculate_positions()
+
+            # Call create_result_versions with the race's season_start_year
+            create_result_versions(
+                self.object, season_start_year=self.object.season_start_year)
 
             return super().form_valid(form)
         else:

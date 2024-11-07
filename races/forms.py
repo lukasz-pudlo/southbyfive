@@ -8,11 +8,14 @@ class RaceForm(forms.ModelForm):
         widget=forms.DateInput(attrs={'type': 'date'}),
         required=False
     )
+    season_start_year = forms.IntegerField(
+        required=True, label="Season Start Year")
     race_file = forms.FileField()
 
     class Meta:
         model = Race
-        fields = ['name', 'description', 'race_date', 'race_file']
+        fields = ['name', 'description', 'race_date',
+                  'race_file', 'season_start_year']
 
 
 class ResultForm(forms.ModelForm):
