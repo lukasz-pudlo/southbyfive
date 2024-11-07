@@ -75,8 +75,6 @@ class RaceDetailView(DetailView):
     def get_object(self, queryset=None):
         season_year = self.kwargs.get('year')
         slug = self.kwargs.get('slug')
-        print(
-            f"Attempting to retrieve Race with season_start_year={season_year} and slug={slug}")
 
         race = Race.objects.get(slug=slug, season_start_year=season_year)
 
@@ -85,11 +83,9 @@ class RaceDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Pass the selected season to the context for consistent use in templates
         context['selected_season'] = int(self.kwargs.get('year'))
 
         race = self.object
-        # Ordering results by general_position, then gender_position, then category_position
         context['results'] = race.result_set.select_related('runner').order_by(
             'general_position', 'gender_position', 'category_position'
         )
@@ -112,22 +108,19 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
     @transaction.atomic
     def form_valid(self, form):
         race = form.save(commit=False)
-
         race_count = Race.objects.count()
         race_number = race_count + 1
         race.race_number = race_number
 
         race.save()
-
         self.object = race
 
         if self.request.FILES:
             excel_file = self.request.FILES['race_file']
             if isinstance(excel_file, InMemoryUploadedFile):
                 df = pd.read_excel(excel_file)
-
                 results = []
-                for index, row in df.iterrows():
+                for _, row in df.iterrows():
                     first_name = row['First Name']
                     last_name = row['Last Name']
                     participant_number = row['Participant Number']
@@ -140,7 +133,6 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
                         time = "02:00:00"
                         dnf = False
                     else:
-                        # This will handle microseconds if they are present
                         time = pd.to_timedelta(time_str)
                         dnf = False
 
@@ -165,11 +157,11 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
 
             # Refresh results from db
             results = list(self.object.result_set.all())
-
             self.object.calculate_positions()
 
-            # Now that all Result objects have been saved, call create_result_versions
-            create_result_versions(self.object)
+            # Call create_result_versions with the race's season_start_year
+            create_result_versions(
+                self.object, season_start_year=race.season_start_year)
 
         return super().form_valid(form)
 
@@ -182,7 +174,6 @@ class RaceUpdateView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg = 'slug'
 
     def form_valid(self, form):
-        # If race_file has changed, delete old results and create new ones
         if 'race_file' in form.changed_data:
             self.object = form.save()
 
@@ -191,14 +182,20 @@ class RaceUpdateView(LoginRequiredMixin, UpdateView):
 
             # Get the new data from the file
             data = pd.read_excel(self.object.race_file.path)
-            for i, row in data.iterrows():
+            for _, row in data.iterrows():
                 first_name, last_name, category, club, time = row
                 runner, _ = Runner.objects.get_or_create(
-                    first_name=first_name, last_name=last_name, category=category, club=club)
+                    first_name=first_name, last_name=last_name, category=category, club=club
+                )
                 Result.objects.get_or_create(
-                    race=self.object, runner=runner, time=pd.to_timedelta(time))
+                    race=self.object, runner=runner, time=pd.to_timedelta(time)
+                )
 
             self.object.calculate_positions()
+
+            # Call create_result_versions with the race's season_start_year
+            create_result_versions(
+                self.object, season_start_year=self.object.season_start_year)
 
             return super().form_valid(form)
         else:
