@@ -25,7 +25,11 @@
         {% for result in results %}
             <tr class="{{ race.hover_class }}">
                 <td class="align-middle">{{ result.runner }}</td>
-                <td class="align-middle">{{ result.runner.participant_number }}</td>
+                <td class="align-middle">
+                    {% if result.runner.participant_number != 'nan' %}
+                        {{ result.runner.participant_number|cut:".0" }}
+                    {% endif %}
+                </td>
                 <td class="align-middle">
                     {% if result.time %}
                         {% if result.time|format_timedelta == "02:00:00" %}
@@ -37,7 +41,6 @@
                         DNF
                     {% endif %}
                 </td>
-                
                 <td class="align-middle">
                     {% if result.runner.category != None %}
                         {{ result.runner.category }}
