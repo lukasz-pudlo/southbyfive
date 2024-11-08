@@ -1,6 +1,16 @@
 from .models import Race
 from datetime import date
 
+# Define a dictionary of scheduled dates for each park
+RACE_SCHEDULE_DATES = {
+    "King's Park": date(2023, 11, 5),
+    'Linn Park': date(2023, 11, 19),
+    'Rouken Glen': date(2023, 12, 3),
+    'Pollok Park': date(2023, 12, 17),
+    'Bellahouston Park': date(2024, 1, 7),
+    "Queen's Park": date(2024, 1, 21),
+}
+
 
 def race_list(request):
     races = Race.objects.all().order_by('date_added')
@@ -42,12 +52,12 @@ def race_navbar(request):
 
 def race_dates_context(request):
     race_dates = {
-        "King's Park": date(2023, 11, 5),
-        'Linn Park': date(2023, 11, 19),
-        'Rouken Glen': date(2023, 12, 3),
-        'Pollok Park': date(2023, 12, 17),
-        'Bellahouston Park': date(2024, 1, 7),
-        "Queen's Park": date(2024, 1, 21),
+        "King's Park": date(2024, 11, 3),
+        'Linn Park': date(2024, 11, 17),
+        'Rouken Glen': date(2024, 12, 1),
+        'Pollok Park': date(2023, 12, 15),
+        'Bellahouston Park': date(2025, 1, 5),
+        "Queen's Park": date(2025, 1, 19),
     }
 
     race_navbar_with_dates = {}
@@ -63,22 +73,17 @@ def race_dates_context(request):
 
 
 def race_navbar_with_dates(request):
-    # Determine the selected season, defaulting to the most recent season if none is provided
+    # Determine the selected season
     season = request.GET.get(
         'season') or request.session.get('selected_season')
-
     if season is None:
-        # Default to the most recent season, or fallback to the current year if no seasons exist
         season = Race.objects.order_by(
             '-season_start_year').values_list('season_start_year', flat=True).first()
         if season is None:
-            # If no seasons exist in the database, use the current year as a fallback
             season = date.today().year
 
-    # Ensure `season` is an integer for consistent processing
     season = int(season)
 
-    # Filter races by the selected season and order by the specified parks
     park_names = [
         "King's Park",
         "Linn Park",
@@ -88,12 +93,26 @@ def race_navbar_with_dates(request):
         "Queen's Park"
     ]
 
-    # Retrieve the latest race for each park within the selected season
-    races = {
-        name: Race.objects.filter(
+    races = {}
+    for name in park_names:
+        race = Race.objects.filter(
             name=name, season_start_year=season).order_by('-race_date').first()
-        for name in park_names
-    }
+
+        if race:
+            # Race is available for this season
+            races[name] = {
+                'race': race,
+                'available': True,
+                'race_date': race.race_date
+            }
+        else:
+            # Use scheduled date from RACE_SCHEDULE_DATES if race is not yet available
+            scheduled_race_date = RACE_SCHEDULE_DATES.get(name)
+            races[name] = {
+                'race': None,
+                'available': False,
+                'race_date': scheduled_race_date  # Date from predefined schedule
+            }
 
     return {'race_navbar': races, 'selected_season': season}
 

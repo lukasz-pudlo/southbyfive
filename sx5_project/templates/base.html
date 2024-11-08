@@ -32,18 +32,22 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    {% for park_name, details in race_navbar_with_dates.items %}
+                    {% for park_name, details in race_navbar.items %}
                     <li class="nav-item">
-                        {% if details.race %}
+                        {% if details.available %}
                             <a class="nav-link {% if request.resolver_match.url_name == 'detail' and request.resolver_match.kwargs.slug == details.race.slug %}active{% endif %}"
                                href="{% url 'races:detail' year=details.race.season_start_year slug=details.race.slug %}">
                                 {{ park_name }}
                             </a>
                         {% else %}
-                            <a class="nav-link disabled" href="#">{{ park_name }}</a>
+                            <span data-bs-toggle="tooltip" title="{% if details.race_date %}This race will take place on {{ details.race_date|date:"d M Y" }}{% else %}This race hasn't taken place yet{% endif %}">
+                                <a class="nav-link disabled race-tooltip" href="#">
+                                    {{ park_name }}
+                                </a>
+                            </span>
                         {% endif %}
                     </li>
-                  {% endfor %}
+                    {% endfor %}                                     
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'info:contact' %}">Info</a>
                     </li>
@@ -67,7 +71,17 @@
         {% block content %}
         {% endblock %}
     </div>
-    <!-- {% block javascript %}
-    {% endblock %} -->
+    {% block javascript %}
+    {% endblock %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Initialize tooltips only for elements with the 'race-tooltip' class
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('.race-tooltip'));
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl, {
+            customClass: 'custom-tooltip'
+        });            });
+        });
+    </script>    
 </body>
 </html>
