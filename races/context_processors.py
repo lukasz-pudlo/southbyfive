@@ -13,12 +13,15 @@ def race_navbar(request):
         'season') or request.session.get('selected_season')
 
     if season is None:
-        # Default to the most recent season
+        # Default to the most recent season if `season` is still None
         season = Race.objects.order_by(
             '-season_start_year').values_list('season_start_year', flat=True).first()
 
     # Save the selected season in session to maintain it across requests
     request.session['selected_season'] = season
+
+    # Ensure `season` is an integer if it's not None, otherwise use a default
+    season = int(season) if season is not None else date.today().year
 
     # Filter races by the selected season and order by the specified parks
     park_names = [
@@ -34,7 +37,7 @@ def race_navbar(request):
     races = {name: Race.objects.filter(name=name, season_start_year=season).order_by('-race_date').first()
              for name in park_names}
 
-    return {'race_navbar': races, 'selected_season': int(season)}
+    return {'race_navbar': races, 'selected_season': season}
 
 
 def race_dates_context(request):
@@ -60,14 +63,22 @@ def race_dates_context(request):
 
 
 def race_navbar_with_dates(request):
-    # Determine the selected season
-    selected_season = request.session.get('selected_season')
-    if not selected_season:
-        # Default to the most recent season if no season is selected
-        selected_season = Race.objects.order_by(
-            '-season_start_year').values_list('season_start_year', flat=True).first()
-        request.session['selected_season'] = selected_season
+    # Determine the selected season, defaulting to the most recent season if none is provided
+    season = request.GET.get(
+        'season') or request.session.get('selected_season')
 
+    if season is None:
+        # Default to the most recent season, or fallback to the current year if no seasons exist
+        season = Race.objects.order_by(
+            '-season_start_year').values_list('season_start_year', flat=True).first()
+        if season is None:
+            # If no seasons exist in the database, use the current year as a fallback
+            season = date.today().year
+
+    # Ensure `season` is an integer for consistent processing
+    season = int(season)
+
+    # Filter races by the selected season and order by the specified parks
     park_names = [
         "King's Park",
         "Linn Park",
@@ -77,21 +88,14 @@ def race_navbar_with_dates(request):
         "Queen's Park"
     ]
 
-    # Get the latest race for each park in the selected season
+    # Retrieve the latest race for each park within the selected season
     races = {
         name: Race.objects.filter(
-            name=name, season_start_year=selected_season).order_by('-race_date').first()
+            name=name, season_start_year=season).order_by('-race_date').first()
         for name in park_names
     }
 
-    # Prepare the dictionary for the navbar, associating each park with its latest race in the selected season
-    race_navbar_with_dates = {name: {'race': race}
-                              for name, race in races.items()}
-
-    return {
-        'race_navbar_with_dates': race_navbar_with_dates,
-        'selected_season': int(selected_season),
-    }
+    return {'race_navbar': races, 'selected_season': season}
 
 
 def available_seasons(request):
