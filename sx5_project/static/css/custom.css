@@ -415,3 +415,21 @@
     /* Slightly lighter shade on hover */
     color: white !important;
 }
+
+.navbar .nav-link.disabled {
+    color: #6c757d !important;
+    /* Ensures visible text color for disabled links */
+}
+
+.custom-tooltip .tooltip-inner {
+    background-color: #333333 !important;
+    color: #ffffff !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+}
+
+.custom-tooltip .tooltip-arrow::before {
+    background-color: #333333 !important;
+}
