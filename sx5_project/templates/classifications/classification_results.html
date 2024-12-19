@@ -2,9 +2,10 @@
     <table id="classificationTable" class="table">
         <thead>
             <tr>
+                <th scope="col" class="align-middle">Overall Position</th>
                 <th scope="col" class="align-middle">Runner</th>
                 <th scope="col" class="align-middle">Category</th>
-                <th scope="col" class="align-middle">Overall Position</th>
+                
                 <th scope="col" class="align-middle">General Points</th>
                 <th scope="col" class="align-middle">Gender Points</th>
                 <th scope="col" class="align-middle">Category Points</th>               
@@ -22,9 +23,10 @@
             {% for result in classification_results %}
                 {% if result.general_points != 0 or result.gender_points != 0 or result.category_points != 0 %}
                 <tr class="{{ race.hover_class }}">
+                    <td class="align-middle">{{ forloop.counter }}</td>
                     <td class="align-middle">{{ result.runner }}</td>
                     <td class="align-middle">{{ result.runner_category }}</td>
-                    <td class="align-middle">{{ forloop.counter }}</td>
+                    
                     <td class="align-middle">{{ result.general_points }}</td>
                     <td class="align-middle">{{ result.gender_points }}</td>
                     <td class="align-middle">{{ result.category_points }}</td>
@@ -65,7 +67,7 @@
     var classificationTable = $('#classificationTable').DataTable({
             "paging": false,
             "info": false,
-            "order": [[2, 'asc']], // Set the default sorting to the 3rd column (index 2)
+            "order": [[0, 'asc']], // Set the default sorting to the 1st column (index 0)
             "pageLength": -1,
             "drawCallback": function(settings) {
                 if (isFilterActive) {
@@ -79,7 +81,7 @@
 
             "columnDefs": [{
                 "type": "category-pre",
-                "targets": [1]
+                "targets": [2] // 3rd column, so index 2
             }]
         });
 

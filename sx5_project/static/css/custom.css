@@ -328,6 +328,11 @@
     display: none !important;
 }
 
+#classificationTable tbody td:first-child {
+    background-color: rgba(138, 1, 1, 0.05) !important;
+}
+
+
 
 
 
