@@ -212,7 +212,6 @@ def create_classification_entries(new_race, season_start_year):
     highest_version = RaceVersion.objects.filter(race__season_start_year=season_start_year).aggregate(
         Max('version_number')
     )['version_number__max'] or 0
-    print(highest_version)
 
     classification, _ = Classification.objects.get_or_create(
         race=new_race, version_number=highest_version
@@ -226,27 +225,44 @@ def create_classification_entries(new_race, season_start_year):
     runners_with_results = Runner.objects.filter(
         id__in=qualifying_runner_ids
     ).distinct()
-    print(runners_with_results)
 
     for runner in runners_with_results:
-        print(
-            f"Debug: Creating ClassificationResult for runner id: {runner.id}")
-
+        # Fetch all result versions for this runner
         result_versions = list(ResultVersion.objects.filter(
             result__runner=runner,
             race_version__in=latest_race_versions.values()
         ))
 
-        # If the runner has participated in all n races, consider only the best n-1 results
+        # Debugging: Log raw results for this runner
+        print(f"Runner: {runner.first_name} {runner.last_name}")
+        print(
+            f"Raw results: {[{'general': rv.general_points, 'gender': rv.gender_points, 'category': rv.category_points} for rv in result_versions]}")
+
+        # Separate exclusions for general, gender, and category points
+        general_results = sorted(
+            result_versions, key=lambda x: x.general_points)
+        gender_results = sorted(result_versions, key=lambda x: x.gender_points)
+        category_results = sorted(
+            result_versions, key=lambda x: x.category_points)
+
+        # Exclude the worst result only if the runner participated in all races
         if total_races > 1 and len(result_versions) == total_races:
-            result_versions = sorted(
-                result_versions, key=lambda x: x.general_points)[:-1]
+            general_results = general_results[:-1]
+            gender_results = gender_results[:-1]
+            category_results = category_results[:-1]
 
-        total_general_points = sum(rv.general_points for rv in result_versions)
-        total_gender_points = sum(rv.gender_points for rv in result_versions)
+        # Compute totals
+        total_general_points = sum(rv.general_points for rv in general_results)
+        total_gender_points = sum(rv.gender_points for rv in gender_results)
         total_category_points = sum(
-            rv.category_points for rv in result_versions)
+            rv.category_points for rv in category_results)
 
+        # Debugging: Log computed totals
+        print(f"Computed totals for {runner.first_name} {runner.last_name}:")
+        print(
+            f"General: {total_general_points}, Gender: {total_gender_points}, Category: {total_category_points}")
+
+        # Update or create the classification result
         ClassificationResult.objects.update_or_create(
             runner=runner,
             classification=classification,
@@ -259,6 +275,7 @@ def create_classification_entries(new_race, season_start_year):
 
 
 def recalculate_positions(results):
+    # Sort results by time
     sorted_results = sorted(
         [result for result in results],
         key=lambda x: x.time or pd.Timedelta.max
@@ -274,12 +291,21 @@ def recalculate_positions(results):
         runner_id = result.runner_id
         gender = get_gender_from_category(result.runner.category)
 
+        # General position
         general_positions[runner_id] = index
-        gender_positions[gender] += 1
-        category_positions[result.runner.category] += 1
 
+        # Gender position
+        gender_positions[gender] += 1
         gender_positions_mapping[runner_id][gender] = gender_positions[gender]
+
+        # Category position
+        category_positions[result.runner.category] += 1
         category_positions_mapping[runner_id][result.runner.category] = category_positions[result.runner.category]
+
+    # Debugging: Log position mappings
+    print("General positions:", general_positions)
+    print("Gender positions:", dict(gender_positions_mapping))
+    print("Category positions:", dict(category_positions_mapping))
 
     return general_positions, gender_positions_mapping, category_positions_mapping
 
