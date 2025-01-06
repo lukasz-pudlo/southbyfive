@@ -45,6 +45,7 @@ yarn-error.log
 
 # Ignore local database
 pgdata
+*.pgsql
 
 # Ignore backup files
 *.bak

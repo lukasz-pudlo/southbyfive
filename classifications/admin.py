@@ -10,7 +10,7 @@ class ClassificationAdmin(admin.ModelAdmin):
         return f"Classification after {obj.race.name}"
 
     # Adjust the list_display and other attributes
-    list_display = ('id', 'classification_name')
+    list_display = ('id', 'classification_name', 'version_number')
     readonly_fields = ('classification_name', )
     ordering = ['race', 'version_number']
 
@@ -27,10 +27,14 @@ class ClassificationResultAdmin(admin.ModelAdmin):
     def classification_version(self, obj):
         return f"Classification after {obj.classification.race.name}"
 
+    def classification_id(self, obj):
+        return obj.classification.id
+
     # Adjust the list_display and other attributes
-    list_display = ('id', 'runner_name', 'classification_version',
+    list_display = ('id', 'runner_name', 'classification_id', 'classification_version',
                     'general_points', 'gender_points', 'category_points')
-    readonly_fields = ('runner_name', 'classification_version')
+    readonly_fields = (
+        'runner_name', 'classification_version', 'classification_id')
     ordering = ['-general_points']
 
     def get_queryset(self, request):
