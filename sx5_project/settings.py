@@ -218,7 +218,7 @@ if environmnet == "local":
         MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN,
                                         AWS_MEDIA_LOCATION)
     else:
-        DEBUG = False
+        DEBUG = True
         # Database configuration for deployment to AWS Elastic Beanstalk.
         # rds_credentials = get_rds_credentials()
         # DATABASES = {
