@@ -151,118 +151,119 @@ WSGI_APPLICATION = 'sx5_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+DEBUG = True
 
-environmnet = os.getenv('ENVIRONMENT')
-db_type = os.getenv('DB_TYPE')
-static_type = os.getenv('STATIC_TYPE')
-print(
-    f"Environment: {environmnet}, DB type: {db_type}, Static type: {static_type}")
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('POSTGRES_HOST'),
+        'PORT': os.getenv('POSTGRES_PORT', '5432'),
+    }
+}
 
-if environmnet == "local":
-    print("The environment is local")
-    DEBUG = True
-    if db_type == "local":
-        print("The db_type is local")
-        # Database configuration for local development, with local database.
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': os.getenv('DEV_POSTGRES_DB'),
-                'USER': os.getenv('DEV_POSTGRES_USER'),
-                'PASSWORD': os.getenv('DEV_POSTGRES_PASSWORD'),
-                'HOST': os.getenv('DEV_POSTGRES_HOST'),
-                'PORT': os.getenv('POSTGRES_PORT'),
-            }
-        }
-    elif db_type == 'remote':
-        print("The db_type is remote")
-        # Database configuration for local development, but with access to RDS database.
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': os.getenv('POSTGRES_DB'),
-                'USER': os.getenv('POSTGRES_USER'),
-                'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-                'HOST': os.getenv('POSTGRES_HOST'),
-                'PORT': os.getenv('POSTGRES_PORT'),
-            }
-        }
-    if static_type == 'local':
-        print("The static_type is local")
-        # Local static and media configuration for local development.
-        STATIC_URL = '/static/'
-        MEDIA_URL = '/media/'
-        MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-        STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# environmnet = os.getenv('ENVIRONMENT')
+# db_type = os.getenv('DB_TYPE')
+# static_type = os.getenv('STATIC_TYPE')
+# print(
+#     f"Environment: {environmnet}, DB type: {db_type}, Static type: {static_type}")
 
-        # Ensure STATICFILES_STORAGE is set to the default
-        STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-    elif static_type == 'remote':
-        print("The static_type is remote")
-        # S3 bucket configuration for local development but with access to AWS S3 bucket.
-        AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-        AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-        AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
-        AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
-        AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+# if environmnet == "local":
+#     print("The environment is local")
+#     DEBUG = True
+#     if db_type == "local":
+#         print("The db_type is local")
+#         # Database configuration for local development, with local database.
+#         DATABASES = {
+#             'default': {
+#                 'ENGINE': 'django.db.backends.postgresql',
+#                 'NAME': os.getenv('DEV_POSTGRES_DB'),
+#                 'USER': os.getenv('DEV_POSTGRES_USER'),
+#                 'PASSWORD': os.getenv('DEV_POSTGRES_PASSWORD'),
+#                 'HOST': os.getenv('DEV_POSTGRES_HOST'),
+#                 'PORT': os.getenv('POSTGRES_PORT'),
+#             }
+#         }
+#     elif db_type == 'remote':
+#         print("The db_type is remote")
+#         # Database configuration for local development, but with access to RDS database.
+#         DATABASES = {
+#             'default': {
+#                 'ENGINE': 'django.db.backends.postgresql',
+#                 'NAME': os.getenv('POSTGRES_DB'),
+#                 'USER': os.getenv('POSTGRES_USER'),
+#                 'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+#                 'HOST': os.getenv('POSTGRES_HOST'),
+#                 'PORT': os.getenv('POSTGRES_PORT'),
+#             }
+#         }
+#     if static_type == 'local':
+#         print("The static_type is local")
+#         # Local static and media configuration for local development.
+#         STATIC_URL = '/static/'
+#         MEDIA_URL = '/media/'
+#         MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#         STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-        # Static files (CSS, JavaScript, images)
-        AWS_STATIC_LOCATION = 'static'
-        STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN,
-                                         AWS_STATIC_LOCATION)
-        STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+#         # Ensure STATICFILES_STORAGE is set to the default
+#         STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+#     elif static_type == 'remote':
+#         print("The static_type is remote")
+#         # S3 bucket configuration for local development but with access to AWS S3 bucket.
+#         AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+#         AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+#         AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+#         AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
+#         AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
-        # Media files (uploads)
-        AWS_MEDIA_LOCATION = 'media'
-        DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-        MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN,
-                                        AWS_MEDIA_LOCATION)
-    else:
-        DEBUG = True
-        # Database configuration for deployment to AWS Elastic Beanstalk.
-        # rds_credentials = get_rds_credentials()
-        # DATABASES = {
-        #     'default': {
-        #         'ENGINE': 'django.db.backends.postgresql',
-        #         'NAME': rds_credentials.get('NAME'),
-        #         'USER': rds_credentials.get('USER'),
-        #         'PASSWORD': rds_credentials.get('PASSWORD'),
-        #         'HOST': rds_credentials.get('HOST'),
-        #         'PORT': rds_credentials.get('PORT'),
-        #     }
-        # }
-        # # S3 bucket configuration for deployment to AWS Elastic Beanstalk.
-        # s3_credentials = get_s3_credentials()
-        # AWS_ACCESS_KEY_ID = s3_credentials.get("AWS_ACCESS_KEY_ID")
-        # AWS_SECRET_ACCESS_KEY = s3_credentials.get("AWS_SECRET_ACCESS_KEY")
-        # AWS_STORAGE_BUCKET_NAME = s3_credentials.get("AWS_STORAGE_BUCKET_NAME")
-        # AWS_S3_REGION_NAME = s3_credentials.get("AWS_S3_REGION_NAME")
-        # AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+#         # Static files (CSS, JavaScript, images)
+#         AWS_STATIC_LOCATION = 'static'
+#         STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN,
+#                                          AWS_STATIC_LOCATION)
+#         STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-        # # Static files (CSS, JavaScript, images)
-        # AWS_STATIC_LOCATION = 'static'
-        # STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN,
-        #                                  AWS_STATIC_LOCATION)
-        # STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+#         # Media files (uploads)
+#         AWS_MEDIA_LOCATION = 'media'
+#         DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+#         MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN,
+#                                         AWS_MEDIA_LOCATION)
+#     else:
+#         DEBUG = True
+# Database configuration for deployment to AWS Elastic Beanstalk.
+# rds_credentials = get_rds_credentials()
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': rds_credentials.get('NAME'),
+#         'USER': rds_credentials.get('USER'),
+#         'PASSWORD': rds_credentials.get('PASSWORD'),
+#         'HOST': rds_credentials.get('HOST'),
+#         'PORT': rds_credentials.get('PORT'),
+#     }
+# }
+# # S3 bucket configuration for deployment to AWS Elastic Beanstalk.
+# s3_credentials = get_s3_credentials()
+# AWS_ACCESS_KEY_ID = s3_credentials.get("AWS_ACCESS_KEY_ID")
+# AWS_SECRET_ACCESS_KEY = s3_credentials.get("AWS_SECRET_ACCESS_KEY")
+# AWS_STORAGE_BUCKET_NAME = s3_credentials.get("AWS_STORAGE_BUCKET_NAME")
+# AWS_S3_REGION_NAME = s3_credentials.get("AWS_S3_REGION_NAME")
+# AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
-        # # Media files (uploads)
-        # AWS_MEDIA_LOCATION = 'media'
-        # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-        # MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN,
-        #                                 AWS_MEDIA_LOCATION)
+# # Static files (CSS, JavaScript, images)
+# AWS_STATIC_LOCATION = 'static'
+# STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN,
+#                                  AWS_STATIC_LOCATION)
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-        # Database config for Render
+# # Media files (uploads)
+# AWS_MEDIA_LOCATION = 'media'
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN,
+#                                 AWS_MEDIA_LOCATION)
 
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': os.getenv('POSTGRES_DB'),
-                'USER': os.getenv('POSTGRES_USER'),
-                'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-                'HOST': os.getenv('POSTGRES_HOST'),
-                'PORT': os.getenv('POSTGRES_PORT', '5432'),
-            }
-        }
+# Database config for Render
 
 
 # Password validation
