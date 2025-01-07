@@ -164,6 +164,17 @@ DATABASES = {
     }
 }
 
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'  # URL to serve static files
+# Directory where static files will be collected
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Additional directories where Django will look for static files
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
+
 # environmnet = os.getenv('ENVIRONMENT')
 # db_type = os.getenv('DB_TYPE')
 # static_type = os.getenv('STATIC_TYPE')
