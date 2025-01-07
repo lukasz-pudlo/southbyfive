@@ -81,7 +81,8 @@ BASE_DIR = Path(__file__).resolve().parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 ALLOWED_HOSTS = ['southbyfive.run', 'www.southbyfive.run', 'localhost', '127.0.0.1',
-                 '.southbyfive.run', 'southbyfive.eu-west-1.elasticbeanstalk.com', 'http://southbyfive-app-env.eba-vma6ktp3.eu-west-1.elasticbeanstalk.com', '.ngrok-free.app']
+                 '.southbyfive.run', 'southbyfive.eu-west-1.elasticbeanstalk.com', 'http://southbyfive-app-env.eba-vma6ktp3.eu-west-1.elasticbeanstalk.com',
+                 '.ngrok-free.app', 'southbyfive-web-service.onrender.com']
 
 
 # Application definition
