@@ -220,36 +220,49 @@ if environmnet == "local":
     else:
         DEBUG = False
         # Database configuration for deployment to AWS Elastic Beanstalk.
-        rds_credentials = get_rds_credentials()
+        # rds_credentials = get_rds_credentials()
+        # DATABASES = {
+        #     'default': {
+        #         'ENGINE': 'django.db.backends.postgresql',
+        #         'NAME': rds_credentials.get('NAME'),
+        #         'USER': rds_credentials.get('USER'),
+        #         'PASSWORD': rds_credentials.get('PASSWORD'),
+        #         'HOST': rds_credentials.get('HOST'),
+        #         'PORT': rds_credentials.get('PORT'),
+        #     }
+        # }
+        # # S3 bucket configuration for deployment to AWS Elastic Beanstalk.
+        # s3_credentials = get_s3_credentials()
+        # AWS_ACCESS_KEY_ID = s3_credentials.get("AWS_ACCESS_KEY_ID")
+        # AWS_SECRET_ACCESS_KEY = s3_credentials.get("AWS_SECRET_ACCESS_KEY")
+        # AWS_STORAGE_BUCKET_NAME = s3_credentials.get("AWS_STORAGE_BUCKET_NAME")
+        # AWS_S3_REGION_NAME = s3_credentials.get("AWS_S3_REGION_NAME")
+        # AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+
+        # # Static files (CSS, JavaScript, images)
+        # AWS_STATIC_LOCATION = 'static'
+        # STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN,
+        #                                  AWS_STATIC_LOCATION)
+        # STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+        # # Media files (uploads)
+        # AWS_MEDIA_LOCATION = 'media'
+        # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+        # MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN,
+        #                                 AWS_MEDIA_LOCATION)
+
+        # Database config for Render
+
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.postgresql',
-                'NAME': rds_credentials.get('NAME'),
-                'USER': rds_credentials.get('USER'),
-                'PASSWORD': rds_credentials.get('PASSWORD'),
-                'HOST': rds_credentials.get('HOST'),
-                'PORT': rds_credentials.get('PORT'),
+                'NAME': os.getenv('POSTGRES_DB'),
+                'USER': os.getenv('POSTGRES_USER'),
+                'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+                'HOST': os.getenv('POSTGRES_HOST'),
+                'PORT': os.getenv('POSTGRES_PORT', '5432'),
             }
         }
-        # S3 bucket configuration for deployment to AWS Elastic Beanstalk.
-        s3_credentials = get_s3_credentials()
-        AWS_ACCESS_KEY_ID = s3_credentials.get("AWS_ACCESS_KEY_ID")
-        AWS_SECRET_ACCESS_KEY = s3_credentials.get("AWS_SECRET_ACCESS_KEY")
-        AWS_STORAGE_BUCKET_NAME = s3_credentials.get("AWS_STORAGE_BUCKET_NAME")
-        AWS_S3_REGION_NAME = s3_credentials.get("AWS_S3_REGION_NAME")
-        AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
-
-        # Static files (CSS, JavaScript, images)
-        AWS_STATIC_LOCATION = 'static'
-        STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN,
-                                         AWS_STATIC_LOCATION)
-        STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-        # Media files (uploads)
-        AWS_MEDIA_LOCATION = 'media'
-        DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-        MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN,
-                                        AWS_MEDIA_LOCATION)
 
 
 # Password validation
