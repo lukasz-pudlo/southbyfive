@@ -78,7 +78,10 @@ BASE_DIR = Path(__file__).resolve().parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+SECRET_KEY = os.getenv('SECRET_KEY', '42nfaknfaknfajenf265')
+
+print(f"SECRET_KEY: {os.getenv('SECRET_KEY')}")
+
 
 ALLOWED_HOSTS = ['southbyfive.run', 'www.southbyfive.run', 'localhost', '127.0.0.1',
                  '.southbyfive.run', 'southbyfive.eu-west-1.elasticbeanstalk.com', 'http://southbyfive-app-env.eba-vma6ktp3.eu-west-1.elasticbeanstalk.com',
