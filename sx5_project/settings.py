@@ -119,7 +119,8 @@ MIDDLEWARE = [
 ]
 
 
-CSRF_TRUSTED_ORIGINS = ['https://southbyfive.run']
+CSRF_TRUSTED_ORIGINS = ['https://southbyfive.run',
+                        'https://southbyfive-web-service.onrender.com']
 
 
 ROOT_URLCONF = 'sx5_project.urls'
