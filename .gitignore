@@ -51,8 +51,7 @@ pgdata
 *.bak
 *.dump
 
-# Ignore Django migration files
-*/migrations/*
+*/migrations/__pycache__/
 
 all_races_runner_list.txt
 
