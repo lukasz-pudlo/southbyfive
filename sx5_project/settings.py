@@ -155,6 +155,8 @@ WSGI_APPLICATION = 'sx5_project.wsgi.application'
 
 DEBUG = True
 
+print(os.getenv('ENVIRONMENT'))
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
