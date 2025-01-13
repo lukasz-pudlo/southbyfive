@@ -6,6 +6,8 @@ from django.urls import reverse_lazy
 from races.utils import create_result_versions
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
+from django.db import transaction, IntegrityError
+
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from races.models import Race, Result, Runner
@@ -99,6 +101,36 @@ class RaceDetailView(DetailView):
 
         return context
 
+# Ensure all runners are created or fetched without issues
+
+
+def get_or_create_runner(first_name, last_name, participant_number, category, club):
+    try:
+        with transaction.atomic():
+            # Try to get or create the runner
+            runner, created = Runner.objects.get_or_create(
+                first_name=first_name,
+                last_name=last_name,
+                defaults={
+                    'participant_number': participant_number,
+                    'category': category,
+                    'club': club,
+                }
+            )
+    except IntegrityError:
+        # Handle race condition where another process creates the runner
+        runner = Runner.objects.get(
+            first_name=first_name,
+            last_name=last_name,
+        )
+        # Optionally update details if needed
+        runner.participant_number = participant_number
+        runner.category = category
+        runner.club = club
+        runner.save()
+        created = False
+    return runner, created
+
 
 class RaceCreateView(LoginRequiredMixin, CreateView):
     model = Race
@@ -136,7 +168,8 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
                         time = pd.to_timedelta(time_str)
                         dnf = False
 
-                    runner, created = Runner.objects.get_or_create(
+                    # Use get_or_create to handle duplicates gracefully
+                    runner, created = get_or_create_runner(
                         first_name=first_name,
                         last_name=last_name,
                         participant_number=participant_number,
