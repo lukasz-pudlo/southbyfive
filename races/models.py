@@ -81,24 +81,12 @@ class Race(models.Model):
 
 class Runner(models.Model):
     RUNNER_CATEGORIES = [
-        ('MS', 'MS'),
-        ('FS', 'FS'),
-        ('NBS', 'NBS'),
-        ('M40', 'M40'),
-        ('F40', 'F40'),
-        ('NB40', 'NB40'),
-        ('M50', 'M50'),
-        ('F50', 'F50'),
-        ('NB50', 'NB50'),
-        ('M60', 'M60'),
-        ('F60', 'F60'),
-        ('NB60', 'NB60'),
-        ('M70', 'M70'),
-        ('F70', 'F70'),
-        ('NB70', 'NB70'),
-        ('M80', 'M80'),
-        ('F80', 'F80'),
-        ('NB80', 'NB80'),
+        ('MS', 'MS'), ('FS', 'FS'), ('NBS', 'NBS'),
+        ('M40', 'M40'), ('F40', 'F40'), ('NB40', 'NB40'),
+        ('M50', 'M50'), ('F50', 'F50'), ('NB50', 'NB50'),
+        ('M60', 'M60'), ('F60', 'F60'), ('NB60', 'NB60'),
+        ('M70', 'M70'), ('F70', 'F70'), ('NB70', 'NB70'),
+        ('M80', 'M80'), ('F80', 'F80'), ('NB80', 'NB80'),
     ]
 
     first_name = models.CharField(max_length=255)
@@ -107,6 +95,9 @@ class Runner(models.Model):
     category = models.CharField(
         max_length=10, choices=RUNNER_CATEGORIES, null=True)
     club = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('first_name', 'last_name')
 
     def __str__(self):
         name_parts = [self.first_name, self.last_name]
