@@ -10,10 +10,10 @@ This document outlines the specific requirements for a series of races, with a f
 
 ## Points Calculation Overview
 
-- We are organizing a series of races, with a total of six races in the series.
+- There are six races in the series.
 - We are keeping track of the runners and their results in each race using an existing model structure (`Race`, `Runner`, `Result`).
-- For each race, we want to assign points to the runners based on their finishing positions. Points are assigned separately for runners in male and female categories.
-- The category of a runner can be identified by the first letter of their category string ("M" for male, "F" for female).
+- For each race, we want to assign points to the runners based on their finishing positions. Points are assigned separately for runners in male, female, and non-binary categories.
+- The category of a runner can be identified by the first letter of their category string ("M" for male, "F" for female, "N" for Non-binary).
 
 ## Specific Requirements
 
@@ -26,20 +26,25 @@ This document outlines the specific requirements for a series of races, with a f
    - After five races, runners would need to have participated in at least four.
    - After all six races, runners would need to have participated in at least five to have their points calculated.
 
-4. **Automatic Recalculation**: This process of recalculating points and adjusting runner participation requirements should happen automatically each time a new race is added.
+4. **Automatic Recalculation**: The process of recalculating points and adjusting runner participation requirements happens automatically each time a new race is added.
 
 5. **Data Integrity**: We want to keep the original results of each race intact. The updated points calculations and adjustments to runner participation requirements should be stored in a way that does not modify the original `Race`, `Runner`, and `Result` models.
 
 6. **Configuration**: After cloning the repository, add a .env file with the following configuration:
    - DJANGO_SECRET_KEY
-   - POSTGRES_DB
-   - POSTGRES_USER
-   - POSTGRES_PASSWORD
+   - DEBUG
+   - DJANGO_ALLOWED_HOSTS
+   - DATABASE_ENGINE
+   - DATABASE_NAME
+   - DATABASE_USERNAME
+   - DATABASE_PASSWORD
+   - DATABASE_HOST
+   - DATABASE_PORT
 
-   Run pipenv install, pipenv shell, docker compose up -d, navigate to sx5_project and run python manage.py runserver. 
+7. **Docker Commands**: To run the project locally, use the following Docker commands: 
 
    docker compose build
    docker compose up -d
    docker compose exec web python manage.py migrate
-   docker-compose exec web python manage.py createsuperuser
+   docker compose exec web python manage.py createsuperuser
 
