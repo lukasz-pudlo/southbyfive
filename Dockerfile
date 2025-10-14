@@ -49,4 +49,4 @@ USER appuser
 EXPOSE 8000
 
 # Command to run the application using Gunicorn
-CMD ["gunicorn", "sx5_project.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+CMD gunicorn sx5_project.wsgi:application --bind 0.0.0.0:$PORT --workers 3
