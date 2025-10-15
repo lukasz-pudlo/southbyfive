@@ -40,7 +40,7 @@ COPY --chown=appuser:appuser . .
 
 # Set environment variables to optimize Python
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1 
+ENV PYTHONUNBUFFERED=1
 
 # Switch to non-root user
 USER appuser
@@ -49,4 +49,6 @@ USER appuser
 EXPOSE 8000
 
 # Command to run the application using Gunicorn
-CMD gunicorn sx5_project.wsgi:application --bind 0.0.0.0:$PORT --workers 3
+CMD python manage.py collectstatic --noinput --clear && \
+    python manage.py migrate && \
+    gunicorn sx5_project.wsgi:application --bind 0.0.0.0:$PORT --workers 3
