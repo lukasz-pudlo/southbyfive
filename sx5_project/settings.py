@@ -70,7 +70,8 @@ MIDDLEWARE = [
 
 
 CSRF_TRUSTED_ORIGINS = ['https://southbyfive.run',
-                        'https://southbyfive-web-service.onrender.com']
+                        'https://southbyfive-web-service.onrender.com',
+                        'https://southbyfive-537sn.sevalla.app',]
 
 
 ROOT_URLCONF = 'sx5_project.urls'
