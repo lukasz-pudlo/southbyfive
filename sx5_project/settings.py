@@ -4,6 +4,7 @@ from botocore.exceptions import ClientError
 
 from pathlib import Path
 import os
+import dj_database_url
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -24,18 +25,24 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1").split(",")
 
 DEBUG = bool(os.environ.get("DEBUG", default=0))
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.{}'.format(
-            os.getenv('DATABASE_ENGINE')
-        ),
-        'NAME': os.getenv('DATABASE_NAME'),
-        'USER': os.getenv('DATABASE_USERNAME'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
-        'HOST': os.getenv('DATABASE_HOST'),
-        'PORT': os.getenv('DATABASE_PORT'),
+# Database configuration - use DB_URL if available, otherwise fall back to individual variables
+if os.getenv('DB_URL'):
+    DATABASES = {
+        'default': dj_database_url.parse(os.getenv('DB_URL'))
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.{}'.format(
+                os.getenv('DATABASE_ENGINE')
+            ),
+            'NAME': os.getenv('DATABASE_NAME'),
+            'USER': os.getenv('DATABASE_USERNAME'),
+            'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+            'HOST': os.getenv('DATABASE_HOST'),
+            'PORT': os.getenv('DATABASE_PORT'),
+        }
+    }
 
 
 # Application definition
@@ -70,7 +77,8 @@ MIDDLEWARE = [
 
 
 CSRF_TRUSTED_ORIGINS = ['https://southbyfive.run',
-                        'https://southbyfive-web-service.onrender.com']
+                        'https://southbyfive-web-service.onrender.com',
+                        'https://southbyfive-537sn.sevalla.app',]
 
 
 ROOT_URLCONF = 'sx5_project.urls'

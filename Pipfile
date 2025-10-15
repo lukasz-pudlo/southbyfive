@@ -27,6 +27,7 @@ tzdata = "==2023.3"
 xlsxwriter = "==3.1.2"
 django-storages = "*"
 boto3 = "*"
+dj-database-url = "*"
 
 [dev-packages]
 
