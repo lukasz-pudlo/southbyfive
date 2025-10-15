@@ -48,3 +48,8 @@ This document outlines the specific requirements for a series of races, with a f
    docker compose exec web python manage.py migrate
    docker compose exec web python manage.py createsuperuser
 
+8. **Sevalla Deployment**
+
+Currently, the project is hosted on Sevalla. The selected project type is Django, with a build from Dockerfile. An instance of postgres database has been created. Sevalla provides a DB_URL variable, which is used by this project in production. 
+
+For the time being, the migrations need to be run manually from the terminal on Sevalla. 
