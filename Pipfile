@@ -28,6 +28,8 @@ xlsxwriter = "==3.1.2"
 django-storages = "*"
 boto3 = "*"
 dj-database-url = "*"
+whitenoise = "*"
+gunicorn = "*"
 
 [dev-packages]
 
