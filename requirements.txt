@@ -10,6 +10,7 @@ certifi==2023.7.22
 charset-normalizer==3.3.0
 colorama==0.4.3
 Django==4.2.2
+dj-database-url==2.1.0
 django-bootstrap-v5==1.0.11
 django-extensions==3.2.3
 django-location-field==2.7.1
