@@ -433,3 +433,7 @@
 .custom-tooltip .tooltip-arrow::before {
     background-color: #333333 !important;
 }
+
+.form-control {
+    background-color: white !important;
+}
