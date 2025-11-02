@@ -1,8 +1,12 @@
 from django.contrib import admin
 
-from races.models import Race, Runner, Result
+from races.models import Race, Runner, Result, Season
 from race_versions.models import ResultVersion, RaceVersion
 from races.forms import ResultForm, RaceForm
+
+
+class SeasonAdmin(admin.ModelAdmin):
+    pass
 
 
 class ResultAdmin(admin.ModelAdmin):
@@ -68,9 +72,10 @@ class RaceVersionAdmin(admin.ModelAdmin):
                     'race_number')
 
 
-models = [Race, Runner, Result, ResultVersion]
+models = [Race, Runner, Result, ResultVersion, Season]
 admin_classes = {Race: RaceAdmin, Runner: RunnerAdmin,
-                 Result: ResultAdmin, ResultVersion: ResultVersionAdmin, RaceVersion: RaceVersionAdmin}
+                 Result: ResultAdmin, ResultVersion: ResultVersionAdmin,
+                 RaceVersion: RaceVersionAdmin, Season: SeasonAdmin}
 
 for model, admin_class in admin_classes.items():
     admin.site.register(model, admin_class)

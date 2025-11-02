@@ -3,6 +3,13 @@ from django.urls import reverse
 from django.utils.text import slugify
 
 
+class Season(models.Model):
+    season_start_year = models.PositiveIntegerField(null=True, unique=True)
+
+    def __str__(self):
+        return str(self.season_start_year)
+
+
 class Race(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
@@ -95,9 +102,13 @@ class Runner(models.Model):
     category = models.CharField(
         max_length=10, choices=RUNNER_CATEGORIES, null=True)
     club = models.CharField(max_length=255, null=True, blank=True)
+    season = models.ForeignKey(
+        Season,
+        on_delete=models.RESTRICT
+    )
 
     class Meta:
-        unique_together = ('first_name', 'last_name')
+        unique_together = ('first_name', 'last_name', 'season')
 
     def __str__(self):
         name_parts = [self.first_name, self.last_name]
