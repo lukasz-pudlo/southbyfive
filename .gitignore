@@ -56,4 +56,5 @@ pgdata
 all_races_runner_list.txt
 
 static
+*.xlsx
 
