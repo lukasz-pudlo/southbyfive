@@ -10,7 +10,7 @@ from django.db import transaction, IntegrityError
 
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from races.models import Race, Result, Runner
+from races.models import Race, Result, Runner, Season
 
 from races.forms import RaceForm
 from classifications.models import ClassificationResult
@@ -104,7 +104,7 @@ class RaceDetailView(DetailView):
 # Ensure all runners are created or fetched without issues
 
 
-def get_or_create_runner(first_name, last_name, participant_number, category, club):
+def get_or_create_runner(first_name, last_name, participant_number, category, club, season):
     try:
         with transaction.atomic():
             # Try to get or create the runner
@@ -115,6 +115,7 @@ def get_or_create_runner(first_name, last_name, participant_number, category, cl
                     'participant_number': participant_number,
                     'category': category,
                     'club': club,
+                    'season': season
                 }
             )
     except IntegrityError:
@@ -146,6 +147,8 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
 
         race.save()
         self.object = race
+        season_object = Season.objects.get(
+            season_start_year=race.season_start_year)
 
         if self.request.FILES:
             excel_file = self.request.FILES['race_file']
@@ -174,7 +177,8 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
                         last_name=last_name,
                         participant_number=participant_number,
                         category=category,
-                        club=club
+                        club=club,
+                        season=season_object
                     )
 
                     result = Result(
