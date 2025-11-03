@@ -383,8 +383,9 @@
         width: 100% !important;
     }
 
-    .navbar-nav .nav-item:last-child {
+    .navbar-nav .nav-right-group:last-child {
         margin-left: auto !important;
+        display: flex;
     }
 }
 
