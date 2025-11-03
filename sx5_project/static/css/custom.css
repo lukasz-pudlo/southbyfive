@@ -383,8 +383,9 @@
         width: 100% !important;
     }
 
-    .navbar-nav .nav-item:last-child {
+    .navbar-nav .nav-right-group:last-child {
         margin-left: auto !important;
+        display: flex;
     }
 }
 
@@ -425,4 +426,9 @@
 
 .form-control {
     background-color: white !important;
+}
+
+.default-spacer {
+    margin: 0 auto;
+    width: 75%
 }
