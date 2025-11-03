@@ -426,3 +426,8 @@
 .form-control {
     background-color: white !important;
 }
+
+.default-spacer {
+    margin: 0 auto;
+    width: 75%
+}
