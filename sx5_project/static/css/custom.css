@@ -428,7 +428,9 @@
     background-color: white !important;
 }
 
-.default-spacer {
-    margin: 0 auto;
-    width: 75%
+@media (min-width: 1200px) {
+    .default-spacer {
+        margin: 0 auto;
+        width: 75%
+    }
 }
