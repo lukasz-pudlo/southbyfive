@@ -22,7 +22,7 @@ class Command(BaseCommand):
                     f"The types of data of {filename} are as follows: {df.dtypes}")
                 df = df.rename(
                     columns={
-                        "Number": "Paricipant Number",
+                        "Number": "Participant Number",
                         "Forename": "First Name",
                         "Surname": "Last Name",
                         "Age_on_Race_Day": "Category",
