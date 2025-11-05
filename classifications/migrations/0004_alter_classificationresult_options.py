@@ -6,12 +6,14 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('classifications', '0003_classification_slug'),
+        ("classifications", "0003_classification_slug"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='classificationresult',
-            options={'ordering': ['general_points', 'gender_points', 'category_points']},
+            name="classificationresult",
+            options={
+                "ordering": ["general_points", "gender_points", "category_points"]
+            },
         ),
     ]

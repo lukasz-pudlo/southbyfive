@@ -1,18 +1,20 @@
 from django.db import models
-from races.models import Race, Runner
-from django.utils.text import slugify
 from django.urls import reverse
+from django.utils.text import slugify
+
+from races.models import Race, Runner
 
 
 class Classification(models.Model):
     race = models.ForeignKey(
-        Race, on_delete=models.CASCADE, related_name='classifications')
+        Race, on_delete=models.CASCADE, related_name="classifications"
+    )
     version_number = models.PositiveIntegerField()
     slug = models.SlugField(max_length=255, unique=True, null=True)
 
     class Meta:
-        unique_together = ['race', 'version_number']
-        ordering = ['race', 'version_number']
+        unique_together = ["race", "version_number"]
+        ordering = ["race", "version_number"]
 
     def __str__(self):
         return f"{self.name} Classification"
@@ -29,14 +31,16 @@ class Classification(models.Model):
         super(Classification, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('races:detail', kwargs={'slug': self.slug})
+        return reverse("races:detail", kwargs={"slug": self.slug})
 
 
 class ClassificationResult(models.Model):
     runner = models.ForeignKey(
-        Runner, on_delete=models.CASCADE, related_name='classification_results')
+        Runner, on_delete=models.CASCADE, related_name="classification_results"
+    )
     classification = models.ForeignKey(
-        Classification, on_delete=models.CASCADE, related_name='classification_results')
+        Classification, on_delete=models.CASCADE, related_name="classification_results"
+    )
     general_points = models.PositiveIntegerField(null=True, blank=True)
     gender_points = models.PositiveIntegerField(null=True, blank=True)
     category_points = models.PositiveIntegerField(null=True, blank=True)
@@ -46,7 +50,7 @@ class ClassificationResult(models.Model):
         return self.runner.category
 
     class Meta:
-        ordering = ['general_points', 'gender_points', 'category_points']
+        ordering = ["general_points", "gender_points", "category_points"]
 
     def __str__(self):
-        return f'Classification Result for {self.runner} in {self.classification}'
+        return f"Classification Result for {self.runner} in {self.classification}"

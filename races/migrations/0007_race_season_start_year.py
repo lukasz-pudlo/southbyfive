@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('races', '0006_alter_result_options_race_slug'),
+        ("races", "0006_alter_result_options_race_slug"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='race',
-            name='season_start_year',
+            model_name="race",
+            name="season_start_year",
             field=models.PositiveIntegerField(blank=True, null=True),
         ),
     ]

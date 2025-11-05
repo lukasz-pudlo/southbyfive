@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('races', '0005_result_dnf'),
+        ("races", "0005_result_dnf"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='result',
-            options={'ordering': ['dnf', 'time']},
+            name="result",
+            options={"ordering": ["dnf", "time"]},
         ),
         migrations.AddField(
-            model_name='race',
-            name='slug',
+            model_name="race",
+            name="slug",
             field=models.SlugField(max_length=255, null=True, unique=True),
         ),
     ]

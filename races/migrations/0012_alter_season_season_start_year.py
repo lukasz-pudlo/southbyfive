@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('races', '0011_season_alter_runner_unique_together_runner_season_and_more'),
+        ("races", "0011_season_alter_runner_unique_together_runner_season_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='season',
-            name='season_start_year',
+            model_name="season",
+            name="season_start_year",
             field=models.PositiveIntegerField(null=True, unique=True),
         ),
     ]

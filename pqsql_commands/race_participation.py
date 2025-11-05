@@ -1,5 +1,5 @@
-import psycopg2
 import pandas as pd
+import psycopg2
 
 # PostgreSQL connection details
 conn = psycopg2.connect(
@@ -7,7 +7,7 @@ conn = psycopg2.connect(
     user="aws_postgres_sx5",
     password="xCAKAoHwBXG2fj247wcx8Tc7GEyjAuTb",
     host="dpg-ctulhtbqf0us73f5v3k0-a.frankfurt-postgres.render.com",
-    port="5432"
+    port="5432",
 )
 
 # Query

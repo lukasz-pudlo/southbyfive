@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from races.models import Race, Runner, Result, Season
-from race_versions.models import ResultVersion, RaceVersion
-from races.forms import ResultForm, RaceForm
+from race_versions.models import RaceVersion, ResultVersion
+from races.forms import RaceForm, ResultForm
+from races.models import Race, Result, Runner, Season
 
 
 class SeasonAdmin(admin.ModelAdmin):
@@ -11,20 +11,32 @@ class SeasonAdmin(admin.ModelAdmin):
 
 class ResultAdmin(admin.ModelAdmin):
     form = ResultForm
-    readonly_fields = ['time']
-    list_display = ('id', 'race', 'runner', 'time',
-                    'general_position', 'gender_position', 'category_position')
+    readonly_fields = ["time"]
+    list_display = (
+        "id",
+        "race",
+        "runner",
+        "time",
+        "general_position",
+        "gender_position",
+        "category_position",
+    )
 
 
 class RaceAdmin(admin.ModelAdmin):
     form = RaceForm
-    list_display = ('id', 'name', 'race_date',
-                    'race_number', 'season_start_year')
+    list_display = ("id", "name", "race_date", "race_number", "season_start_year")
 
 
 class RunnerAdmin(admin.ModelAdmin):
-    list_display = ('id', 'first_name', 'last_name',
-                    'participant_number', 'club', 'category')
+    list_display = (
+        "id",
+        "first_name",
+        "last_name",
+        "participant_number",
+        "club",
+        "category",
+    )
 
 
 class ResultVersionAdmin(admin.ModelAdmin):
@@ -50,11 +62,24 @@ class ResultVersionAdmin(admin.ModelAdmin):
         return obj.result.category_position
 
     # Adjust the list_display and readonly_fields attributes
-    list_display = ('version', 'race', 'runner', 'time',
-                    'general_points', 'gender_points', 'category_points')
+    list_display = (
+        "version",
+        "race",
+        "runner",
+        "time",
+        "general_points",
+        "gender_points",
+        "category_points",
+    )
 
-    readonly_fields = ('race', 'runner', 'time', 'general_position',
-                       'gender_position', 'category_position')
+    readonly_fields = (
+        "race",
+        "runner",
+        "time",
+        "general_position",
+        "gender_position",
+        "category_position",
+    )
 
 
 class RaceVersionAdmin(admin.ModelAdmin):
@@ -68,14 +93,18 @@ class RaceVersionAdmin(admin.ModelAdmin):
     def race_number(self, obj):
         return obj.race.race_number
 
-    list_display = ('id', 'name', 'race_date',
-                    'race_number')
+    list_display = ("id", "name", "race_date", "race_number")
 
 
 models = [Race, Runner, Result, ResultVersion, Season]
-admin_classes = {Race: RaceAdmin, Runner: RunnerAdmin,
-                 Result: ResultAdmin, ResultVersion: ResultVersionAdmin,
-                 RaceVersion: RaceVersionAdmin, Season: SeasonAdmin}
+admin_classes = {
+    Race: RaceAdmin,
+    Runner: RunnerAdmin,
+    Result: ResultAdmin,
+    ResultVersion: ResultVersionAdmin,
+    RaceVersion: RaceVersionAdmin,
+    Season: SeasonAdmin,
+}
 
 for model, admin_class in admin_classes.items():
     admin.site.register(model, admin_class)

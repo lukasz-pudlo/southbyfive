@@ -1,6 +1,5 @@
-
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 
 
 def contact(request):
-    return render(request, 'info/contact.html')
+    return render(request, "info/contact.html")

@@ -3,7 +3,7 @@ from django import template
 register = template.Library()
 
 
-@register.filter(name='format_timedelta')
+@register.filter(name="format_timedelta")
 def format_timedelta(value):
     if not value:
         return ""

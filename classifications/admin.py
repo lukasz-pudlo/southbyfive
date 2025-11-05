@@ -10,12 +10,12 @@ class ClassificationAdmin(admin.ModelAdmin):
         return f"Classification after {obj.race.name}"
 
     # Adjust the list_display and other attributes
-    list_display = ('id', 'classification_name', 'version_number')
-    readonly_fields = ('classification_name', )
-    ordering = ['race', 'version_number']
+    list_display = ("id", "classification_name", "version_number")
+    readonly_fields = ("classification_name",)
+    ordering = ["race", "version_number"]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('race')
+        return super().get_queryset(request).select_related("race")
 
 
 class ClassificationResultAdmin(admin.ModelAdmin):
@@ -31,19 +31,31 @@ class ClassificationResultAdmin(admin.ModelAdmin):
         return obj.classification.id
 
     # Adjust the list_display and other attributes
-    list_display = ('id', 'runner_name', 'classification_id', 'classification_version',
-                    'general_points', 'gender_points', 'category_points')
-    readonly_fields = (
-        'runner_name', 'classification_version', 'classification_id')
-    ordering = ['-general_points']
+    list_display = (
+        "id",
+        "runner_name",
+        "classification_id",
+        "classification_version",
+        "general_points",
+        "gender_points",
+        "category_points",
+    )
+    readonly_fields = ("runner_name", "classification_version", "classification_id")
+    ordering = ["-general_points"]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('runner', 'classification', 'classification__race')
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("runner", "classification", "classification__race")
+        )
 
 
 models = [Classification, ClassificationResult]
-admin_classes = {Classification: ClassificationAdmin,
-                 ClassificationResult: ClassificationResultAdmin}
+admin_classes = {
+    Classification: ClassificationAdmin,
+    ClassificationResult: ClassificationResultAdmin,
+}
 
 for model, admin_class in admin_classes.items():
     admin.site.register(model, admin_class)
