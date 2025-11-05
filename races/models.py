@@ -21,6 +21,7 @@ class Race(models.Model):
         upload_to="races/%Y/%m/%d/", null=True, blank=True)
     race_number = models.IntegerField(null=True, blank=True)
     slug = models.SlugField(max_length=255, unique=True, null=True)
+    season = models.ForeignKey(Season, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name

@@ -160,9 +160,12 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
         race_number = race_count + 1
         race.race_number = race_number
 
+        season_object = Season.objects.get(
+            season_start_year=race.season_start_year)
+        race.season = season_object
+
         race.save()
         self.object = race
-        season_object = Season.objects.get(season_start_year=race.season_start_year)
 
         if self.request.FILES:
             excel_file = self.request.FILES["race_file"]
@@ -174,7 +177,8 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
                     last_name = row["Last Name"]
                     participant_number = row["Participant Number"]
                     category = row["Category"]
-                    club = row["Club"] if not isnull(row["Club"]) else "Unattached"
+                    club = row["Club"] if not isnull(
+                        row["Club"]) else "Unattached"
                     time_str = row["Time"]
 
                     if time_str == "DNF":
@@ -194,7 +198,8 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
                         season=season_object,
                     )
 
-                    result = Result(race=self.object, runner=runner, time=time, dnf=dnf)
+                    result = Result(race=self.object,
+                                    runner=runner, time=time, dnf=dnf)
                     results.append(result)
 
             # Save all results at once
