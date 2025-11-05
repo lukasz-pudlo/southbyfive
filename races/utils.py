@@ -8,6 +8,7 @@ from race_versions.models import ResultVersion, RaceVersion
 from classifications.models import Classification, ClassificationResult
 from collections import Counter, defaultdict
 from django.db.models import Count
+from django.conf import settings
 
 
 def generate_test_results():
