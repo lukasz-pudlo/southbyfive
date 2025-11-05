@@ -6,18 +6,41 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('races', '0003_result_club_position'),
+        ("races", "0003_result_club_position"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='runner',
-            name='participant_number',
+            model_name="runner",
+            name="participant_number",
             field=models.CharField(blank=True, max_length=10, null=True),
         ),
         migrations.AlterField(
-            model_name='runner',
-            name='category',
-            field=models.CharField(choices=[('MS', 'MS'), ('FS', 'FS'), ('NBS', 'NBS'), ('M40', 'M40'), ('F40', 'F40'), ('NB40', 'NB40'), ('M50', 'M50'), ('F50', 'F50'), ('NB50', 'NB50'), ('M60', 'M60'), ('F60', 'F60'), ('NB60', 'NB60'), ('M70', 'M70'), ('F70', 'F70'), ('NB70', 'NB70'), ('M80', 'M80'), ('F80', 'F80'), ('NB80', 'NB80')], max_length=10, null=True),
+            model_name="runner",
+            name="category",
+            field=models.CharField(
+                choices=[
+                    ("MS", "MS"),
+                    ("FS", "FS"),
+                    ("NBS", "NBS"),
+                    ("M40", "M40"),
+                    ("F40", "F40"),
+                    ("NB40", "NB40"),
+                    ("M50", "M50"),
+                    ("F50", "F50"),
+                    ("NB50", "NB50"),
+                    ("M60", "M60"),
+                    ("F60", "F60"),
+                    ("NB60", "NB60"),
+                    ("M70", "M70"),
+                    ("F70", "F70"),
+                    ("NB70", "NB70"),
+                    ("M80", "M80"),
+                    ("F80", "F80"),
+                    ("NB80", "NB80"),
+                ],
+                max_length=10,
+                null=True,
+            ),
         ),
     ]

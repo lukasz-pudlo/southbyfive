@@ -1,1 +1,1 @@
-default_app_config = 'races.apps.RacesConfig'
+default_app_config = "races.apps.RacesConfig"

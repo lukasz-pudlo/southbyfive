@@ -1,17 +1,21 @@
 [[source]]
+name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-name = "pypi"
 
 [packages]
 asgiref = "==3.7.2"
 beautifulsoup4 = "==4.12.2"
+boto3 = "*"
+dj-database-url = "*"
 django = "==4.2.2"
 django-bootstrap-v5 = "==1.0.11"
 django-extensions = "==3.2.3"
 django-location-field = "==2.7.1"
+django-storages = "*"
 et-xmlfile = "==1.1.0"
 faker = "==19.1.0"
+gunicorn = "*"
 numpy = "==1.25.1"
 openpyxl = "==3.1.2"
 pandas = "==2.0.3"
@@ -24,14 +28,12 @@ soupsieve = "==2.4.1"
 sqlparse = "==0.4.4"
 typing-extensions = "==4.6.3"
 tzdata = "==2023.3"
-xlsxwriter = "==3.1.2"
-django-storages = "*"
-boto3 = "*"
-dj-database-url = "*"
 whitenoise = "*"
-gunicorn = "*"
+xlsxwriter = "==3.1.2"
 
 [dev-packages]
+black = "*"
+isort = "*"
 
 [requires]
 python_version = "3.11"
