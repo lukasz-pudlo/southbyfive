@@ -11,13 +11,15 @@ class Command(BaseCommand):
     help = "Formats the supplied Excel file"
 
     def add_arguments(self, parser):
-        parser.add_argument("filenames", nargs="+", help="List of files to process")
+        parser.add_argument("filenames", nargs="+",
+                            help="List of files to process")
 
     def handle(self, *args, **options):
         for filename in options["filenames"]:
             try:
                 df = pd.read_excel(f"{race_files_location}/{filename}.xlsx")
-                print(f"The types of data of {filename} are as follows: {df.dtypes}")
+                print(
+                    f"The types of data of {filename} are as follows: {df.dtypes}")
                 df = df.rename(
                     columns={
                         "Number": "Paricipant Number",
@@ -27,8 +29,24 @@ class Command(BaseCommand):
                     }
                 )
                 print(f"The import Excel data as pandas dataframe: {df}")
-                # df['Time'] = df['Time'].dt.strftime('%H:%M:%S')
-                # print(f"The df after time formatting: {df}")
-                df.to_excel(f"{race_files_location}/kings.xlsx")
+
+                # Convert Time column to string format HH:MM:SS
+                def format_time(x):
+                    if x == "DNF" or pd.isna(x):
+                        return x
+                    # Convert time to timedelta, round to nearest second, then format
+                    td = pd.Timedelta(hours=x.hour, minutes=x.minute, seconds=x.second, microseconds=x.microsecond)
+                    td_rounded = td.round('s')
+                    total_seconds = int(td_rounded.total_seconds())
+                    hours = total_seconds // 3600
+                    minutes = (total_seconds % 3600) // 60
+                    seconds = total_seconds % 60
+                    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+                df['Time'] = df['Time'].apply(format_time)
+                print(f"The df after time formatting: {df}")
+
+                df.to_excel(f"{race_files_location}/kings.xlsx", index=False)
             except Exception as e:
-                raise CommandError(f"There was an error processing {filename}: {e}")
+                raise CommandError(
+                    f"There was an error processing {filename}: {e}")
