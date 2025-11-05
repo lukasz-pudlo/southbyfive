@@ -35,7 +35,8 @@ class Command(BaseCommand):
                     if x == "DNF" or pd.isna(x):
                         return x
                     # Convert time to timedelta, round to nearest second, then format
-                    td = pd.Timedelta(hours=x.hour, minutes=x.minute, seconds=x.second, microseconds=x.microsecond)
+                    td = pd.Timedelta(
+                        hours=x.hour, minutes=x.minute, seconds=x.second, microseconds=x.microsecond)
                     td_rounded = td.round('s')
                     total_seconds = int(td_rounded.total_seconds())
                     hours = total_seconds // 3600
@@ -44,6 +45,8 @@ class Command(BaseCommand):
                     return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
                 df['Time'] = df['Time'].apply(format_time)
+                df = df[['First Name', 'Last Name',
+                         'Participant Number', 'Category', 'Club', 'Time']]
                 print(f"The df after time formatting: {df}")
 
                 df.to_excel(f"{race_files_location}/kings.xlsx", index=False)
