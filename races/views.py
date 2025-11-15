@@ -50,7 +50,7 @@ class RaceListView(ListView):
             # Get the most recent race in the specified season
             recent_race = (
                 Race.objects.filter(season_start_year=season)
-                .order_by("-race_date")
+                .order_by("-race_number")
                 .first()
             )
 
