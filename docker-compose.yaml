@@ -28,6 +28,7 @@ services:
       - "8000:8000"
     volumes:
       - ./sx5_project/static:/app/sx5_project/static
+      - ./sx5_project/templates:/app/sx5_project/templates
     depends_on:
       db:
         condition: service_healthy
