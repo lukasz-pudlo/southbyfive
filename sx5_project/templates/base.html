@@ -51,6 +51,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'info:contact' %}">Info</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'info:developer' %}">Developer</a>
+                        </li>
                         {% if user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'races:new' %}">Add Race</a>
