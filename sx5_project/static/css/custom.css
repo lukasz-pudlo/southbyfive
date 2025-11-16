@@ -439,3 +439,10 @@
         width: 75%
     }
 }
+
+.navbar-nav {
+    direction: rtl;
+    display: flex;
+    justify-content: flex-end;
+    padding: 0;
+}
