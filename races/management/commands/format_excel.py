@@ -49,7 +49,8 @@ class Command(BaseCommand):
                          'Participant Number', 'Category', 'Club', 'Time']]
                 print(f"The df after time formatting: {df}")
 
-                df.to_excel(f"{race_files_location}/kings.xlsx", index=False)
+                df.to_excel(
+                    f"{race_files_location}/formatted.xlsx", index=False)
             except Exception as e:
                 raise CommandError(
                     f"There was an error processing {filename}: {e}")
