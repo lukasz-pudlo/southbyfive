@@ -187,7 +187,22 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
                         time = "02:00:00"
                         dnf = False
                     else:
-                        time = pd.to_timedelta(time_str)
+                        # Handle tie-breaking numbers (e.g., "00:19:20 1", "00:19:20 2")
+                        # Parse the time and add microseconds based on the tie-break number
+                        time_parts = str(time_str).split()
+                        base_time = time_parts[0]
+                        time = pd.to_timedelta(base_time)
+
+                        # If there's a tie-breaking number, add microseconds to preserve order
+                        if len(time_parts) > 1:
+                            try:
+                                tie_break_num = int(time_parts[1])
+                                # Add microseconds equal to the tie-break number
+                                # This keeps times visually the same but maintains order
+                                time += pd.Timedelta(microseconds=tie_break_num)
+                            except ValueError:
+                                pass  # If not a valid number, just use base time
+
                         dnf = False
 
                     # Use get_or_create to handle duplicates gracefully
@@ -236,15 +251,28 @@ class RaceUpdateView(LoginRequiredMixin, UpdateView):
             # Get the new data from the file
             data = pd.read_excel(self.object.race_file.path)
             for _, row in data.iterrows():
-                first_name, last_name, category, club, time = row
+                first_name, last_name, category, club, time_str = row
                 runner, _ = Runner.objects.get_or_create(
                     first_name=first_name,
                     last_name=last_name,
                     category=category,
                     club=club,
                 )
+                # Handle tie-breaking numbers (e.g., "00:19:20 1", "00:19:20 2")
+                time_parts = str(time_str).split()
+                base_time = time_parts[0]
+                time = pd.to_timedelta(base_time)
+
+                # If there's a tie-breaking number, add microseconds to preserve order
+                if len(time_parts) > 1:
+                    try:
+                        tie_break_num = int(time_parts[1])
+                        time += pd.Timedelta(microseconds=tie_break_num)
+                    except ValueError:
+                        pass
+
                 Result.objects.get_or_create(
-                    race=self.object, runner=runner, time=pd.to_timedelta(time)
+                    race=self.object, runner=runner, time=time
                 )
 
             self.object.calculate_positions()
