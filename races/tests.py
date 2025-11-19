@@ -12,8 +12,6 @@ class RaceModelTest(TestCase):
         Race.objects.create(
             name="Test Race",
             description="Test Description",
-            park="Test Park",
-            coordinates="55.82,-4.26",
             race_date=date.today(),
         )
 
@@ -26,16 +24,6 @@ class RaceModelTest(TestCase):
         race = Race.objects.get(id=1)
         field_label = race._meta.get_field("description").verbose_name
         self.assertEqual(field_label, "description")
-
-    def test_park_label(self):
-        race = Race.objects.get(id=1)
-        field_label = race._meta.get_field("park").verbose_name
-        self.assertEqual(field_label, "park")
-
-    def test_coordinates_label(self):
-        race = Race.objects.get(id=1)
-        field_label = race._meta.get_field("coordinates").verbose_name
-        self.assertEqual(field_label, "coordinates")
 
     def test_race_date_label(self):
         race = Race.objects.get(id=1)
@@ -122,8 +110,6 @@ class ResultModelTest(TestCase):
         race = Race.objects.create(
             name="Test Race",
             description="Test Race Description",
-            park="Test Park",
-            coordinates="40.748817,-73.985428",
             race_date=date.today(),
             race_file=SimpleUploadedFile("test_file.txt", b"This is a test file"),
         )
