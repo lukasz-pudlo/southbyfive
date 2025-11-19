@@ -3,16 +3,21 @@ from datetime import date, datetime, timedelta
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
-from .models import Race, Result, Runner
+from .models import Race, Result, Runner, Season
 
 
 class RaceModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        season_object = Season.objects.create(
+            season_start_year=2025
+        )
         Race.objects.create(
+            season=season_object,
             name="Test Race",
             description="Test Description",
             race_date=date.today(),
+            season_start_year=2025
         )
 
     def test_name_label(self):
@@ -107,7 +112,11 @@ class RunnerModelTest(TestCase):
 class ResultModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        season_object = Season.objects.create(
+            season_start_year="2025"
+        )
         race = Race.objects.create(
+            season=season_object,
             name="Test Race",
             description="Test Race Description",
             race_date=date.today(),
