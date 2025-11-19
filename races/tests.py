@@ -63,7 +63,7 @@ class RunnerModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         Runner.objects.create(
-            first_name="Test", middle_name="Middle", last_name="Runner", category="M50"
+            first_name="Test", last_name="Runner", category="M50"
         )
 
     def test_first_name_label(self):
@@ -99,7 +99,7 @@ class RunnerModelTest(TestCase):
     def test_str(self):
         runner = Runner.objects.get(id=1)
         expected_object_name = (
-            f"{runner.first_name} {runner.middle_name} {runner.last_name}"
+            f"{runner.first_name} {runner.last_name}"
         )
         self.assertEqual(expected_object_name, str(runner))
 
