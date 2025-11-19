@@ -120,13 +120,15 @@ class ResultModelTest(TestCase):
             name="Test Race",
             description="Test Race Description",
             race_date=date.today(),
-            race_file=SimpleUploadedFile("test_file.txt", b"This is a test file"),
+            race_file=SimpleUploadedFile(
+                "test_file.txt", b"This is a test file"),
         )
         runner = Runner.objects.create(
             first_name="Test", last_name="Runner", category="M50"
         )
         Result.objects.create(
-            race=race, runner=runner, time=timedelta(hours=1, minutes=30, seconds=15)
+            race=race, runner=runner, time=timedelta(
+                hours=1, minutes=30, seconds=15)
         )
 
     def test_time_label(self):
