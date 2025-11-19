@@ -53,7 +53,7 @@ class RaceModelTest(TestCase):
     def test_get_absolute_url(self):
         race = Race.objects.get(id=1)
         # This will also fail if the urlconf is not defined.
-        self.assertEqual(race.get_absolute_url(), f"/races/{race.id}/")
+        self.assertEqual(race.get_absolute_url(), f"/races/{race.slug}/")
 
     def test_ordering(self):
         self.assertEqual(Race._meta.ordering, ["date_added"])
