@@ -3,7 +3,7 @@ from datetime import date, datetime, timedelta
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
-from .models import Race, Result, Runner, Season
+from races.models import Race, Result, Runner, Season
 
 
 class RaceModelTest(TestCase):
