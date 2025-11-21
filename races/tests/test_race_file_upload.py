@@ -1,5 +1,7 @@
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
+import io
+import openpyxl
 
 from races.models import Race, Result, Runner, Season
 
@@ -20,9 +22,6 @@ class TestFileUpload(TestCase):
         self.client.login(username='testuser', password='testpass123')
 
     def test_race_file_upload_creates_race(self):
-        import io
-        import openpyxl
-
         wb = openpyxl.Workbook()
         ws = wb.active
 
@@ -43,21 +42,13 @@ class TestFileUpload(TestCase):
         )
 
         form_data = {
-            'name': 'Test Linn Park',
+            'name': "Test King's Park",
             'season_start_year': 2025,
             'race_file': uploaded_file
         }
 
-        # Post to the correct URL: /races/race/new/
+        # Post to the URL: /races/race/new/
         response = self.client.post('/races/race/new/', form_data)
-
-        # Debug: Print response status and any form errors
-        print(f"\nResponse status: {response.status_code}")
-        if response.status_code == 302:
-            print(f"Redirected to: {response.url}")
-        if hasattr(response, 'context') and response.context:
-            if 'form' in response.context:
-                print(f"Form errors: {response.context['form'].errors}")
 
         # Check that we got a redirect (302 status code means success)
         self.assertEqual(response.status_code, 302)
@@ -67,5 +58,5 @@ class TestFileUpload(TestCase):
 
         # Verify the race has the correct data
         race = Race.objects.first()
-        self.assertEqual(race.name, 'Test Linn Park')
+        self.assertEqual(race.name, "Test King's Park")
         self.assertEqual(race.season_start_year, 2025)
