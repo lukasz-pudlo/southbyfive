@@ -128,6 +128,7 @@ def get_or_create_runner(
             runner, created = Runner.objects.get_or_create(
                 first_name=first_name,
                 last_name=last_name,
+                season=season,
                 defaults={
                     "participant_number": participant_number,
                     "category": category,
