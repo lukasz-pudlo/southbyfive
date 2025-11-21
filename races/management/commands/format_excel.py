@@ -28,7 +28,6 @@ class Command(BaseCommand):
                         "Age_on_Race_Day": "Category",
                     }
                 )
-                print(f"The import Excel data as pandas dataframe: {df}")
 
                 # Convert Time column to string format HH:MM:SS
                 def format_time(x):
@@ -47,7 +46,6 @@ class Command(BaseCommand):
                 df['Time'] = df['Time'].apply(format_time)
                 df = df[['First Name', 'Last Name',
                          'Participant Number', 'Category', 'Club', 'Time']]
-                print(f"The df after time formatting: {df}")
 
                 df.to_excel(
                     f"{race_files_location}/formatted.xlsx", index=False)
