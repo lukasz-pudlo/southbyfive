@@ -147,7 +147,6 @@ def create_initial_race_version(new_race, season_start_year):
     ).exists()
 
     if not initial_exists:
-        print("Debug: Creating new RaceVersion object")
         race_version = RaceVersion.objects.create(
             race=new_race, version_number=1)
 
