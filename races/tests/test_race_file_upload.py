@@ -6,6 +6,28 @@ import openpyxl
 from races.models import Race, Result, Runner, Season
 
 
+def generate_file_with_runners():
+    wb = openpyxl.Workbook()
+    ws = wb.active
+
+    ws.append(['First Name', 'Last Name', 'Participant Number',
+               'Category', 'Club', 'Time'])
+    ws.append(['Lukasz', 'Pudlo', '121', 'MS', 'Unaffiliated', '00:19:31'])
+    ws.append(['Callum', 'Wallace', '654', 'MS',
+               'Bellahouston Harriers', '00:20:51'])
+
+    excel_file = io.BytesIO()
+    wb.save(excel_file)
+    excel_file.seek(0)
+
+    uploaded_file = SimpleUploadedFile(
+        'test_kings.xlsx',
+        excel_file.read(),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    return uploaded_file
+
+
 class TestFileUpload(TestCase):
 
     @classmethod
@@ -23,24 +45,7 @@ class TestFileUpload(TestCase):
         self.client.login(username='testuser', password='testpass123')
 
     def test_race_file_upload_creates_race(self):
-        wb = openpyxl.Workbook()
-        ws = wb.active
-
-        ws.append(['First Name', 'Last Name', 'Participant Number',
-                   'Category', 'Club', 'Time'])
-        ws.append(['Lukasz', 'Pudlo', '121', 'MS', 'Unaffiliated', '00:19:31'])
-        ws.append(['Callum', 'Wallace', '654', 'MS',
-                   'Bellahouston Harriers', '00:20:51'])
-
-        excel_file = io.BytesIO()
-        wb.save(excel_file)
-        excel_file.seek(0)
-
-        uploaded_file = SimpleUploadedFile(
-            'test_kings.xlsx',
-            excel_file.read(),
-            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+        uploaded_file = generate_file_with_runners()
 
         form_data = {
             'name': "Test King's Park",
@@ -64,24 +69,7 @@ class TestFileUpload(TestCase):
 
     def test_runners_are_created_for_each_season(self):
         # Create King's Park race for season 2024/2025
-        wb_kings_2024 = openpyxl.Workbook()
-        ws = wb_kings_2024.active
-
-        ws.append(['First Name', 'Last Name', 'Participant Number',
-                   'Category', 'Club', 'Time'])
-        ws.append(['Lukasz', 'Pudlo', '121', 'MS', 'Unaffiliated', '00:19:31'])
-        ws.append(['Callum', 'Wallace', '654', 'MS',
-                   'Bellahouston Harriers', '00:20:51'])
-
-        excel_file = io.BytesIO()
-        wb_kings_2024.save(excel_file)
-        excel_file.seek(0)
-
-        uploaded_file = SimpleUploadedFile(
-            'test_2024_kings.xlsx',
-            excel_file.read(),
-            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+        uploaded_file = generate_file_with_runners()
 
         form_data = {
             'name': "Test King's Park",
