@@ -31,11 +31,6 @@ def generate_file_with_runners():
     return uploaded_file
 
 
-def return_race_df(file):
-    df = pd.read_excel(f"{settings.BASE_DIR}/tests/files/2025/{file}.xlsx")
-    return df
-
-
 @override_settings(
     STORAGES={
         "default": {
