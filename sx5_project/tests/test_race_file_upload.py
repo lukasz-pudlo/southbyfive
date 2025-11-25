@@ -251,3 +251,15 @@ class TestFileUpload(TestCase):
 
         # Check that the race was created
         self.assertEqual(Race.objects.count(), 1)
+
+        # Check that the number of runners in the file
+        # is the same as the number of runners created
+        df = pd.read_excel(file_path)
+        row_count = df["First Name"].count()
+        runner_count = Runner.objects.count()
+
+        self.assertEqual(
+            row_count,
+            runner_count,
+            "The number of rows" "is not equal to the number of runners created.",
+        )
