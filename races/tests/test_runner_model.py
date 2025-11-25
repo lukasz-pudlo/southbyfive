@@ -12,7 +12,7 @@ def runner_callum(db):
         participant_number="123",
         category="MS",
         club="Bellahouston Harriers",
-        season=season
+        season=season,
     )
 
     return runner

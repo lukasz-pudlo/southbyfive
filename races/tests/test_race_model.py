@@ -9,15 +9,13 @@ from races.models import Race, Result, Runner, Season
 class RaceModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        season_object = Season.objects.create(
-            season_start_year=2025
-        )
+        season_object = Season.objects.create(season_start_year=2025)
         Race.objects.create(
             season=season_object,
             name="Test Race",
             description="Test Description",
             race_date=date.today(),
-            season_start_year=2025
+            season_start_year=2025,
         )
 
     def test_name_label(self):
@@ -62,9 +60,7 @@ class RaceModelTest(TestCase):
 class RunnerModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        Runner.objects.create(
-            first_name="Test", last_name="Runner", category="M50"
-        )
+        Runner.objects.create(first_name="Test", last_name="Runner", category="M50")
 
     def test_first_name_label(self):
         runner = Runner.objects.get(id=1)
@@ -98,9 +94,7 @@ class RunnerModelTest(TestCase):
 
     def test_str(self):
         runner = Runner.objects.get(id=1)
-        expected_object_name = (
-            f"{runner.first_name} {runner.last_name}"
-        )
+        expected_object_name = f"{runner.first_name} {runner.last_name}"
         self.assertEqual(expected_object_name, str(runner))
 
     def test_category_null(self):
@@ -112,23 +106,19 @@ class RunnerModelTest(TestCase):
 class ResultModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        season_object = Season.objects.create(
-            season_start_year="2025"
-        )
+        season_object = Season.objects.create(season_start_year="2025")
         race = Race.objects.create(
             season=season_object,
             name="Test Race",
             description="Test Race Description",
             race_date=date.today(),
-            race_file=SimpleUploadedFile(
-                "test_file.txt", b"This is a test file"),
+            race_file=SimpleUploadedFile("test_file.txt", b"This is a test file"),
         )
         runner = Runner.objects.create(
             first_name="Test", last_name="Runner", category="M50"
         )
         Result.objects.create(
-            race=race, runner=runner, time=timedelta(
-                hours=1, minutes=30, seconds=15)
+            race=race, runner=runner, time=timedelta(hours=1, minutes=30, seconds=15)
         )
 
     def test_time_label(self):
