@@ -4,7 +4,7 @@ import openpyxl
 import pandas as pd
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from races.models import Race, Result, Runner, Season
 
@@ -36,6 +36,16 @@ def return_race_df(file):
     return df
 
 
+@override_settings(
+    STORAGES={
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+)
 class TestFileUpload(TestCase):
 
     @classmethod
@@ -224,6 +234,25 @@ class TestFileUpload(TestCase):
         )
 
     def test_file_is_read(self):
-        df = return_race_df("kings")
+        file_path = f"{settings.BASE_DIR}/tests/files/2025/kings.xlsx"
 
-        print(df)
+        with open(file_path, "rb") as f:
+            uploaded_file = SimpleUploadedFile(
+                "kings.xlsx",
+                f.read(),
+                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+
+        form_data = {
+            "name": "Test King's Park",
+            "season_start_year": 2025,
+            "race_file": uploaded_file,
+        }
+
+        # Post to the URL: /races/race/new/
+        response = self.client.post("/races/race/new/", form_data)
+
+        self.assertEqual(response.status_code, 302)
+
+        # Check that the race was created
+        self.assertEqual(Race.objects.count(), 1)
