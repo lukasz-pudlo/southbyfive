@@ -17,7 +17,8 @@ def generate_file_with_runners():
         ["First Name", "Last Name", "Participant Number", "Category", "Club", "Time"]
     )
     ws.append(["Lukasz", "Pudlo", "121", "MS", "Unaffiliated", "00:19:31"])
-    ws.append(["Callum", "Wallace", "654", "MS", "Bellahouston Harriers", "00:20:51"])
+    ws.append(["Callum", "Wallace", "654", "MS",
+              "Bellahouston Harriers", "00:20:51"])
 
     excel_file = io.BytesIO()
     wb.save(excel_file)
@@ -50,7 +51,8 @@ class TestFileUpload(TestCase):
 
         from django.contrib.auth.models import User
 
-        cls.user = User.objects.create_user(username="testuser", password="testpass123")
+        cls.user = User.objects.create_user(
+            username="testuser", password="testpass123")
 
     def setUp(self):
         self.client.login(username="testuser", password="testpass123")
@@ -141,7 +143,8 @@ class TestFileUpload(TestCase):
 
         runner_count = Runner.objects.all().count()
 
-        self.assertEqual(runner_count, 4, f"Expected 4 runners, got {runner_count}")
+        self.assertEqual(
+            runner_count, 4, f"Expected 4 runners, got {runner_count}")
 
         # Get the specific Callum runner for season 2025
         season_2025 = Season.objects.get(season_start_year=2025)
@@ -185,7 +188,8 @@ class TestFileUpload(TestCase):
                 "Time",
             ]
         )
-        ws.append(["Lukasz", "Pudlo", "121-963", "MS", "Unaffiliated", "00:19:31"])
+        ws.append(["Lukasz", "Pudlo", "121-963",
+                  "MS", "Unaffiliated", "00:19:31"])
 
         excel_file = io.BytesIO()
         wb.save(excel_file)
@@ -261,5 +265,5 @@ class TestFileUpload(TestCase):
         self.assertEqual(
             row_count,
             runner_count,
-            "The number of rows" "is not equal to the number of runners created.",
+            "The number of rows is not equal to the number of runners created.",
         )
