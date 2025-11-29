@@ -185,7 +185,7 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
                     last_name = row["Last Name"]
                     participant_number = row["Participant Number"]
                     category = row["Category"]
-                    club = row["Club"] if not isnull(row["Club"]) else "Unattached"
+                    club = row["Club"] if not isnull(row["Club"]) else "Unaffiliated"
                     time_str = row["Time"]
 
                     if time_str == "DNF":
