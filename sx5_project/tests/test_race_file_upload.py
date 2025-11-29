@@ -5,6 +5,8 @@ import pandas as pd
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
+from django.contrib.auth.models import User
+
 
 from races.models import Race, Result, Runner, Season
 
@@ -17,8 +19,7 @@ def generate_file_with_runners():
         ["First Name", "Last Name", "Participant Number", "Category", "Club", "Time"]
     )
     ws.append(["Lukasz", "Pudlo", "121", "MS", "Unaffiliated", "00:19:31"])
-    ws.append(["Callum", "Wallace", "654", "MS",
-              "Bellahouston Harriers", "00:20:51"])
+    ws.append(["Callum", "Wallace", "654", "MS", "Bellahouston Harriers", "00:20:51"])
 
     excel_file = io.BytesIO()
     wb.save(excel_file)
@@ -51,8 +52,7 @@ class TestFileUpload(TestCase):
 
         from django.contrib.auth.models import User
 
-        cls.user = User.objects.create_user(
-            username="testuser", password="testpass123")
+        cls.user = User.objects.create_user(username="testuser", password="testpass123")
 
     def setUp(self):
         self.client.login(username="testuser", password="testpass123")
@@ -143,8 +143,7 @@ class TestFileUpload(TestCase):
 
         runner_count = Runner.objects.all().count()
 
-        self.assertEqual(
-            runner_count, 4, f"Expected 4 runners, got {runner_count}")
+        self.assertEqual(runner_count, 4, f"Expected 4 runners, got {runner_count}")
 
         # Get the specific Callum runner for season 2025
         season_2025 = Season.objects.get(season_start_year=2025)
@@ -188,8 +187,7 @@ class TestFileUpload(TestCase):
                 "Time",
             ]
         )
-        ws.append(["Lukasz", "Pudlo", "121-963",
-                  "MS", "Unaffiliated", "00:19:31"])
+        ws.append(["Lukasz", "Pudlo", "121-963", "MS", "Unaffiliated", "00:19:31"])
 
         excel_file = io.BytesIO()
         wb.save(excel_file)
@@ -266,4 +264,60 @@ class TestFileUpload(TestCase):
             row_count,
             runner_count,
             "The number of rows is not equal to the number of runners created.",
+        )
+
+
+class TestFieldCorrectness(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.season = Season.objects.create(season_start_year=2024)
+        cls.season = Season.objects.create(season_start_year=2025)
+        cls.user = User.objects.create_user(username="testuser", password="testpass123")
+
+    def setUp(self):
+        self.client.login(username="testuser", password="testpass123")
+
+        # Create a race based on true result data
+        file_path = f"{settings.BASE_DIR}/tests/files/2025/kings.xlsx"
+        with open(file_path, "rb") as f:
+            uploaded_file = SimpleUploadedFile(
+                "kings.xlsx",
+                f.read(),
+                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+
+        form_data = {
+            "name": "Test King's Park",
+            "season_start_year": 2025,
+            "race_file": uploaded_file,
+        }
+
+        # Post to the URL: /races/race/new/
+        response = self.client.post("/races/race/new/", form_data)
+
+        self.assertEqual(response.status_code, 302)
+
+        # Check that the race was created
+        self.assertEqual(Race.objects.count(), 1)
+
+    # Test that the names are the same in the file and in the result table
+    def test_names_are_correct(self):
+        file_path = f"{settings.BASE_DIR}/tests/files/2025/kings.xlsx"
+
+        df = pd.read_excel(file_path)
+        first_name_list_df = df["First Name"].values.tolist()
+        last_name_list_df = df["Last Name"].values.tolist()
+
+        first_name_list_app = []
+        last_name_list_app = []
+        results = Result.objects.filter(race=1)
+        for result in results:
+            first_name_list_app.append(result.runner.first_name)
+            last_name_list_app.append(result.runner.last_name)
+
+        self.assertEqual(
+            first_name_list_df, first_name_list_app, "The " "first names are different"
+        )
+        self.assertEqual(
+            last_name_list_df, last_name_list_app, "The " "first names are different"
         )
