@@ -27,9 +27,7 @@ def home(request):
         .order_by("-season_start_year")
         .first()
     )
-    print(season)
     last_race = Race.objects.filter(season__season_start_year=season).first()
-    print(last_race)
 
     if last_race and last_race.season_start_year and last_race.slug:
         # Redirect to the detail view with both `year` and `slug` for the last race
