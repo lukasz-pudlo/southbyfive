@@ -1,7 +1,6 @@
 from django.urls import path
 
-from classifications.views import (ClassificationDetailView,
-                                   ClassificationListView)
+from classifications.views import ClassificationDetailView, ClassificationListView
 
 app_name = "classifications"
 

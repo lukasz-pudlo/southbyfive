@@ -4,8 +4,13 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import IntegrityError, transaction
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
-                                  UpdateView)
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
 from pandas import isnull
 
 from classifications.models import ClassificationResult
@@ -19,11 +24,10 @@ def home(request):
     season = (
         Race.objects.values_list("season_start_year", flat=True)
         .distinct()
-        .order_by("-season_start_year").first()
+        .order_by("-season_start_year")
+        .first()
     )
-    print(season)
     last_race = Race.objects.filter(season__season_start_year=season).first()
-    print(last_race)
 
     if last_race and last_race.season_start_year and last_race.slug:
         # Redirect to the detail view with both `year` and `slug` for the last race
@@ -163,8 +167,7 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
         race_number = race_count + 1
         race.race_number = race_number
 
-        season_object = Season.objects.get(
-            season_start_year=race.season_start_year)
+        season_object = Season.objects.get(season_start_year=race.season_start_year)
         race.season = season_object
 
         race.save()
@@ -180,8 +183,7 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
                     last_name = row["Last Name"]
                     participant_number = row["Participant Number"]
                     category = row["Category"]
-                    club = row["Club"] if not isnull(
-                        row["Club"]) else "Unattached"
+                    club = row["Club"] if not isnull(row["Club"]) else "Unaffiliated"
                     time_str = row["Time"]
 
                     if time_str == "DNF":
@@ -216,8 +218,7 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
                         season=season_object,
                     )
 
-                    result = Result(race=self.object,
-                                    runner=runner, time=time, dnf=dnf)
+                    result = Result(race=self.object, runner=runner, time=time, dnf=dnf)
                     results.append(result)
 
             # Save all results at once
@@ -272,9 +273,7 @@ class RaceUpdateView(LoginRequiredMixin, UpdateView):
                     except ValueError:
                         pass
 
-                Result.objects.get_or_create(
-                    race=self.object, runner=runner, time=time
-                )
+                Result.objects.get_or_create(race=self.object, runner=runner, time=time)
 
             self.object.calculate_positions()
 

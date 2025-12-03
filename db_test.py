@@ -12,7 +12,6 @@ def create_conn():
             host="localhost",
             port="5432",
         )
-        print("Connection to PostgreSQL DB successful")
     except OperationalError as e:
         print(f"The error '{e}' occurred")
     return conn

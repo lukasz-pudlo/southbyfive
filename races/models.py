@@ -17,8 +17,7 @@ class Race(models.Model):
     season_start_year = models.PositiveIntegerField(null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
-    race_file = models.FileField(
-        upload_to="races/%Y/%m/%d/", null=True, blank=True)
+    race_file = models.FileField(upload_to="races/%Y/%m/%d/", null=True, blank=True)
     race_number = models.IntegerField(null=True, blank=True)
     slug = models.SlugField(max_length=255, unique=True, null=True)
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
@@ -68,8 +67,7 @@ class Race(models.Model):
         # Calculate position for each category
         for category in Runner.RUNNER_CATEGORIES:
             cat_code = category[0]
-            cat_results = [
-                res for res in results if res.runner.category == cat_code]
+            cat_results = [res for res in results if res.runner.category == cat_code]
             cat_results.sort(key=lambda res: (res.time is None, res.time))
             for i, result in enumerate(
                 (res for res in cat_results if res.time is not None), start=1
@@ -121,8 +119,7 @@ class Runner(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     participant_number = models.CharField(max_length=10, null=True, blank=True)
-    category = models.CharField(
-        max_length=10, choices=RUNNER_CATEGORIES, null=True)
+    category = models.CharField(max_length=10, choices=RUNNER_CATEGORIES, null=True)
     club = models.CharField(max_length=255, null=True, blank=True)
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
 
@@ -135,10 +132,8 @@ class Runner(models.Model):
 
 
 class Result(models.Model):
-    race = models.ForeignKey(
-        Race, on_delete=models.CASCADE, blank=True, null=True)
-    runner = models.ForeignKey(
-        Runner, on_delete=models.CASCADE, blank=True, null=True)
+    race = models.ForeignKey(Race, on_delete=models.CASCADE, blank=True, null=True)
+    runner = models.ForeignKey(Runner, on_delete=models.CASCADE, blank=True, null=True)
     time = models.DurationField(null=True)
     general_position = models.PositiveIntegerField(null=True, blank=True)
     gender_position = models.PositiveIntegerField(null=True, blank=True)

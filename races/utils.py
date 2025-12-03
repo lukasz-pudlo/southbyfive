@@ -73,17 +73,14 @@ def generate_test_results():
 
         # Add some random runners from the remaining 35% pool
         remaining_runners = [r for r in runners if r not in all_races_runners]
-        participants.extend(random.sample(
-            remaining_runners, random.randint(0, 35)))
+        participants.extend(random.sample(remaining_runners, random.randint(0, 35)))
 
         data = []
         for participant in participants:
             # Slight variation in each runner's time for each race
             time_variation = random.randint(-2, 2)
-            base_time_minutes, base_time_seconds = runners[participant].split(":")[
-                1:]
-            new_time_minutes = max(
-                15, min(35, int(base_time_minutes) + time_variation))
+            base_time_minutes, base_time_seconds = runners[participant].split(":")[1:]
+            new_time_minutes = max(15, min(35, int(base_time_minutes) + time_variation))
             time = f"00:{str(new_time_minutes).zfill(2)}:{base_time_seconds}"
 
             data.append(list(participant) + [time])
@@ -130,8 +127,7 @@ def create_result_versions(new_race, season_start_year):
     create_initial_race_version(new_race, season_start_year)
 
     # Calculate the total number of races in this season
-    total_races = Race.objects.filter(
-        season_start_year=season_start_year).count()
+    total_races = Race.objects.filter(season_start_year=season_start_year).count()
 
     # When we have more than two races in the season, recalculate versions
     if total_races > 2:
@@ -147,9 +143,7 @@ def create_initial_race_version(new_race, season_start_year):
     ).exists()
 
     if not initial_exists:
-        print("Debug: Creating new RaceVersion object")
-        race_version = RaceVersion.objects.create(
-            race=new_race, version_number=1)
+        race_version = RaceVersion.objects.create(race=new_race, version_number=1)
 
         for result in new_race.result_set.all():
             ResultVersion.objects.create(
@@ -164,8 +158,7 @@ def create_initial_race_version(new_race, season_start_year):
 
 def recalculate_race_versions(season_start_year):
     # Filter races for the specific season
-    total_races = Race.objects.filter(
-        season_start_year=season_start_year).count()
+    total_races = Race.objects.filter(season_start_year=season_start_year).count()
     all_race_results = Result.objects.filter(
         race__season_start_year=season_start_year
     ).values("runner_id")
@@ -218,8 +211,7 @@ def recalculate_race_versions(season_start_year):
 
 
 def create_classification_entries(new_race, season_start_year):
-    total_races = Race.objects.filter(
-        season_start_year=season_start_year).count()
+    total_races = Race.objects.filter(season_start_year=season_start_year).count()
 
     # Determine qualifying runners for the specific season
     all_race_results = Result.objects.filter(
@@ -263,11 +255,9 @@ def create_classification_entries(new_race, season_start_year):
         )
 
         # Separate exclusions for general, gender, and category points
-        general_results = sorted(
-            result_versions, key=lambda x: x.general_points)
+        general_results = sorted(result_versions, key=lambda x: x.general_points)
         gender_results = sorted(result_versions, key=lambda x: x.gender_points)
-        category_results = sorted(
-            result_versions, key=lambda x: x.category_points)
+        category_results = sorted(result_versions, key=lambda x: x.category_points)
 
         # Exclude the worst result only if the runner participated in all races
         if total_races > 1 and len(result_versions) == total_races:
@@ -278,8 +268,7 @@ def create_classification_entries(new_race, season_start_year):
         # Compute totals
         total_general_points = sum(rv.general_points for rv in general_results)
         total_gender_points = sum(rv.gender_points for rv in gender_results)
-        total_category_points = sum(
-            rv.category_points for rv in category_results)
+        total_category_points = sum(rv.category_points for rv in category_results)
 
         # Update or create the classification result
         ClassificationResult.objects.update_or_create(
@@ -322,11 +311,6 @@ def recalculate_positions(results):
             category_positions[result.runner.category]
         )
 
-    # Debugging: Log position mappings
-    print("General positions:", general_positions)
-    print("Gender positions:", dict(gender_positions_mapping))
-    print("Category positions:", dict(category_positions_mapping))
-
     return general_positions, gender_positions_mapping, category_positions_mapping
 
 
@@ -342,6 +326,5 @@ def get_gender_from_category(category):
 
 
 def get_list_of_runners_who_completed_five_races():
-    runners = Runner.objects.annotate(
-        num_races=Count("result")).filter(num_races=5)
+    runners = Runner.objects.annotate(num_races=Count("result")).filter(num_races=5)
     return runners

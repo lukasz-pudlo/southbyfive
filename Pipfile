@@ -14,12 +14,14 @@ django-extensions = "==3.2.3"
 django-location-field = "==2.7.1"
 django-storages = "*"
 et-xmlfile = "==1.1.0"
-faker = "==19.1.0"
+faker = "*"
 gunicorn = "*"
 numpy = "==1.25.1"
 openpyxl = "==3.1.2"
 pandas = "==2.0.3"
 psycopg2-binary = "==2.9.6"
+pytest-cov = "*"
+pytest-django = "*"
 python-dateutil = "==2.8.2"
 python-dotenv = "==1.0.0"
 pytz = "==2023.3"
@@ -33,6 +35,7 @@ xlsxwriter = "==3.1.2"
 
 [dev-packages]
 black = "*"
+flake8 = "*"
 isort = "*"
 
 [requires]

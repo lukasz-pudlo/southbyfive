@@ -27,6 +27,14 @@ ENV.bak/
 db.sqlite3
 media
 
+# Testing / Coverage
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+coverage.xml
+*.cover
+
 # React / Node.js
 node_modules/
 /build/

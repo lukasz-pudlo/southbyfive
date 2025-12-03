@@ -1,7 +1,12 @@
 from django.urls import path
 
-from races.views import (RaceCreateView, RaceDeleteView, RaceDetailView,
-                         RaceListView, RaceUpdateView)
+from races.views import (
+    RaceCreateView,
+    RaceDeleteView,
+    RaceDetailView,
+    RaceListView,
+    RaceUpdateView,
+)
 
 app_name = "races"
 
