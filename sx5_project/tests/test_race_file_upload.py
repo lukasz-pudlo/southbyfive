@@ -34,6 +34,83 @@ def generate_file_with_runners():
     return uploaded_file
 
 
+def generate_kings():
+    wb = openpyxl.Workbook()
+    ws = wb.active
+
+    ws.append(
+        ["First Name", "Last Name", "Participant Number", "Category", "Club", "Time"]
+    )
+    ws.append(["Lukasz", "Pudlo", "121", "MS", "Unaffiliated", "00:19:31"])
+    ws.append(["Callum", "Wallace", "654", "MS",
+              "Bellahouston Harriers", "00:20:51"])
+    ws.append(["Richard", "Cooper", "654", "MS",
+              "Cambuslang Harriers", "00:21:30"])
+
+    excel_file = io.BytesIO()
+    wb.save(excel_file)
+    excel_file.seek(0)
+
+    uploaded_file = SimpleUploadedFile(
+        "test_kings.xlsx",
+        excel_file.read(),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    return uploaded_file
+
+
+def generate_linn():
+    wb = openpyxl.Workbook()
+    ws = wb.active
+
+    ws.append(
+        ["First Name", "Last Name", "Participant Number", "Category", "Club", "Time"]
+    )
+    ws.append(["Callum", "Wallace", "654", "MS",
+              "Bellahouston Harriers", "00:20:51"])
+    ws.append(["Lukasz", "Pudlo", "121", "MS", "Unaffiliated", "00:19:31"])
+    ws.append(["Richard", "Cooper", "654", "MS",
+              "Cambuslang Harriers", "00:21:30"])
+
+    excel_file = io.BytesIO()
+    wb.save(excel_file)
+    excel_file.seek(0)
+
+    uploaded_file = SimpleUploadedFile(
+        "test_linn.xlsx",
+        excel_file.read(),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    return uploaded_file
+
+
+def generate_rouken():
+    wb = openpyxl.Workbook()
+    ws = wb.active
+
+    ws.append(
+        ["First Name", "Last Name", "Participant Number", "Category", "Club", "Time"]
+    )
+    ws.append(["Callum", "Wallace", "654", "MS",
+              "Bellahouston Harriers", "00:20:51"])
+    ws.append(["Lukasz", "Pudlo", "121", "MS", "Unaffiliated", "00:19:31"])
+    ws.append(["Richard", "Cooper", "654", "MS",
+              "Cambuslang Harriers", "00:21:30"])
+    ws.append(["Magda", "Thomas", "654", "MS",
+              "Bellahouston Harriers", "00:24:21"])
+
+    excel_file = io.BytesIO()
+    wb.save(excel_file)
+    excel_file.seek(0)
+
+    uploaded_file = SimpleUploadedFile(
+        "test_rouken.xlsx",
+        excel_file.read(),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    return uploaded_file
+
+
 @override_settings(
     STORAGES={
         "default": {
@@ -305,6 +382,96 @@ class TestFieldCorrectness(TestCase):
     # Test that the values are the same in the file and in the result table
     def test_values_are_the_same(self):
         file_path = f"{settings.BASE_DIR}/tests/files/2025/kings.xlsx"
+
+        df = pd.read_excel(file_path, dtype=str)
+        df = df.fillna("")
+        first_name_list_df = df["First Name"].values.tolist()
+        last_name_list_df = df["Last Name"].values.tolist()
+        participant_number_list_df = df["Participant Number"].values.tolist()
+        category_list_df = df["Category"].values.tolist()
+        time_list_df = df["Time"].values.tolist()
+
+        # Replace empty strings in the Excel with "Unaffiliated"
+        df.loc[df["Club"] == "", "Club"] = "Unaffiliated"
+        club_list_df = df["Club"].values.tolist()
+
+        first_name_list_app = []
+        last_name_list_app = []
+        participant_number_list_app = []
+        category_list_app = []
+        club_list_app = []
+        time_list_app = []
+
+        results = Result.objects.filter(race=1)
+        for result in results:
+            first_name_list_app.append(result.runner.first_name)
+            last_name_list_app.append(result.runner.last_name)
+            participant_number_list_app.append(
+                result.runner.participant_number)
+            category_list_app.append(result.runner.category)
+            club_list_app.append(result.runner.club)
+            time_list_app.append(result.time)
+
+        self.assertEqual(
+            first_name_list_df, first_name_list_app, "The " "first names are different"
+        )
+        self.assertEqual(
+            last_name_list_df, last_name_list_app, "The " "last names are different"
+        )
+        self.assertEqual(
+            participant_number_list_df,
+            participant_number_list_app,
+            "The " "participant numbers " "names are different",
+        )
+        self.assertEqual(
+            category_list_df, category_list_app, "The " "category are different"
+        )
+        self.assertEqual(club_list_df, club_list_app,
+                         "The " "clubs are different")
+        self.assertEqual(
+            time_list_df, time_list_app, "The " "time result are different"
+        )
+
+
+class TestFieldCorrectness(TestCase):
+    maxDiff = None
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.season = Season.objects.create(season_start_year=2024)
+        cls.season = Season.objects.create(season_start_year=2025)
+        cls.user = User.objects.create_user(
+            username="testuser", password="testpass123")
+
+    def setUp(self):
+        self.client.login(username="testuser", password="testpass123")
+
+        # Create a race based on true result data
+        file_path = f"{settings.BASE_DIR}/tests/files/2025/rouken.xlsx"
+        with open(file_path, "rb") as f:
+            uploaded_file = SimpleUploadedFile(
+                "rouken.xlsx",
+                f.read(),
+                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+
+        form_data = {
+            "name": "Test Rouken Glen",
+            "season_start_year": 2025,
+            "race_file": uploaded_file,
+        }
+
+        # Post to the URL: /races/race/new/
+        response = self.client.post("/races/race/new/", form_data)
+
+        self.assertEqual(response.status_code, 302)
+
+        # Check that the race was created
+        self.assertEqual(Race.objects.count(), 1)
+
+    # Test that the values are the same in the file and in the result table
+    def test_values_are_the_same(self):
+        file_path = f"{settings.BASE_DIR}/tests/files/2025/rouken.xlsx"
 
         df = pd.read_excel(file_path, dtype=str)
         df = df.fillna("")
