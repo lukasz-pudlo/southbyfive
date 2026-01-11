@@ -15,6 +15,24 @@ This document outlines the specific requirements for a series of races, with a f
 - For each race, we want to assign points to the runners based on their finishing positions. Points are assigned separately for runners in male, female, and non-binary categories.
 - The category of a runner can be identified by the first letter of their category string ("M" for male, "F" for female, "N" for Non-binary).
 
+## Race Results File Format
+
+A python management command has been added to help with the formatting of the Excel file with race results. The file needs to be placed in the race_files directly. Please ensure that the columns have the following headers:
+
+- Forename
+- Surname
+- Gender
+- Club
+- Category (it will likely be "Age Category" in the file you receive from the race organiser)
+- Participant Number (will likely be "Number")
+- Time
+
+If there are any additional columns, they will be ignored. 
+
+Once the file with the correct headers is in the race_file directory, run the below command:
+
+`python manage.py format_excel "{filename}"`
+
 ## Specific Requirements
 
 1. **Initial Points Calculation**: After the first two races, points are calculated normally for all participants.
