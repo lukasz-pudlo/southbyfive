@@ -1,13 +1,14 @@
+import os
 import pandas as pd
 import psycopg2
 
 # PostgreSQL connection details
 conn = psycopg2.connect(
-    dbname="sx5_db",
-    user="aws_postgres_sx5",
-    password="xCAKAoHwBXG2fj247wcx8Tc7GEyjAuTb",
-    host="dpg-ctulhtbqf0us73f5v3k0-a.frankfurt-postgres.render.com",
-    port="5432",
+    dbname=os.getenv("DB_NAME_EXT"),
+    user=os.getenv("DB_USER_EXT"),
+    password=os.getenv("DB_PASSWORD_EXT"),
+    host=os.getenv("DB_HOST_EXT"),
+    port=os.getenv("DB_PORT_EXT"),
 )
 
 # Query
@@ -38,7 +39,7 @@ query = """
 df = pd.read_sql_query(query, conn)
 
 # Export to Excel
-output_file = "export.xlsx"
+output_file = "pqsql_commands/files/race_participation.xlsx"
 df.to_excel(output_file, index=False)
 
 print(f"Data exported to {output_file}")
