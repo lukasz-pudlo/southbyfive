@@ -25,12 +25,20 @@ class ResultAdmin(admin.ModelAdmin):
 
 class RaceAdmin(admin.ModelAdmin):
     form = RaceForm
-    list_display = ("id", "name", "race_date", "race_number", "season_start_year")
+    list_display = ("id", "name", "race_date",
+                    "race_number", "season_start_year")
 
 
 class RunnerAdmin(admin.ModelAdmin):
     list_display = (
         "id",
+        "first_name",
+        "last_name",
+        "participant_number",
+        "club",
+        "category",
+    )
+    search_fields = (
         "first_name",
         "last_name",
         "participant_number",
