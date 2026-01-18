@@ -30,9 +30,13 @@ class ClassificationResultAdmin(admin.ModelAdmin):
     def classification_id(self, obj):
         return obj.classification.id
 
+    def classification_slug(self, obj):
+        return obj.classification.slug
+
     # Adjust the list_display and other attributes
     list_display = (
         "id",
+        "classification_slug",
         "runner_name",
         "classification_id",
         "classification_version",
@@ -40,7 +44,8 @@ class ClassificationResultAdmin(admin.ModelAdmin):
         "gender_points",
         "category_points",
     )
-    readonly_fields = ("runner_name", "classification_version", "classification_id")
+    readonly_fields = (
+        "runner_name", "classification_version", "classification_id")
     ordering = ["-general_points"]
 
     def get_queryset(self, request):
