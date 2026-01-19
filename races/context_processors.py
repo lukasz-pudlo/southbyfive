@@ -1,6 +1,6 @@
 from datetime import date
 
-from .models import Race
+from .models import Race, Season
 
 # Define a dictionary of scheduled dates for each park
 RACE_SCHEDULE_DATES = {
@@ -20,7 +20,8 @@ def race_list(request):
 
 def race_navbar(request):
     # Determine the selected season, defaulting to the most recent season if none is provided
-    season = request.GET.get("season") or request.session.get("selected_season")
+    season = request.GET.get(
+        "season") or request.session.get("selected_season")
 
     if season is None:
         # Default to the most recent season if `season` is still None
@@ -81,7 +82,8 @@ def race_dates_context(request):
 
 def race_navbar_with_dates(request):
     # Determine the selected season
-    season = request.GET.get("season") or request.session.get("selected_season")
+    season = request.GET.get(
+        "season") or request.session.get("selected_season")
     if season is None:
         season = (
             Race.objects.order_by("-season_start_year")
@@ -112,7 +114,8 @@ def race_navbar_with_dates(request):
 
         if race:
             # Race is available for this season
-            races[name] = {"race": race, "available": True, "race_date": race.race_date}
+            races[name] = {"race": race, "available": True,
+                           "race_date": race.race_date}
         else:
             # Use scheduled date from RACE_SCHEDULE_DATES if race is not yet available
             scheduled_race_date = RACE_SCHEDULE_DATES.get(name)
@@ -132,3 +135,13 @@ def available_seasons(request):
         .order_by("season_start_year")
     )
     return {"seasons": seasons}
+
+
+def display_prize_link(request):
+    season = Season.objects.order_by("-season_start_year").first()
+    bella_exists = Race.objects.filter(
+        season_start_year=season.season_start_year, name="Bellahouston Park").exists()
+    queens_exists = Race.objects.filter(
+        season_start_year=season.season_start_year, name="Queen's Park"
+    ).exists()
+    return {"bella_exists": bella_exists, "queens_exists": queens_exists, "season": season}

@@ -98,6 +98,7 @@ TEMPLATES = [
                 "races.context_processors.race_dates_context",
                 "races.context_processors.available_seasons",
                 "races.context_processors.race_navbar_with_dates",
+                "races.context_processors.display_prize_link",
             ],
         },
     },
