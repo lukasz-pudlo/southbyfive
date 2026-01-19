@@ -5,12 +5,12 @@
         <thead>
             <tr>
                 <th scope="col" class="align-middle">Name</th>
-                <th scope="col" class="align-middle">No.</th>
                 <th scope="col" class="align-middle">Result</th>
-                <th scope="col" class="align-middle">Category</th>
                 <th scope="col" class="align-middle">General Position</th>
                 <th scope="col" class="align-middle">Gender Position</th>
                 <th scope="col" class="align-middle">Category Position</th>
+                <th scope="col" class="align-middle">No.</th>
+                <th scope="col" class="align-middle">Category</th>
                 <th scope="col" class="align-middle">Club</th>
             </tr>
         </thead>
@@ -26,11 +26,6 @@
             <tr class="{{ race.hover_class }}">
                 <td class="align-middle">{{ result.runner }}</td>
                 <td class="align-middle">
-                    {% if result.runner.participant_number != 'nan' %}
-                        {{ result.runner.participant_number|cut:".0" }}
-                    {% endif %}
-                </td>
-                <td class="align-middle">
                     {% if result.time %}
                         {% if result.time|format_timedelta == "02:00:00" %}
                             DNF
@@ -39,13 +34,6 @@
                         {% endif %}
                     {% else %}
                         DNF
-                    {% endif %}
-                </td>
-                <td class="align-middle">
-                    {% if result.runner.category != None %}
-                        {{ result.runner.category }}
-                    {% else %}
-                        <!-- This will display nothing if runner category is None -->
                     {% endif %}
                 </td>
                 <td class="align-middle">
@@ -71,7 +59,18 @@
                         <!-- This will display nothing if general_position is None -->
                     {% endif %}
                 </td>
-                
+                <td class="align-middle">
+                    {% if result.runner.participant_number != 'nan' %}
+                        {{ result.runner.participant_number|cut:".0" }}
+                    {% endif %}
+                </td>
+                <td class="align-middle">
+                    {% if result.runner.category != None %}
+                        {{ result.runner.category }}
+                    {% else %}
+                        <!-- This will display nothing if runner category is None -->
+                    {% endif %}
+                </td>
                 <td class="align-middle">{{ result.runner.club }}</td>
             </tr>
             
