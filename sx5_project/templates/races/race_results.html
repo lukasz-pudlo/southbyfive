@@ -110,16 +110,16 @@
             "paging": false,
             "info": false,
             "pageLength": -1,
-            "order": [[4, 'asc']], // Set the default sorting to the 5th column (index 4)
+            "order": [[2, 'asc']], // Set the default sorting to General Position (index 2)
             "columnDefs": [{
                 "type": "category-pre",
-                "targets": [3]
+                "targets": [6]
             }]
         });
 
         // Filter function
         function filterByGender(genderPrefix) {
-            table.columns(3).search('^' + genderPrefix, true, false).draw();
+            table.columns(6).search('^' + genderPrefix, true, false).draw();
         }
 
 
@@ -137,7 +137,7 @@
         });
 
         $('#filterClear').on('click', function() {
-            table.columns(3).search('').draw(); // Clear the filter
+            table.columns(6).search('').draw(); // Clear the filter
         });
     });
 </script>

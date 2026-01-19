@@ -81,14 +81,14 @@
 
             "columnDefs": [{
                 "type": "category-pre",
-                "targets": [1]
+                "targets": [5]
             }]
         });
 
         function filterByGenderClassification(genderPrefix) {
             isFilterActive = true;
-            classificationTable.columns(1).search('^' + genderPrefix, true, false).draw();
-            classificationTable.order([[4, 'asc']]).draw(); // Sort by "Gender Points" (5th column)
+            classificationTable.columns(5).search('^' + genderPrefix, true, false).draw();
+            classificationTable.order([[3, 'asc']]).draw(); // Sort by "Gender Points" (4th column)
             toggleSorting(false); // Disable sorting
 
         }
