@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+.env.*
+*.pyc
+__pycache__/
+.pytest_cache/
+htmlcov/
+.coverage
+*.sql
+*.dump
+README.md
+HETZNER_MIGRATION.md
+docker-compose.yaml
+get-docker.sh

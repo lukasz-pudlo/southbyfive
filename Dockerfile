@@ -48,7 +48,6 @@ USER appuser
 # Expose the application port
 EXPOSE 8000
 
-# Command to run the application using Gunicorn
-CMD python manage.py collectstatic --noinput --clear && \
-    python manage.py migrate && \
-    gunicorn sx5_project.wsgi:application --bind 0.0.0.0:$PORT --workers 3
+# Command to run the application using Gunicorn.
+# exec-form so SIGTERM reaches gunicorn (PID 1) cleanly during deploys.
+CMD ["sh", "-c", "python manage.py collectstatic --noinput --clear && python manage.py migrate && exec gunicorn sx5_project.wsgi:application --bind 0.0.0.0:8000 --workers 3 --access-logfile - --error-logfile -"]

@@ -58,6 +58,7 @@ pgdata
 # Ignore backup files
 *.bak
 *.dump
+*.sql
 
 */migrations/__pycache__/
 
