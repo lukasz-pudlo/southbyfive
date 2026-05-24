@@ -71,3 +71,28 @@ Once the file with the correct headers is in the race_file directory, run the be
 Currently, the project is hosted on Sevalla. The selected project type is Django, with a build from Dockerfile. An instance of postgres database has been created. Sevalla provides a DB_URL variable, which is used by this project in production. 
 
 For the time being, the migrations need to be run manually from the terminal on Sevalla. 
+
+## Embedding this site in the portfolio locally
+
+The site can be embedded in an `<iframe>` from another local origin (the `lukasz-pudlo` portfolio Django project) for case-study previews. Allowed embedding origins are controlled via the `Content-Security-Policy: frame-ancestors` header, set by `sx5_project.middleware.FrameAncestorsMiddleware`.
+
+Configure with the `DJANGO_ALLOWED_FRAME_ANCESTORS` env var (comma-separated):
+
+```env
+DJANGO_ALLOWED_FRAME_ANCESTORS=http://localhost:8000,http://127.0.0.1:8000,http://localhost:8010,http://127.0.0.1:8010
+```
+
+When the env var is unset:
+
+- `DEBUG=True` → defaults to the four local portfolio origins above.
+- `DEBUG=False` → defaults to `'self'`, `https://lukaszpudlo.com`, and `https://www.lukaszpudlo.com` (the portfolio production domain).
+
+To override in production, set the env var to the exact allowed origins, e.g.:
+
+```env
+DJANGO_ALLOWED_FRAME_ANCESTORS=https://lukaszpudlo.com,https://www.lukaszpudlo.com
+```
+
+Do not use `*`. Do not include admin/auth pages in any case-study embed.
+
+If the portfolio runs on `http://localhost:8000` and this project on `http://localhost:8001`, set `embed_url` in the portfolio to `http://localhost:8001/` (or any deep link such as `http://localhost:8001/races/`).

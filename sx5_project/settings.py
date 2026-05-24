@@ -68,8 +68,40 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "sx5_project.middleware.FrameAncestorsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+
+# --- Iframe embedding policy ----------------------------------------------
+# Controls which origins may embed this site (via CSP `frame-ancestors`).
+# Configure via the DJANGO_ALLOWED_FRAME_ANCESTORS env var as a comma-separated
+# list, e.g.:
+#   DJANGO_ALLOWED_FRAME_ANCESTORS=http://localhost:8000,https://my-portfolio.example
+# When unset:
+#   - DEBUG=True defaults to local portfolio dev origins.
+#   - DEBUG=False defaults to 'self' + the portfolio production domain.
+_DEV_FRAME_ANCESTORS = [
+    "'self'",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://localhost:8010",
+    "http://127.0.0.1:8010",
+]
+
+_PROD_FRAME_ANCESTORS = [
+    "'self'",
+    "https://lukaszpudlo.com",
+    "https://www.lukaszpudlo.com",
+]
+
+_raw_frame_ancestors = os.environ.get("DJANGO_ALLOWED_FRAME_ANCESTORS", "").strip()
+if _raw_frame_ancestors:
+    ALLOWED_FRAME_ANCESTORS = [
+        item.strip() for item in _raw_frame_ancestors.split(",") if item.strip()
+    ]
+else:
+    ALLOWED_FRAME_ANCESTORS = _DEV_FRAME_ANCESTORS if DEBUG else _PROD_FRAME_ANCESTORS
 
 
 CSRF_TRUSTED_ORIGINS = [
