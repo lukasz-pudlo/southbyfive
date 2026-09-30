@@ -1,19 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Races{% if season %} for {{ season }}{% endif %}</h1>
-  
-  {% for race in races %}
-    <div class="card mb-3">
-      <div class="card-body">
-        <h5 class="card-title">{{ race.name }}</h5>
-        <p class="card-text">{{ race.description }}</p>
-        <a href="{% url 'races:detail' year=race.season_start_year slug=race.slug %}" class="btn btn-primary">Details</a>
+  <h1>Races{% if selected_season %} in {{ selected_season }}/{{ selected_season|add:1 }}{% endif %}</h1>
+
+  {% if races %}
+  <ul class="race-list">
+    {% for race in races %}
+    <li class="race-row park-{{ race.name|slugify }}">
+      <span class="race-row__swatch" aria-hidden="true"></span>
+      <div class="race-row__body">
+        <p class="race-row__name">{{ race.name }}</p>
+        {% if race.race_date %}<p class="race-row__date">{{ race.race_date|date:"j F Y" }}</p>{% endif %}
+        {% if race.description %}<p class="race-row__desc">{{ race.description }}</p>{% endif %}
       </div>
-    </div>
-  {% endfor %}
-  
+      <a href="{% url 'races:detail' year=race.season_start_year slug=race.slug %}" class="btn btn-primary">See results</a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No races have been added for this season yet.</p>
+  {% endif %}
+
   {% if user.is_authenticated %}
-    <a href="{% url 'races:new' %}" class="btn btn-primary">Add New Race</a>
+    <a href="{% url 'races:new' %}" class="btn btn-secondary mt-4">Add new race</a>
   {% endif %}
 {% endblock %}

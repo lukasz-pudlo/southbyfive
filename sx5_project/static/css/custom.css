@@ -1,323 +1,479 @@
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 15px;
-    font-family: 'Arial', sans-serif;
+/* South by Five site stylesheet.
+   Loaded after Bootstrap 5.3 and DataTables 1.10. Tokens first, then the page top to bottom. */
+
+/* ---------- Tokens ---------- */
+
+:root {
+  --sx5-cream: #fffdf8;
+  --sx5-sand: #f3ecd9;
+  --sx5-black: #000;
+  --sx5-red: #df1f1e;
+  --sx5-orange: #eda51f;
+  --sx5-yellow: #ece020;
+  --sx5-green: #49ad3c;
+  --sx5-blue: #418fcf;
+  --sx5-purple: #68267e;
+  --sx5-link: var(--sx5-purple);
+  --sx5-rule: rgba(0, 0, 0, 0.12);
+  --sx5-radius: 14px;
+  --sx5-pill: 999px;
+  --sx5-font: Montserrat, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sx5-gutter: clamp(1rem, 4vw, 3rem);
+
+  /* Bootstrap hooks */
+  --bs-body-bg: var(--sx5-cream);
+  --bs-body-color: var(--sx5-black);
+  --bs-body-font-family: var(--sx5-font);
+  --bs-body-line-height: 1.55;
+  --bs-heading-color: var(--sx5-black);
+  --bs-link-color: var(--sx5-link);
+  --bs-link-color-rgb: 104, 38, 126;
+  --bs-link-hover-color: var(--sx5-black);
+  --bs-link-hover-color-rgb: 0, 0, 0;
+  --bs-border-radius: var(--sx5-radius);
+  --bs-border-color: var(--sx5-rule);
+  --bs-focus-ring-color: rgba(0, 0, 0, 0.35);
 }
 
-.info {
-    border: 1px solid #ddd;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 5px;
+/* Park colours. One class per park, applied to nav links, the race band and race rows. */
+.park-kings-park        { --park: var(--sx5-red); }
+.park-linn-park         { --park: var(--sx5-orange); }
+.park-rouken-glen       { --park: var(--sx5-yellow); --park-ink: var(--sx5-black); --contour-ink: rgba(0, 0, 0, 0.09); }
+.park-pollok-park       { --park: var(--sx5-green); }
+.park-bellahouston-park { --park: var(--sx5-blue); }
+.park-queens-park       { --park: var(--sx5-purple); }
+
+/* ---------- Base ---------- */
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
-.info h2 {
-    color: #333;
-    font-size: 24px;
-    margin-bottom: 10px;
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-weight: 400;
 }
 
-.info h3 {
-    color: #555;
-    font-size: 18px;
-    margin-bottom: 8px;
+main {
+  flex: 1 0 auto;
 }
 
-.info p {
-    color: #666;
-    line-height: 1.6;
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-.info a {
-    color: #0066cc;
-    text-decoration: none;
+h1 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  margin-bottom: 1.25rem;
 }
 
-.info a:hover {
-    text-decoration: underline;
+a {
+  text-underline-offset: 0.15em;
 }
 
-.info ul {
-    padding-left: 20px;
+:focus-visible {
+  outline: 3px solid var(--sx5-black);
+  outline-offset: 2px;
 }
 
-
-.nav-link-lg {
-    font-size: 1.2rem !important;
+.page {
+  width: min(100% - 2 * var(--sx5-gutter), 1200px);
+  margin-inline: auto;
 }
 
-/* .table tbody tr:hover td {
-    background-color: #f19a99 !important;
-} */
-
-.kings-park-hover:hover td {
-    background-color: rgb(223, 31, 30, .8) !important;
+main.page {
+  padding-block: 1.5rem 3rem;
 }
 
-.linn-park-hover:hover td {
-    background-color: rgb(237, 165, 31, .8) !important;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
 }
 
-.rouken-glen-hover:hover td {
-    background-color: rgb(236, 224, 32, .8) !important;
+/* ---------- Navigation ---------- */
+
+.site-nav {
+  background: var(--sx5-black);
+  padding-block: 0.75rem;
+  --bs-navbar-color: var(--sx5-cream);
+  --bs-navbar-hover-color: #fff;
+  --bs-navbar-active-color: var(--sx5-cream);
+  --bs-navbar-disabled-color: rgba(255, 253, 248, 0.45);
+  --bs-navbar-brand-color: var(--sx5-cream);
+  --bs-navbar-brand-hover-color: #fff;
+  --bs-navbar-toggler-border-color: transparent;
+  --bs-navbar-toggler-focus-width: 0;
 }
 
-.pollok-park-hover:hover td {
-    background-color: rgb(73, 173, 60, .8) !important;
+.site-nav > .page {
+  display: flex;
+  flex-wrap: inherit;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.bellahouston-park-hover:hover td {
-    background-color: rgb(65, 143, 207, .8) !important;
+.site-nav .navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0;
+  margin-right: 1.5rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-.queens-park-hover:hover td {
-    background-color: rgb(104, 38, 126, .8) !important;
+.site-nav .navbar-brand img {
+  display: block;
+  height: 40px;
+  width: auto;
 }
 
-.default-hover:hover td {
-    background-color: #f19a99 !important;
-    /* Default color */
+.site-nav .navbar-toggler:focus-visible {
+  outline: 3px solid var(--sx5-cream);
 }
 
-
-
-.navbar {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    background-color: black !important;
-    margin-bottom: 1.5rem !important;
+.site-nav .navbar-nav {
+  --bs-nav-link-font-weight: 700;
+  --bs-nav-link-padding-x: 0.85rem;
+  --bs-nav-link-padding-y: 0.45rem;
+  gap: 0.15rem;
 }
 
-/* .navbar-brand,
-.navbar-toggler {
-    margin-top: auto !important;
-    margin-bottom: auto !important;
-    align-self: center !important;
-} */
-
-.navbar-light .navbar-brand {
-    font-size: 1.8rem !important;
+.site-nav .nav-link {
+  border-radius: var(--sx5-pill);
+  line-height: 1.2;
 }
 
-.navbar-light .navbar-nav .nav-link {
-    /* white-space: nowrap !important; */
-    color: white !important;
-    display: inline-block !important;
-    /* width: 7rem !important; */
-    text-align: center !important;
+.site-nav .nav-link:focus-visible {
+  outline-color: var(--sx5-cream);
 }
 
-.navbar-nav .nav-item .nav-link.active {
-    border-radius: 0.25rem !important;
+/* The current park keeps its filled pill in the park colour. */
+.site-nav .nav-link.active {
+  background: var(--park, var(--sx5-purple));
+  color: var(--park-ink, var(--sx5-cream));
 }
 
-/* King's Park - Red */
-.navbar-nav .nav-item:nth-child(1) .nav-link.active {
-    background-color: #df1f1e !important;
+/* Non-park links (Info) mark the current page with an underline instead. */
+.site-nav__right .nav-link.active {
+  background: transparent;
+  color: var(--sx5-cream);
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.4em;
 }
 
-/* Linn Park - Orange */
-.navbar-nav .nav-item:nth-child(2) .nav-link.active {
-    background-color: #eda51f !important;
+.site-nav .navbar-collapse {
+  padding-top: 0.5rem;
 }
 
-/* Rouken Glen - Yellow */
-.navbar-nav .nav-item:nth-child(3) .nav-link.active {
-    background-color: #ece020 !important;
-    color: black !important;
+@media (min-width: 992px) {
+  .site-nav .navbar-collapse {
+    padding-top: 0;
+  }
 }
 
-/* Pollok Park - Green */
-.navbar-nav .nav-item:nth-child(4) .nav-link.active {
-    background-color: #49ad3c !important;
+.site-nav .dropdown-menu {
+  --bs-dropdown-bg: var(--sx5-black);
+  --bs-dropdown-color: var(--sx5-cream);
+  --bs-dropdown-link-color: var(--sx5-cream);
+  --bs-dropdown-link-hover-color: #fff;
+  --bs-dropdown-link-hover-bg: rgba(255, 255, 255, 0.12);
+  --bs-dropdown-link-active-color: var(--sx5-cream);
+  --bs-dropdown-link-active-bg: rgba(255, 255, 255, 0.2);
+  --bs-dropdown-border-color: rgba(255, 253, 248, 0.25);
+  --bs-dropdown-border-radius: var(--sx5-radius);
+  --bs-dropdown-padding-y: 0.5rem;
+  --bs-dropdown-item-padding-x: 1.1rem;
+  --bs-dropdown-item-padding-y: 0.45rem;
+  font-weight: 700;
 }
 
-/* Bellahouston Park - Blue */
-.navbar-nav .nav-item:nth-child(5) .nav-link.active {
-    background-color: #418fcf !important;
+.rainbow-stripe {
+  height: 6px;
+  border-bottom: 4px solid var(--sx5-cream); /* keeps every segment visible above a same-coloured band */
+  background: linear-gradient(
+    to right,
+    var(--sx5-red) 0 16.666%,
+    var(--sx5-orange) 0 33.333%,
+    var(--sx5-yellow) 0 50%,
+    var(--sx5-green) 0 66.666%,
+    var(--sx5-blue) 0 83.333%,
+    var(--sx5-purple) 0 100%
+  );
 }
 
-/* Queen's Park - Purple */
-.navbar-nav .nav-item:nth-child(6) .nav-link.active {
-    background-color: #68267e !important;
+.custom-tooltip {
+  --bs-tooltip-bg: var(--sx5-black);
+  --bs-tooltip-color: var(--sx5-cream);
+  --bs-tooltip-border-radius: var(--sx5-radius);
+  --bs-tooltip-padding-x: 0.9rem;
+  --bs-tooltip-padding-y: 0.5rem;
+  --bs-tooltip-font-size: 0.875rem;
+  --bs-tooltip-opacity: 1;
 }
 
-.nav-item .nav-link {
-    color: black !important;
+/* ---------- Race band ---------- */
+
+.band {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--park, var(--sx5-black));
+  color: var(--park-ink, var(--sx5-cream));
+  padding-top: clamp(2rem, 5vw, 3.5rem);
 }
 
-.kings-park-color {
-    background-color: #df1f1e !important;
+/* Contour lines: one SVG used as an alpha mask so the ink colour can follow the band. */
+.band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--contour-ink, rgba(255, 255, 255, 0.16));
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%201600%20420%22%20fill=%22none%22%20stroke=%22%23000%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cg%3E%3Cpath%20d=%22M290%20280c20-25%2080-20%2085%2012s-50%2053-77%2038-28-35-8-50z%22/%3E%3Cpath%20d=%22M260%20270c30-45%20145-40%20155%2022s-85%2088-135%2063-60-50-20-85z%22/%3E%3Cpath%20d=%22M230%20260c40-65%20210-60%20225%2032s-120%20128-190%2088-75-70-35-120z%22/%3E%3Cpath%20d=%22M200%20250c50-85%20275-80%20295%2042s-155%20168-245%20113-95-95-50-155z%22/%3E%3Cpath%20d=%22M170%20240c60-105%20340-100%20365%2052s-190%20208-300%20138-115-115-65-190z%22/%3E%3C/g%3E%3Cg%3E%3Cpath%20d=%22M905%20110c15-20%2055-15%2057%208s-32%2032-50%2022-19-20-7-30z%22/%3E%3Cpath%20d=%22M880%20100c25-40%20110-30%20115%2018s-60%2062-100%2042-45-35-15-60z%22/%3E%3Cpath%20d=%22M855%2090c35-60%20165-45%20175%2028s-88%2092-150%2062-70-50-25-90z%22/%3E%3Cpath%20d=%22M830%2080c45-80%20220-60%20235%2038s-116%20122-200%2082-95-65-35-120z%22/%3E%3Cpath%20d=%22M805%2070c55-100%20275-75%20295%2048s-144%20152-250%20102-120-80-45-150z%22/%3E%3C/g%3E%3Cg%20transform=%22translate(490%2080)%22%3E%3Cpath%20d=%22M905%20110c15-20%2055-15%2057%208s-32%2032-50%2022-19-20-7-30z%22/%3E%3Cpath%20d=%22M880%20100c25-40%20110-30%20115%2018s-60%2062-100%2042-45-35-15-60z%22/%3E%3Cpath%20d=%22M855%2090c35-60%20165-45%20175%2028s-88%2092-150%2062-70-50-25-90z%22/%3E%3Cpath%20d=%22M830%2080c45-80%20220-60%20235%2038s-116%20122-200%2082-95-65-35-120z%22/%3E%3C/g%3E%3Cpath%20d=%22M0%2060c120-30%20220%2020%20340-5s220-45%20340-20%20220%2040%20340%2015%20200-40%20260-20%20220%2030%20320%2030%22/%3E%3Cpath%20d=%22M0%20380c130%2025%20230-25%20350%200s230%2040%20350%2015%20230-35%20350-10%20200%2030%20260%2015%20190-25%20290-20%22/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%201600%20420%22%20fill=%22none%22%20stroke=%22%23000%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cg%3E%3Cpath%20d=%22M290%20280c20-25%2080-20%2085%2012s-50%2053-77%2038-28-35-8-50z%22/%3E%3Cpath%20d=%22M260%20270c30-45%20145-40%20155%2022s-85%2088-135%2063-60-50-20-85z%22/%3E%3Cpath%20d=%22M230%20260c40-65%20210-60%20225%2032s-120%20128-190%2088-75-70-35-120z%22/%3E%3Cpath%20d=%22M200%20250c50-85%20275-80%20295%2042s-155%20168-245%20113-95-95-50-155z%22/%3E%3Cpath%20d=%22M170%20240c60-105%20340-100%20365%2052s-190%20208-300%20138-115-115-65-190z%22/%3E%3C/g%3E%3Cg%3E%3Cpath%20d=%22M905%20110c15-20%2055-15%2057%208s-32%2032-50%2022-19-20-7-30z%22/%3E%3Cpath%20d=%22M880%20100c25-40%20110-30%20115%2018s-60%2062-100%2042-45-35-15-60z%22/%3E%3Cpath%20d=%22M855%2090c35-60%20165-45%20175%2028s-88%2092-150%2062-70-50-25-90z%22/%3E%3Cpath%20d=%22M830%2080c45-80%20220-60%20235%2038s-116%20122-200%2082-95-65-35-120z%22/%3E%3Cpath%20d=%22M805%2070c55-100%20275-75%20295%2048s-144%20152-250%20102-120-80-45-150z%22/%3E%3C/g%3E%3Cg%20transform=%22translate(490%2080)%22%3E%3Cpath%20d=%22M905%20110c15-20%2055-15%2057%208s-32%2032-50%2022-19-20-7-30z%22/%3E%3Cpath%20d=%22M880%20100c25-40%20110-30%20115%2018s-60%2062-100%2042-45-35-15-60z%22/%3E%3Cpath%20d=%22M855%2090c35-60%20165-45%20175%2028s-88%2092-150%2062-70-50-25-90z%22/%3E%3Cpath%20d=%22M830%2080c45-80%20220-60%20235%2038s-116%20122-200%2082-95-65-35-120z%22/%3E%3C/g%3E%3Cpath%20d=%22M0%2060c120-30%20220%2020%20340-5s220-45%20340-20%20220%2040%20340%2015%20200-40%20260-20%20220%2030%20320%2030%22/%3E%3Cpath%20d=%22M0%20380c130%2025%20230-25%20350%200s230%2040%20350%2015%20230-35%20350-10%20200%2030%20260%2015%20190-25%20290-20%22/%3E%3C/svg%3E");
+  -webkit-mask-size: 1600px 420px;
+  mask-size: 1600px 420px;
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+  -webkit-mask-position: center top;
+  mask-position: center top;
+  pointer-events: none;
 }
 
-.linn-park-color {
-    background-color: #eda51f !important;
+.band__title {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  line-height: 1.05;
+  margin: 0 0 0.6rem;
+  color: inherit;
 }
 
-.rouken-glen-color {
-    background-color: #ece020 !important;
-    color: black !important;
+.band__meta,
+.band__desc {
+  max-width: 60ch;
+  margin: 0;
+  font-size: 1.05rem;
 }
 
-.pollok-park-color {
-    background-color: #49ad3c !important;
+.band__desc {
+  margin-top: 0.75rem;
 }
 
-.bellahouston-park-color {
-    background-color: #418fcf !important;
+.band__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  list-style: none;
+  padding: 0;
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
 }
 
-.queens-park-color {
-    background-color: #68267e !important;
+.band__tab {
+  display: inline-block;
+  padding: 0.85rem 1.4rem;
+  font-weight: 700;
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--sx5-radius) var(--sx5-radius) 0 0;
+  transition: background-color 0.15s;
 }
 
-.nav-item .nav-link.active.kings-park-color {
-    color: white !important;
+.band__tab:hover,
+.band__tab:focus-visible {
+  color: inherit;
+  background: rgba(0, 0, 0, 0.14);
 }
 
-.nav-item .nav-link.active.linn-park-color {
-    color: white !important;
+.band__tab:focus-visible {
+  outline-color: var(--park-ink, var(--sx5-cream));
+  outline-offset: -3px;
 }
 
-.nav-item .nav-link.active.pollok-park-color {
-    color: white !important;
+.band__tab.is-active,
+.band__tab.is-active:hover {
+  background: var(--sx5-cream);
+  color: var(--sx5-black);
 }
 
-.nav-item .nav-link.active.bellahouston-park-color {
-    color: white !important;
+/* ---------- Results toolbar ---------- */
+
+.results-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin: 0.5rem 0 1.25rem;
 }
 
-.nav-item .nav-link.active.queens-park-color {
-    color: white !important;
+.results-toolbar__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
-
-.container {
-    padding-top: 2em;
-}
-
-.align-middle {
-    vertical-align: middle !important;
-    text-align: center !important;
-}
-
-.navbar-toggler {
-    background-image: linear-gradient(to bottom,
-            #df1f1e 0%,
-            #df1f1e 16.666%,
-            #eda51f 16.666%,
-            #eda51f 33.333%,
-            #ece020 33.333%,
-            #ece020 50%,
-            #49ad3c 50%,
-            #49ad3c 66.666%,
-            #418fcf 66.666%,
-            #418fcf 83.333%,
-            #68267e 83.333%,
-            #68267e 100%) !important;
-    color: #fff !important;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-.info {
-    color: black !important;
-}
-
-.info a {
-    color: #68267e !important;
-}
-
-.dataTables_filter {
-    float: left !important;
-    /* Aligns the search box to the right */
-    text-align: left !important;
-    /* Aligns the text within the search box to the right */
-}
-
-#filterContainer {
-    display: flex !important;
-    /* Align items in a row */
-    justify-content: center !important;
-    /* Center items horizontally */
-    margin-top: 20px !important;
-    margin-bottom: 20px !important;
-    flex-wrap: wrap !important;
-}
-
-#filterContainerClassification {
-    display: flex !important;
-    /* Align items in a row */
-    justify-content: center !important;
-    /* Center items horizontally */
-    margin-top: 20px !important;
-    margin-bottom: 20px !important;
-    flex-wrap: wrap !important;
-}
-
-#filterContainer .btn {
-    margin: 5px !important;
-    /* Space around buttons */
-    white-space: nowrap !important;
-    /* Prevent text from wrapping */
-}
-
-#filterContainerClassification .btn {
-    margin: 5px !important;
-    /* Space around buttons */
-    white-space: nowrap !important;
-    /* Prevent text from wrapping */
-}
-
-.active-filter {
-    background-color: #007bff;
-    /* Example: blue background */
-    color: white !important;
-    /* White text */
-    border-color: #007bff !important;
-    /* Blue border */
-}
-
 
 .filter-btn {
-    width: 120px !important;
-    /* Fixed width for all buttons */
-    height: 40px !important;
-    /* Fixed height for all buttons */
-    margin: 5px !important;
-    /* Margin around buttons */
-    color: white !important;
-    /* Text color */
-    font-size: 16px !important;
-    /* Text size */
-    border-radius: 5px !important;
-    /* Rounded corners */
-    border: none !important;
-    /* No border */
+  --btn: var(--sx5-black);
+  background: var(--btn);
+  color: var(--sx5-cream);
+  border: 2px solid var(--btn);
+  border-radius: var(--sx5-pill);
+  padding: 0.5rem 1.25rem;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
-/* Custom colors for each button */
-.filter-btn-male {
-    background-color: #df1f1e !important;
-    /* Example blue for male */
-}
-
-.filter-btn-female {
-    background-color: #418fcf !important;
-    /* Example red for female */
-}
-
-.filter-btn-nonbinary {
-    background-color: #68267e !important;
-    /* Example green for non-binary */
-}
+.filter-btn-male      { --btn: var(--sx5-red); }
+.filter-btn-female    { --btn: var(--sx5-blue); }
+.filter-btn-nonbinary { --btn: var(--sx5-purple); }
 
 .filter-btn-clear {
-    background-color: #6c757d !important;
-    /* Example grey for clear */
+  background: transparent;
+  color: var(--sx5-black);
 }
+
+.filter-btn:hover,
+.filter-btn:focus-visible {
+  background: var(--sx5-black);
+  border-color: var(--sx5-black);
+  color: var(--sx5-cream);
+}
+
+/* The selected filter: black, with a ring in its own colour. */
+.filter-btn.is-active {
+  background: var(--sx5-black);
+  border-color: var(--sx5-black);
+  color: var(--sx5-cream);
+  box-shadow: 0 0 0 3px var(--sx5-cream), 0 0 0 6px var(--btn);
+}
+
+.results-toolbar .dataTables_filter {
+  float: none;
+  margin-left: auto;
+  text-align: left;
+}
+
+.results-toolbar .dataTables_filter label {
+  display: block;
+  margin: 0;
+}
+
+.results-toolbar .dataTables_filter input[type="search"] {
+  margin: 0;
+  min-width: 17rem;
+  padding: 0.5rem 1.1rem;
+  font: inherit;
+  color: var(--sx5-black);
+  background: var(--sx5-cream);
+  border: 2px solid var(--sx5-black);
+  border-radius: var(--sx5-pill);
+}
+
+.results-toolbar .dataTables_filter input[type="search"]:focus {
+  outline: none;
+  border-color: var(--sx5-purple);
+  box-shadow: 0 0 0 2px var(--sx5-purple);
+}
+
+@media (max-width: 767px) {
+  .results-toolbar {
+    justify-content: center;
+  }
+
+  .results-toolbar .dataTables_filter {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .results-toolbar .dataTables_filter input[type="search"] {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* ---------- Tables ---------- */
+
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--sx5-black);
+  --bs-table-border-color: var(--sx5-rule);
+  font-size: 0.95rem;
+  margin-bottom: 0;
+}
+
+.table > thead th {
+  font-weight: 700;
+  text-align: center;
+  vertical-align: middle;
+  border-bottom: 2px solid var(--sx5-black);
+}
+
+.table > tbody td {
+  text-align: center;
+  vertical-align: middle;
+  padding: 0.65rem 0.5rem;
+  border-bottom: 1px solid var(--sx5-rule);
+  font-variant-numeric: tabular-nums;
+}
+
+.table > thead th:first-child,
+.table > tbody td:first-child,
+.table > thead th:last-child,
+.table > tbody td:last-child {
+  text-align: left;
+}
+
+/* DataTables ships its own white rows, dark rules and spacing. */
+table.dataTable {
+  border-collapse: collapse !important;
+  margin: 0 !important;
+}
+
+table.dataTable tbody tr {
+  background-color: transparent;
+}
+
+table.dataTable thead th,
+table.dataTable thead td {
+  padding: 0.75rem 1.6rem 0.75rem 0.5rem;
+  border-bottom: 2px solid var(--sx5-black);
+}
+
+table.dataTable thead th:first-child {
+  padding-left: 0.5rem;
+}
+
+table.dataTable tbody th,
+table.dataTable tbody td {
+  padding: 0.65rem 0.5rem;
+}
+
+table.dataTable.no-footer {
+  border-bottom: 0;
+}
+
+.dataTables_wrapper {
+  color: inherit;
+}
+
+/* Row hover in the park colour (classes come from Race.hover_class). */
+.kings-park-hover:hover td        { background-color: rgba(223, 31, 30, 0.25); }
+.linn-park-hover:hover td         { background-color: rgba(237, 165, 31, 0.25); }
+.rouken-glen-hover:hover td       { background-color: rgba(236, 224, 32, 0.35); }
+.pollok-park-hover:hover td       { background-color: rgba(73, 173, 60, 0.25); }
+.bellahouston-park-hover:hover td { background-color: rgba(65, 143, 207, 0.25); }
+.queens-park-hover:hover td       { background-color: rgba(104, 38, 126, 0.22); }
+.default-hover:hover td           { background-color: var(--sx5-sand); }
 
 /* Hide sorting arrows when sorting is disabled */
 #classificationTable th.sorting_disabled.sorting::after,
@@ -326,153 +482,255 @@
 #classificationTable th.sorting_disabled.sorting_asc::before,
 #classificationTable th.sorting_disabled.sorting_desc::after,
 #classificationTable th.sorting_disabled.sorting_desc::before {
-    display: none !important;
+  display: none;
 }
 
+/* ---------- Panels, prose, awards ---------- */
 
-
-
-
-
-
-@media (max-width: 767px) {
-    .nav-link-lg {
-        font-size: 1rem !important;
-        align-self: center !important;
-    }
-
-    .navbar-light .navbar-brand {
-        color: white !important;
-        align-self: center !important;
-    }
-
-    .navbar-nav {
-        direction: rtl;
-        display: flex;
-        justify-content: flex-end;
-        padding: 0;
-    }
-
-    .dropdown-item {
-        direction: rtl;
-        display: flex;
-        justify-content: flex-start;
-        padding: 0;
-    }
+.panel {
+  background: var(--sx5-sand);
+  border-radius: var(--sx5-radius);
+  padding: clamp(1.25rem, 3vw, 2rem);
 }
 
-@media (min-width: 768px) and (max-width: 991px) {
-    .navbar-light .navbar-brand {
-        color: white !important;
-        /* Visibility fix for tablet devices */
-    }
-
-    .navbar-nav {
-        direction: rtl;
-        display: flex;
-        justify-content: flex-end;
-        padding: 0;
-    }
-
-    .dropdown-item {
-        direction: rtl;
-        display: flex;
-        justify-content: flex-start;
-        padding: 0;
-    }
+.panel + .panel {
+  margin-top: 1.25rem;
 }
 
-@media (min-width: 992px) {
-    .navbar-brand {
-        background-image: linear-gradient(to bottom,
-                #df1f1e 0%,
-                #df1f1e 16.666%,
-                #eda51f 16.666%,
-                #eda51f 33.333%,
-                #ece020 33.333%,
-                #ece020 50%,
-                #49ad3c 50%,
-                #49ad3c 66.666%,
-                #418fcf 66.666%,
-                #418fcf 83.333%,
-                #68267e 83.333%,
-                #68267e 100%) !important;
-        border-radius: 5%;
-        padding-left: 0.25em;
-        padding-right: 0.25em;
-        color: black !important;
-    }
-
-    .navbar-nav {
-        direction: rtl;
-        display: flex;
-        justify-content: flex-end;
-        padding: 0;
-    }
+.panel h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
 }
 
-@media (min-width: 992px) {
-    .navbar-nav {
-        flex-direction: row !important;
-        align-items: center !important;
-        width: 100% !important;
-    }
-
-    .navbar-nav .nav-right-group:last-child {
-        margin-left: auto !important;
-        display: flex;
-    }
-
-    .navbar-nav {
-        direction: ltr;
-        display: flex;
-        justify-content: flex-start;
-        padding: 0;
-    }
+.panel h3 {
+  font-size: 1.1rem;
+  margin: 1.5rem 0 0.5rem;
 }
 
-/* Dropdown menu styling for dark theme */
-.navbar .dropdown-menu {
-    background-color: black !important;
+.panel > :last-child {
+  margin-bottom: 0;
 }
 
-.navbar .dropdown-menu .dropdown-item {
-    color: white !important;
-    background-color: black !important;
+.prose {
+  max-width: 68ch;
 }
 
-.navbar .dropdown-menu .dropdown-item:hover,
-.navbar .dropdown-menu .dropdown-item:focus {
-    background-color: #333 !important;
-    /* Slightly lighter shade on hover */
-    color: white !important;
+.prose ul {
+  padding-left: 1.25rem;
 }
 
-.navbar .nav-link.disabled {
-    color: #6c757d !important;
-    /* Ensures visible text color for disabled links */
+.prose li {
+  margin-bottom: 0.25rem;
 }
 
-.custom-tooltip .tooltip-inner {
-    background-color: #333333 !important;
-    color: #ffffff !important;
-    padding: 8px 12px !important;
-    border-radius: 8px !important;
-    font-size: 0.875rem !important;
-    font-weight: 500 !important;
+.prose li::marker {
+  color: var(--sx5-purple);
 }
 
-.custom-tooltip .tooltip-arrow::before {
-    background-color: #333333 !important;
+.awards {
+  max-width: 44rem;
+  margin: 1.5rem auto 0;
+  text-align: center;
 }
 
-.form-control {
-    background-color: white !important;
+.awards h2 {
+  font-size: 1.35rem;
 }
 
-@media (min-width: 1200px) {
-    .default-spacer {
-        margin: 0 auto;
-        width: 75%
-    }
+.awards .btn {
+  margin-top: 0.5rem;
+}
+
+/* ---------- Race list ---------- */
+
+.race-list {
+  display: grid;
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.race-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--sx5-sand);
+  border-radius: var(--sx5-radius);
+}
+
+.race-row__swatch {
+  flex: none;
+  width: 14px;
+  height: 44px;
+  border-radius: var(--sx5-pill);
+  background: var(--park, var(--sx5-black));
+}
+
+.race-row__body {
+  flex: 1 1 14rem;
+}
+
+.race-row__name {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.race-row__date,
+.race-row__desc {
+  margin: 0;
+}
+
+/* ---------- Buttons, cards, forms (list, form and admin-ish pages) ---------- */
+
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  --bs-btn-font-weight: 700;
+  --bs-btn-border-radius: var(--sx5-pill);
+  --bs-btn-border-width: 2px;
+  --bs-btn-padding-x: 1.25rem;
+  --bs-btn-padding-y: 0.55rem;
+  --bs-btn-focus-box-shadow: none;
+}
+
+.btn-primary {
+  --bs-btn-color: var(--sx5-cream);
+  --bs-btn-bg: var(--sx5-black);
+  --bs-btn-border-color: var(--sx5-black);
+  --bs-btn-hover-color: var(--sx5-cream);
+  --bs-btn-hover-bg: var(--sx5-purple);
+  --bs-btn-hover-border-color: var(--sx5-purple);
+  --bs-btn-active-color: var(--sx5-cream);
+  --bs-btn-active-bg: var(--sx5-purple);
+  --bs-btn-active-border-color: var(--sx5-purple);
+}
+
+.btn-secondary {
+  --bs-btn-color: var(--sx5-black);
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: var(--sx5-black);
+  --bs-btn-hover-color: var(--sx5-cream);
+  --bs-btn-hover-bg: var(--sx5-black);
+  --bs-btn-hover-border-color: var(--sx5-black);
+  --bs-btn-active-color: var(--sx5-cream);
+  --bs-btn-active-bg: var(--sx5-black);
+  --bs-btn-active-border-color: var(--sx5-black);
+}
+
+.btn-danger {
+  --bs-btn-color: var(--sx5-cream);
+  --bs-btn-bg: var(--sx5-red);
+  --bs-btn-border-color: var(--sx5-red);
+  --bs-btn-hover-color: var(--sx5-cream);
+  --bs-btn-hover-bg: var(--sx5-black);
+  --bs-btn-hover-border-color: var(--sx5-black);
+  --bs-btn-active-color: var(--sx5-cream);
+  --bs-btn-active-bg: var(--sx5-black);
+  --bs-btn-active-border-color: var(--sx5-black);
+}
+
+.card {
+  --bs-card-bg: var(--sx5-sand);
+  --bs-card-border-width: 0;
+  --bs-card-border-radius: var(--sx5-radius);
+  --bs-card-spacer-x: 1.5rem;
+  --bs-card-spacer-y: 1.25rem;
+  --bs-card-title-color: var(--sx5-black);
+}
+
+.card-title {
+  font-weight: 700;
+}
+
+.form-control,
+.form-select,
+.login-form input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]) {
+  background: var(--sx5-cream);
+  color: var(--sx5-black);
+  border: 2px solid var(--sx5-black);
+  border-radius: var(--sx5-radius);
+  padding: 0.5rem 0.9rem;
+  font: inherit;
+}
+
+.form-control:focus,
+.form-select:focus,
+.login-form input:focus {
+  background: var(--sx5-cream);
+  color: var(--sx5-black);
+  border-color: var(--sx5-purple);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--sx5-purple);
+}
+
+.login-form label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.login-form input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]) {
+  display: block;
+  width: 100%;
+}
+
+/* ---------- Footer ---------- */
+
+.site-footer {
+  margin-top: auto;
+  padding: 2.5rem 0;
+  background: var(--sx5-black);
+  color: var(--sx5-cream);
+  font-size: 0.95rem;
+}
+
+.site-footer > .page {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem 3rem;
+}
+
+.site-footer__about {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 38rem;
+  margin: 0;
+}
+
+.site-footer__about img {
+  flex: none;
+  height: 48px;
+  width: auto;
+}
+
+.site-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-weight: 700;
+}
+
+.site-footer a {
+  color: var(--sx5-cream);
+  text-decoration: none;
+}
+
+.site-footer a:hover,
+.site-footer a:focus-visible {
+  text-decoration: underline;
+}
+
+.site-footer a:focus-visible {
+  outline-color: var(--sx5-cream);
 }

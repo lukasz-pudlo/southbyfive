@@ -1,105 +1,120 @@
 {% load static %}
 {% load bootstrap5 %}
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>South by Five Races</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}South by Five Races{% endblock %}</title>
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     {% bootstrap_css %}
-    <link rel="stylesheet" href="{% static 'css/minty.css' %}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
     <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    {% block extra_css %}{% endblock %}
     {% bootstrap_javascript %}
-    {% block extra_css %}
-    {% endblock %}
-    <!-- Favicon -->
-    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid px-lg-5">
-            <a class="navbar-brand" href="{% url 'home' %}">South by Five</a>
+    <nav class="navbar navbar-expand-lg site-nav" data-bs-theme="dark" aria-label="Main">
+        <div class="page">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="{% static 'img/sx5-leaf.png' %}" alt="" width="30" height="40">
+                South by Five
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav site-nav__parks">
                     {% for park_name, details in race_navbar.items %}
                     <li class="nav-item">
                         {% if details.available %}
-                            <a class="nav-link {% if request.resolver_match.url_name == 'detail' and request.resolver_match.kwargs.slug == details.race.slug %}active{% endif %}"
-                               href="{% url 'races:detail' year=details.race.season_start_year slug=details.race.slug %}">
-                                {{ park_name }}
-                            </a>
+                            {% if request.resolver_match.url_name == 'detail' and request.resolver_match.kwargs.slug == details.race.slug %}
+                            <a class="nav-link active park-{{ park_name|slugify }}" aria-current="page"
+                               href="{% url 'races:detail' year=details.race.season_start_year slug=details.race.slug %}">{{ park_name }}</a>
+                            {% else %}
+                            <a class="nav-link park-{{ park_name|slugify }}"
+                               href="{% url 'races:detail' year=details.race.season_start_year slug=details.race.slug %}">{{ park_name }}</a>
+                            {% endif %}
                         {% else %}
-                            <span data-bs-toggle="tooltip" title="{% if details.race_date %}This race will take place on {{ details.race_date|date:"d M Y" }}{% else %}This race hasn't taken place yet{% endif %}">
-                                <a class="nav-link disabled race-tooltip" href="#">
-                                    {{ park_name }}
-                                </a>
+                            <span class="race-tooltip" tabindex="0" data-bs-toggle="tooltip"
+                                  title="{% if details.race_date %}This race will take place on {{ details.race_date|date:"d M Y" }}{% else %}This race hasn't taken place yet{% endif %}">
+                                <a class="nav-link disabled" href="#" aria-disabled="true" tabindex="-1">{{ park_name }}</a>
                             </span>
                         {% endif %}
                     </li>
                     {% endfor %}
-                    <div class="nav-right-group">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'info:contact' %}">Info</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'info:developer' %}">Developer</a>
-                        </li>
-                        {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'races:new' %}">Add Race</a>
-                        </li>
-                        {% endif %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="seasonDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Seasons
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="seasonDropdown">
-                                {% for season_start_year in seasons %}
-                                    <a class="dropdown-item" href="{% url 'races:season_races' season=season_start_year %}">{{ season_start_year }}/{{ season_start_year|add:1 }}</a>
-                                {% endfor %}
-                            </div>
-                        </li>
-                    </div>
+                </ul>
+                <ul class="navbar-nav ms-lg-auto site-nav__right">
+                    <li class="nav-item">
+                        <a class="nav-link{% if request.resolver_match.namespace == 'info' %} active{% endif %}" href="{% url 'info:contact' %}">Info</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'races:new' %}">Add race</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="seasonDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Seasons
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-lg-end" aria-labelledby="seasonDropdown">
+                            {% for season_start_year in seasons %}
+                            <li><a class="dropdown-item{% if season_start_year == selected_season %} active{% endif %}" href="{% url 'races:season_races' season=season_start_year %}">{{ season_start_year }}/{{ season_start_year|add:1 }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
+    <div class="rainbow-stripe" aria-hidden="true"></div>
+
+    {% block band %}{% endblock %}
 
     {% if bella_exists and not queens_exists %}
-
-    <div class="text-center mb-3 mt-3 mx-auto border border-3 rounded p-4" style="max-width: 700px;">
-        <h5 class="mb-3">South By Five Awards</h5>
-        <a href="https://forms.office.com/r/wu2DRECkJX" target="_blank" class="text-dark fs-5 fw-semibold d-block mb-3">Have your say, click here</a>
-        <p class="mb-1">South By Five rewards many participants, not just those who excel and take the podium spots. This is your chance to have a say in those awards.</p>
-        <p class="mb-0">If you don't know names of the person you wish to nominate, try your best to describe them, and hopefully we'll work it out!</p>
-    </div>
-
+    <section class="page">
+        <div class="awards panel">
+            <h2>South by Five Awards</h2>
+            <p>South by Five rewards many participants, not just those who excel and take the podium spots. This is your chance to have a say in those awards.</p>
+            <p>If you don't know the name of the person you wish to nominate, try your best to describe them, and hopefully we'll work it out!</p>
+            <a class="btn btn-primary" href="https://forms.office.com/r/wu2DRECkJX" target="_blank" rel="noopener">Open the nomination form</a>
+        </div>
+    </section>
     {% endif %}
 
-    <div class="container-fluid px-lg-5 default-spacer">
-        {% block content %}
-        {% endblock %}
-    </div>
-    {% block javascript %}
-    {% endblock %}
+    <main class="page">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="page">
+            <p class="site-footer__about">
+                <img src="{% static 'img/sx5-leaf.png' %}" alt="" width="37" height="48">
+                <span>South by Five is a winter race series in Glasgow's south-side parks, organised by Acorn Trails.</span>
+            </p>
+            <ul class="site-footer__links">
+                <li><a href="{% url 'info:contact' %}">Info</a></li>
+                <li><a href="https://www.facebook.com/acorntrails" target="_blank" rel="noopener">Facebook</a></li>
+                <li><a href="https://www.instagram.com/acorntrails/" target="_blank" rel="noopener">Instagram</a></li>
+                <li><a href="https://www.strava.com/clubs/acorntrails" target="_blank" rel="noopener">Strava</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    {% block javascript %}{% endblock %}
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Initialize tooltips only for elements with the 'race-tooltip' class
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('.race-tooltip'));
-            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl, {
-            customClass: 'custom-tooltip'
-        });            });
+        document.addEventListener("DOMContentLoaded", function () {
+            // Tooltips for races that haven't happened yet (on the wrapper, since disabled links get no pointer events).
+            document.querySelectorAll('.race-tooltip').forEach(function (el) {
+                new bootstrap.Tooltip(el, { customClass: 'custom-tooltip' });
+            });
         });
-    </script>    
+    </script>
 </body>
 </html>

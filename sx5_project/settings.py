@@ -138,6 +138,20 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "sx5_project.wsgi.application"
 
+# django-bootstrap-v5 defaults to Bootstrap 5.1.3; the site's stylesheet is written against 5.3.
+BOOTSTRAP5 = {
+    "css_url": {
+        "href": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
+        "integrity": "sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH",
+        "crossorigin": "anonymous",
+    },
+    "javascript_url": {
+        "url": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js",
+        "integrity": "sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz",
+        "crossorigin": "anonymous",
+    },
+}
+
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "/static/"  # URL to serve static files
 # Directory where static files will be collected

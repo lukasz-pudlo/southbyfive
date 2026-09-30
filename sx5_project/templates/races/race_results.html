@@ -1,31 +1,34 @@
 {% load time_filters %}
 
+<div class="results-toolbar" id="resultsToolbar">
+    <div class="results-toolbar__filters" role="group" aria-label="Filter by gender category">
+        <button id="filterMale" type="button" class="filter-btn filter-btn-male">Male</button>
+        <button id="filterFemale" type="button" class="filter-btn filter-btn-female">Female</button>
+        <button id="filterNonBinary" type="button" class="filter-btn filter-btn-nonbinary">Non-binary</button>
+        <button id="filterClear" type="button" class="filter-btn filter-btn-clear">Clear filter</button>
+    </div>
+    {# The DataTables search box is moved in here by initComplete. #}
+</div>
+
 <div class="table-responsive">
     <table id="resultsTable" class="table w-100">
         <thead>
             <tr>
-                <th scope="col" class="align-middle">Name</th>
-                <th scope="col" class="align-middle">Result</th>
-                <th scope="col" class="align-middle">General Position</th>
-                <th scope="col" class="align-middle">Gender Position</th>
-                <th scope="col" class="align-middle">Category Position</th>
-                <th scope="col" class="align-middle">No.</th>
-                <th scope="col" class="align-middle">Category</th>
-                <th scope="col" class="align-middle">Club</th>
+                <th scope="col">Name</th>
+                <th scope="col">Result</th>
+                <th scope="col">General Position</th>
+                <th scope="col">Gender Position</th>
+                <th scope="col">Category Position</th>
+                <th scope="col">No.</th>
+                <th scope="col">Category</th>
+                <th scope="col">Club</th>
             </tr>
         </thead>
         <tbody>
-            <div id="filterContainer" class="d-flex align-items-center">
-                <button id="filterMale" class="btn filter-btn filter-btn-male">Male</button>
-                <button id="filterFemale" class="btn filter-btn filter-btn-female">Female</button>
-                <button id="filterNonBinary" class="btn filter-btn filter-btn-nonbinary">Non-Binary</button>
-                <button id="filterClear" class="btn filter-btn filter-btn-clear">Clear Filter</button>
-            </div>
-            
         {% for result in results %}
             <tr class="{{ race.hover_class }}">
-                <td class="align-middle">{{ result.runner }}</td>
-                <td class="align-middle">
+                <td>{{ result.runner }}</td>
+                <td>
                     {% if result.time %}
                         {% if result.time|format_timedelta == "02:00:00" %}
                             DNF
@@ -36,110 +39,64 @@
                         DNF
                     {% endif %}
                 </td>
-                <td class="align-middle">
-                    {% if result.general_position != None %}
-                        {{ result.general_position }}
-                    {% else %}
-                        <!-- This will display nothing if general_position is None -->
-                    {% endif %}
-                </td>
-                
-                <td class="align-middle">
-                    {% if result.gender_position != None %}
-                        {{ result.gender_position }}
-                    {% else %}
-                        <!-- This will display nothing if general_position is None -->
-                    {% endif %}
-                </td>
-
-                <td class="align-middle">
-                    {% if result.category_position != None %}
-                        {{ result.category_position }}
-                    {% else %}
-                        <!-- This will display nothing if general_position is None -->
-                    {% endif %}
-                </td>
-                <td class="align-middle">
-                    {% if result.runner.participant_number != 'nan' %}
-                        {{ result.runner.participant_number|cut:".0" }}
-                    {% endif %}
-                </td>
-                <td class="align-middle">
-                    {% if result.runner.category != None %}
-                        {{ result.runner.category }}
-                    {% else %}
-                        <!-- This will display nothing if runner category is None -->
-                    {% endif %}
-                </td>
-                <td class="align-middle">{{ result.runner.club }}</td>
+                <td>{% if result.general_position != None %}{{ result.general_position }}{% endif %}</td>
+                <td>{% if result.gender_position != None %}{{ result.gender_position }}{% endif %}</td>
+                <td>{% if result.category_position != None %}{{ result.category_position }}{% endif %}</td>
+                <td>{% if result.runner.participant_number != 'nan' %}{{ result.runner.participant_number|cut:".0" }}{% endif %}</td>
+                <td>{% if result.runner.category != None %}{{ result.runner.category }}{% endif %}</td>
+                <td>{{ result.runner.club }}</td>
             </tr>
-            
         {% endfor %}
         </tbody>
     </table>
 </div>
 
-
-{% block extra_js %}
 <script>
-    // Define the custom sort type for ascending order
+    // Custom sort order for the age categories.
+    var categoryOrder = {
+        'MS': 1, 'FS': 2, 'NBS': 3, 'M40': 4, 'F40': 5,
+        'NB40': 6, 'M50': 7, 'F50': 8, 'NB50': 9, 'M60': 10,
+        'F60': 11, 'NB60': 12, 'M70': 13, 'F70': 14,
+        'NB70': 15, 'M80': 16, 'F80': 17, 'NB80': 18
+    };
     jQuery.fn.dataTableExt.oSort['category-pre-asc'] = function(a, b) {
-        var categoryOrder = {
-            'MS': 1, 'FS': 2, 'NBS': 3, 'M40': 4, 'F40': 5, 
-            'NB40': 6, 'M50': 7, 'F50': 8, 'NB50': 9, 'M60': 10, 
-            'F60': 11, 'NB60': 12, 'M70': 13, 'F70': 14, 
-            'NB70': 15, 'M80': 16, 'F80': 17, 'NB80': 18
-        };
         return (categoryOrder[a] < categoryOrder[b]) ? -1 : ((categoryOrder[a] > categoryOrder[b]) ? 1 : 0);
     };
-
-    // Define the custom sort type for descending order
     jQuery.fn.dataTableExt.oSort['category-pre-desc'] = function(a, b) {
-        var categoryOrder = {
-            'MS': 1, 'FS': 2, 'NBS': 3, 'M40': 4, 'F40': 5, 
-            'NB40': 6, 'M50': 7, 'F50': 8, 'NB50': 9, 'M60': 10, 
-            'F60': 11, 'NB60': 12, 'M70': 13, 'F70': 14, 
-            'NB70': 15, 'M80': 16, 'F80': 17, 'NB80': 18
-        };
         return (categoryOrder[a] < categoryOrder[b]) ? 1 : ((categoryOrder[a] > categoryOrder[b]) ? -1 : 0);
     };
 
     $(document).ready(function() {
-        // Initialize the DataTable and store the reference in the 'table' variable
         var table = $('#resultsTable').DataTable({
             "paging": false,
             "info": false,
             "pageLength": -1,
-            "order": [[2, 'asc']], // Set the default sorting to General Position (index 2)
+            "dom": "frt",
+            "language": { "search": "", "searchPlaceholder": "Search runners or clubs" },
+            "order": [[2, 'asc']], // Default sort: General Position
             "columnDefs": [{
                 "type": "category-pre",
                 "targets": [6]
-            }]
+            }],
+            "initComplete": function() {
+                var filter = $(this.api().table().container()).find('.dataTables_filter');
+                filter.find('input').attr('aria-label', 'Search runners or clubs');
+                filter.appendTo('#resultsToolbar');
+            }
         });
 
-        // Filter function
         function filterByGender(genderPrefix) {
             table.columns(6).search('^' + genderPrefix, true, false).draw();
         }
 
+        function markActive(btn) {
+            $('#resultsToolbar .filter-btn').removeClass('is-active');
+            if (btn) { $(btn).addClass('is-active'); }
+        }
 
-        // Event handlers for the buttons
-        $('#filterMale').on('click', function() {
-            filterByGender('^M'); // Regex for categories starting with 'M'
-        });
-
-        $('#filterFemale').on('click', function() {
-            filterByGender('^F'); // Regex for categories starting with 'F'
-        });
-
-        $('#filterNonBinary').on('click', function() {
-            filterByGender('^N'); // Regex for categories starting with 'N'
-        });
-
-        $('#filterClear').on('click', function() {
-            table.columns(6).search('').draw(); // Clear the filter
-        });
+        $('#filterMale').on('click', function() { filterByGender('^M'); markActive(this); });
+        $('#filterFemale').on('click', function() { filterByGender('^F'); markActive(this); });
+        $('#filterNonBinary').on('click', function() { filterByGender('^N'); markActive(this); });
+        $('#filterClear').on('click', function() { table.columns(6).search('').draw(); markActive(null); });
     });
 </script>
-{% endblock %}
-
