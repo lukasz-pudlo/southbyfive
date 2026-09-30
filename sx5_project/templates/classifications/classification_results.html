@@ -1,35 +1,37 @@
+<div class="results-toolbar" id="classificationToolbar">
+    <div class="results-toolbar__filters" role="group" aria-label="Filter by gender category">
+        <button id="filterMaleClassification" type="button" class="filter-btn filter-btn-male">Male</button>
+        <button id="filterFemaleClassification" type="button" class="filter-btn filter-btn-female">Female</button>
+        <button id="filterNonBinaryClassification" type="button" class="filter-btn filter-btn-nonbinary">Non-binary</button>
+        <button id="filterClearClassification" type="button" class="filter-btn filter-btn-clear">Clear filter</button>
+    </div>
+    {# The DataTables search box is moved in here by initComplete. #}
+</div>
+
 <div class="table-responsive">
-    <table id="classificationTable" class="table">
+    <table id="classificationTable" class="table w-100">
         <thead>
             <tr>
-                <th scope="col" class="align-middle">Runner</th>
-                <th scope="col" class="align-middle">Overall Position</th>
-                <th scope="col" class="align-middle">General Points</th>
-                <th scope="col" class="align-middle">Gender Points</th>
-                <th scope="col" class="align-middle">Category Points</th>
-                <th scope="col" class="align-middle">Category</th>       
-                <th scope="col" class="align-middle">Club</th>
+                <th scope="col">Runner</th>
+                <th scope="col">Overall Position</th>
+                <th scope="col">General Points</th>
+                <th scope="col">Gender Points</th>
+                <th scope="col">Category Points</th>
+                <th scope="col">Category</th>
+                <th scope="col">Club</th>
             </tr>
         </thead>
         <tbody>
-            <div id="filterContainerClassification" class="d-flex align-items-center">
-                <button id="filterMaleClassification" class="btn filter-btn filter-btn-male">Male</button>
-                <button id="filterFemaleClassification" class="btn filter-btn filter-btn-female">Female</button>
-                <button id="filterNonBinaryClassification" class="btn filter-btn filter-btn-nonbinary">Non-Binary</button>
-                <button id="filterClearClassification" class="btn filter-btn filter-btn-clear">Clear Filter</button>
-            </div>
-
-
             {% for result in classification_results %}
                 {% if result.general_points != 0 or result.gender_points != 0 or result.category_points != 0 %}
                 <tr class="{{ race.hover_class }}">
-                    <td class="align-middle">{{ result.runner }}</td>
-                    <td class="align-middle">{{ forloop.counter }}</td>
-                    <td class="align-middle">{{ result.general_points }}</td>
-                    <td class="align-middle">{{ result.gender_points }}</td>
-                    <td class="align-middle">{{ result.category_points }}</td>
-                    <td class="align-middle">{{ result.runner_category }}</td>
-                    <td class="align-middle">{{ result.runner.club }}</td>
+                    <td>{{ result.runner }}</td>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ result.general_points }}</td>
+                    <td>{{ result.gender_points }}</td>
+                    <td>{{ result.category_points }}</td>
+                    <td>{{ result.runner_category }}</td>
+                    <td>{{ result.runner.club }}</td>
                 </tr>
                 {% endif %}
             {% endfor %}
@@ -37,7 +39,6 @@
     </table>
 </div>
 
-{% block extra_js %}
 <script>
     // Define the custom sort type for ascending order
     jQuery.fn.dataTableExt.oSort['category-pre-asc'] = function(a, b) {
@@ -69,6 +70,13 @@
             "info": false,
             "order": [[2, 'asc']], // Set the default sorting to the 3rd column (index 2)
             "pageLength": -1,
+            "dom": "frt",
+            "language": { "search": "", "searchPlaceholder": "Search runners or clubs" },
+            "initComplete": function() {
+                var filter = $(this.api().table().container()).find('.dataTables_filter');
+                filter.find('input').attr('aria-label', 'Search runners or clubs');
+                filter.appendTo('#classificationToolbar');
+            },
             "drawCallback": function(settings) {
                 if (isFilterActive) {
                     var api = this.api();
@@ -91,6 +99,11 @@
             classificationTable.order([[3, 'asc']]).draw(); // Sort by "Gender Points" (4th column)
             toggleSorting(false); // Disable sorting
 
+        }
+
+        function markActive(btn) {
+            $('#classificationToolbar .filter-btn').removeClass('is-active');
+            if (btn) { $(btn).addClass('is-active'); }
         }
 
         function setColumnName(gender) {
@@ -120,16 +133,19 @@
         $('#filterMaleClassification').on('click', function() {
             filterByGenderClassification('^M');
             setColumnName("Male");
+            markActive(this);
         });
 
         $('#filterFemaleClassification').on('click', function() {
             filterByGenderClassification('^F');
             setColumnName("Female");
+            markActive(this);
         });
 
         $('#filterNonBinaryClassification').on('click', function() {
             filterByGenderClassification('^N');
             setColumnName("Non-Binary");
+            markActive(this);
         });
 
         // $('#filterClearClassification').on('click', function() {
@@ -144,5 +160,4 @@
         });
 
 </script>
-{% endblock %}
 

@@ -1,71 +1,83 @@
 {% extends "base.html" %}
 
+{% block title %}Info, South by Five{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="info">
-        <h2>Contact Developer</h2>
-        <p>If you have a web development or software project, you can contact Lukasz, the author of this website: 
-        <a href="mailto:l.pudlo1990@gmail.com" target="_blank">l.pudlo1990@gmail.com</a></p>
-    </div>
-    <div class="info">
-        <h2>Classification Calculation</h2><br>
-        <h3>Calculation Rules</h3>
+<div class="prose">
+    <h1>Info</h1>
+
+    <div class="panel">
+        <h2>Classification calculation</h2>
+        <h3>Calculation rules</h3>
         <p>
-            Runners will be allocated points after each race, based on their general position, position in their gender category, 
-            and position in their age category. The runner who finished 1st in a given category will be allocated 1 point, 
-            the runner who finished 2nd will be allocated 2 points, etc. For each the categories, the runner with lowest amount of points at the end of the race series becomes the winner. <br><br> Runners need to take part in at least 5 out of 6 races to be included in 
-            the final classification. If a runner takes part in all 6 races, their best 5 results will be used when calculating the overall classification result. 
-            For a runner that has taken part in all races at any given point, the
-            worst result will be removed when calculating the overall classification result. <br><br> You can track changes in the classification by clicking on the
-            "Classification Results" on the race results page for each race. If at any point in the race series you have participated in all the races, your worst result 
-            will be removed from the general classification. If a runner who was ahead of you in the general classification fails to participate in the minimum amount of races at
+            Runners will be allocated points after each race, based on their general position, position in their gender category,
+            and position in their age category. The runner who finished 1st in a given category will be allocated 1 point,
+            the runner who finished 2nd will be allocated 2 points, etc. For each of the categories, the runner with the lowest amount of points at the end of the race series becomes the winner.
+        </p>
+        <p>
+            Runners need to take part in at least 5 out of 6 races to be included in the final classification. If a runner takes part in all 6 races, their best 5 results will be used when calculating the overall classification result.
+            For a runner that has taken part in all races at any given point, the worst result will be removed when calculating the overall classification result.
+        </p>
+        <p>
+            You can track changes in the classification by clicking on "Series standings" on the race results page for each race. If at any point in the race series you have participated in all the races, your worst result
+            will be removed from the general classification. If a runner who was ahead of you in the general classification fails to participate in the minimum amount of races at any
             point in the race series, for example, if someone was ahead of you in King's Park, but then didn't take part in Linn Park and Rouken Glen, they are removed from the general
-            classification, and you will move up one position. 
-        </p><br>
-        <h3>Scenario 1: Consistent Participation with Varied Results</h3>
+            classification, and you will move up one position.
+        </p>
+
+        <h3>Scenario 1: consistent participation with varied results</h3>
+        <p>Races participated: Alex runs in all 6 races.</p>
+        <p>Race results:</p>
+        <ul>
+            <li>King's Park: 3rd overall.</li>
+            <li>Linn Park: 5th overall.</li>
+            <li>Rouken Glen: 4th overall.</li>
+            <li>Pollok Park: 2nd overall.</li>
+            <li>Bellahouston Park: 6th overall.</li>
+            <li>Queen's Park: 1st overall.</li>
+        </ul>
         <p>
-            Races Participated: Alex runs in all 6 races.<br><br>
-            Race Results:<br>
-            - King's Park: 3rd overall.<br>
-            - Linn Park: 5th overall.<br>
-            - Rouken Glen: 4th overall.<br>
-            - Pollok Park: 2nd overall.<br>
-            - Bellahouston Park: 6th overall.<br>
-            - Queen's Park: 1st overall.<br><br
-            Points Calculation: Alex's worst result (6th at Bellahouston Park) is dropped. Points from the best 5 races are:<br>
+            Points calculation: Alex's worst result (6th at Bellahouston Park) is dropped. Points from the best 5 races are:<br>
             Total = 3 (King's Park) + 5 (Linn Park) + 4 (Rouken Glen) + 2 (Pollok Park) + 1 (Queen's Park) = 15 points.
-        </p><br>
-        <h3>Scenario 2: Alex runs in 5 races.</h3>
+        </p>
+
+        <h3>Scenario 2: Alex runs in 5 races</h3>
+        <p>Races participated: Alex misses 1 race.</p>
+        <p>Race results:</p>
+        <ul>
+            <li>King's Park: 2nd overall.</li>
+            <li>Linn Park: did not participate.</li>
+            <li>Rouken Glen: 3rd overall.</li>
+            <li>Pollok Park: 4th overall.</li>
+            <li>Bellahouston Park: 1st overall.</li>
+            <li>Queen's Park: 5th overall.</li>
+        </ul>
         <p>
-            Races Participated: Alex misses 1 race.<br><br>
-            Race Results:<br>
-            - King's Park: 2nd overall.<br>
-            - Linn Park: Did not participate.<br>
-            - Rouken Glen: 3rd overall.<br>
-            - Pollok Park: 4th overall.<br>
-            - Bellahouston Park: 1st overall.<br>
-            - Queen's Park: 5th overall.<br><br>
-            Points Calculation: Since Alex ran in 5 races, points from all these races are counted:<br>
+            Points calculation: since Alex ran in 5 races, points from all these races are counted:<br>
             Total = 2 (King's Park) + 3 (Rouken Glen) + 4 (Pollok Park) + 1 (Bellahouston Park) + 5 (Queen's Park) = 15 points.
         </p>
     </div>
 
-    <br>
-
-    <div class="info">
-        <h2>Social Media</h2>
-        <p>We are on a variety of social media platforms:<br>
-        <a href="https://www.facebook.com/acorntrails" target="_blank">Facebook</a><br>
-        <a href="https://www.instagram.com/acorntrails/" target="_blank">Instagram</a><br>
-        <a href="https://www.strava.com/clubs/acorntrails" target="_blank">Strava</a></p>
+    <div class="panel">
+        <h2>Social media</h2>
+        <p>We are on a variety of social media platforms:</p>
+        <ul>
+            <li><a href="https://www.facebook.com/acorntrails" target="_blank" rel="noopener">Facebook</a></li>
+            <li><a href="https://www.instagram.com/acorntrails/" target="_blank" rel="noopener">Instagram</a></li>
+            <li><a href="https://www.strava.com/clubs/acorntrails" target="_blank" rel="noopener">Strava</a></li>
+        </ul>
     </div>
 
-    <br>
-
-    <div class="info">
+    <div class="panel">
         <h2>Email</h2>
-        <p>Drop us an email if you have any queries, we are always happy to hear from you, and value the feedback we get - hopefully positive, but we can take on board your constructive criticisms too: 
-        <a href="mailto:hello@acorntrails.run" target="_blank">hello@acorntrails.run</a></p>
+        <p>Drop us an email if you have any queries, we are always happy to hear from you, and value the feedback we get - hopefully positive, but we can take on board your constructive criticisms too:
+        <a href="mailto:hello@acorntrails.run">hello@acorntrails.run</a></p>
+    </div>
+
+    <div class="panel">
+        <h2>Contact the developer</h2>
+        <p>If you have a web development or software project, you can contact Lukasz, the author of this website:
+        <a href="mailto:l.pudlo1990@gmail.com">l.pudlo1990@gmail.com</a></p>
     </div>
 </div>
 {% endblock %}

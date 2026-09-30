@@ -64,7 +64,10 @@ pgdata
 
 all_races_runner_list.txt
 
-static
+/sx5_project/staticfiles/
 *.xlsx
 
 races/20*
+# local copies of vendor static files (not sources)
+/sx5_project/static/admin/
+/sx5_project/static/django_extensions/
