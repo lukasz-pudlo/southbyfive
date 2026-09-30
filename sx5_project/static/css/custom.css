@@ -196,7 +196,8 @@ main.page {
 }
 
 .rainbow-stripe {
-  height: 6px;
+  height: 8px;
+  box-sizing: content-box; /* the border below must not eat into the stripe */
   border-bottom: 4px solid var(--sx5-cream); /* keeps every segment visible above a same-coloured band */
   background: linear-gradient(
     to right,
