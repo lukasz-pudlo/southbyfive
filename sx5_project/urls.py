@@ -4,10 +4,11 @@ from django.contrib import admin
 from django.http import HttpResponse
 from django.urls import include, path
 
-from races.views import custom_404, home
+from races.views import home
 
-# Custom 404 handler
+# Custom error handlers
 handler404 = "races.views.custom_404"
+handler500 = "races.views.custom_500"
 
 urlpatterns = [
     path("healthz/", lambda r: HttpResponse("ok"), name="healthz"),

@@ -1,9 +1,15 @@
+import sys
+import traceback
+
 import pandas as pd
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import IntegrityError, transaction
+from django.http import HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
+from django.views.defaults import server_error
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -297,3 +303,31 @@ class RaceDeleteView(DeleteView):
 
 def custom_404(request, exception):
     return redirect("home")
+
+
+def custom_500(request):
+    """Show the error and traceback to staff; everyone else gets the plain 500.
+
+    Django calls this while still handling the exception, so sys.exc_info()
+    holds it. The page is rendered without context processors, so it makes no
+    database queries and still works when the error came from the database.
+    """
+    exc_type, exc, tb = sys.exc_info()
+    try:
+        show_details = exc is not None and request.user.is_staff
+    except Exception:
+        show_details = False
+    if not show_details:
+        return server_error(request)
+
+    html = render_to_string(
+        "500_staff.html",
+        {
+            "method": request.method,
+            "path": request.path,
+            "error_type": exc_type.__name__,
+            "error_message": str(exc),
+            "traceback": "".join(traceback.format_exception(exc_type, exc, tb)),
+        },
+    )
+    return HttpResponseServerError(html)
