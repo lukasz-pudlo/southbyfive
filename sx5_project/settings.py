@@ -207,3 +207,22 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_REDIRECT_URL = "/races"
+
+# Print unhandled exceptions (500s) with their traceback to stderr so they show
+# up in `docker compose logs web`. With DEBUG=False, Django's default logging
+# only emails them to ADMINS, and none are configured. Level ERROR keeps bot
+# 404s (logged as warnings) out of the logs.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "loggers": {
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}

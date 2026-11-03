@@ -2,7 +2,7 @@ import pandas as pd
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import IntegrityError, transaction
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -96,7 +96,7 @@ class RaceDetailView(DetailView):
         season_year = self.kwargs.get("year")
         slug = self.kwargs.get("slug")
 
-        race = Race.objects.get(slug=slug, season_start_year=season_year)
+        race = get_object_or_404(Race, slug=slug, season_start_year=season_year)
 
         self.request.session["selected_season"] = season_year
         return race
