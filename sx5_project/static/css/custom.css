@@ -607,6 +607,10 @@ table.dataTable.no-footer {
   --bs-btn-active-color: var(--sx5-cream);
   --bs-btn-active-bg: var(--sx5-purple);
   --bs-btn-active-border-color: var(--sx5-purple);
+  --bs-btn-disabled-color: var(--sx5-cream);
+  --bs-btn-disabled-bg: rgba(0, 0, 0, 0.4);
+  --bs-btn-disabled-border-color: transparent;
+  --bs-btn-disabled-opacity: 1;
 }
 
 .btn-secondary {
@@ -676,6 +680,318 @@ table.dataTable.no-footer {
 .login-form input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]) {
   display: block;
   width: 100%;
+}
+
+/* ---------- Messages ---------- */
+
+.site-messages {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.site-message {
+  --tone: var(--sx5-blue);
+  background: var(--sx5-sand);
+  border-left: 6px solid var(--tone);
+  border-radius: 6px var(--sx5-radius) var(--sx5-radius) 6px;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+}
+
+.site-message--success { --tone: var(--sx5-green); }
+.site-message--warning { --tone: var(--sx5-orange); }
+.site-message--error   { --tone: var(--sx5-red); }
+
+/* ---------- Results import (staff pages) ---------- */
+
+.import-crumb {
+  margin-bottom: 0.25rem;
+  font-weight: 700;
+}
+
+.import-crumb a::before {
+  content: "\2190\00a0";
+}
+
+.import-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.import-head h1 {
+  margin-bottom: 0;
+}
+
+.import-note {
+  max-width: 75ch;
+  color: rgba(0, 0, 0, 0.72);
+  font-size: 0.95rem;
+}
+
+.import-status {
+  --tone: var(--sx5-black);
+  display: inline-block;
+  border: 2px solid var(--tone);
+  border-radius: var(--sx5-pill);
+  padding: 0.15rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.import-status--draft     { --tone: var(--sx5-orange); }
+.import-status--published { --tone: var(--sx5-green); }
+.import-status--reverted  { --tone: var(--sx5-red); }
+.import-status--discarded { --tone: rgba(0, 0, 0, 0.4); }
+
+.import-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+}
+
+.import-stats > div {
+  border: 2px solid var(--sx5-black);
+  border-radius: var(--sx5-radius);
+  padding: 0.6rem 0.9rem;
+}
+
+.import-stats dt {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.import-stats dd {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.import-stats .is-alert {
+  background: var(--sx5-black);
+  color: var(--sx5-cream);
+}
+
+.import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.import-section {
+  margin-top: 2.5rem;
+}
+
+.import-section > h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.import-count {
+  display: inline-block;
+  min-width: 1.9em;
+  padding: 0.05em 0.5em;
+  border-radius: var(--sx5-pill);
+  background: var(--sx5-black);
+  color: var(--sx5-cream);
+  font-size: 0.6em;
+  text-align: center;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+.import-decisions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr));
+  gap: 1.25rem;
+}
+
+.import-decisions .panel + .panel {
+  margin-top: 0;
+}
+
+.import-decision {
+  border-top: 6px solid var(--sx5-orange);
+}
+
+.import-decision p {
+  margin-bottom: 0.5rem;
+}
+
+.import-decision__what {
+  font-size: 1.1rem;
+}
+
+.import-decision__rows,
+.import-decision__hint {
+  font-size: 0.9rem;
+}
+
+.import-decision fieldset {
+  margin: 0.75rem 0;
+}
+
+.import-option,
+.import-check {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.3rem 0;
+}
+
+.import-option input,
+.import-check input {
+  accent-color: var(--sx5-purple);
+  flex: none;
+}
+
+.import-check {
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+
+.import-problems {
+  padding-left: 1.25rem;
+}
+
+.import-problem {
+  color: #a31313;
+  font-weight: 700;
+}
+
+.import-table > thead th,
+.import-table > tbody td {
+  text-align: left;
+  vertical-align: top;
+}
+
+.import-table small {
+  font-size: 0.85em;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.import-table .import-before {
+  text-decoration: line-through;
+  text-decoration-color: rgba(0, 0, 0, 0.45);
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.import-table .import-before.is-kept {
+  text-decoration: none;
+}
+
+.import-table .import-after {
+  font-weight: 700;
+}
+
+.import-table tr.is-reverted .import-after {
+  font-weight: 400;
+  text-decoration: line-through;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.import-table tr.is-reverted .import-before {
+  text-decoration: none;
+  color: var(--sx5-black);
+}
+
+.import-table tr.has-problem td {
+  background: rgba(223, 31, 30, 0.08);
+}
+
+.import-rows tr:target td {
+  background: rgba(236, 224, 32, 0.35);
+}
+
+.import-rows tbody tr {
+  scroll-margin-top: 1rem;
+}
+
+.import-tag {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0 0.5rem;
+  border: 1.5px solid var(--sx5-black);
+  border-radius: var(--sx5-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.import-tag--alert {
+  background: var(--sx5-black);
+  color: var(--sx5-cream);
+}
+
+.import-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--sx5-link);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+}
+
+.import-link:hover {
+  color: var(--sx5-black);
+}
+
+.import-details {
+  margin-top: 0.75rem;
+}
+
+.import-details summary {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.import-dialog {
+  width: min(100% - 2rem, 36rem);
+  border: 2px solid var(--sx5-black);
+  border-radius: var(--sx5-radius);
+  background: var(--sx5-cream);
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.import-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.import-dialog h2 {
+  font-size: 1.5rem;
+}
+
+.import-dialog__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1rem;
+  margin: 1rem 0 1.25rem;
+}
+
+.import-dialog__grid label {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.import-dialog__grid .is-wide {
+  grid-column: 1 / -1;
+}
+
+.import-dialog__grid small {
+  font-weight: 400;
 }
 
 /* ---------- Footer ---------- */

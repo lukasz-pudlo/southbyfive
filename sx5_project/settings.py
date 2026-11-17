@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "race_versions",
     "classifications",
     "info",
+    "results_import",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

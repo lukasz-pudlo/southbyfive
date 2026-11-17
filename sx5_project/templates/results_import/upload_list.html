@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Uploads, South by Five{% endblock %}
+
+{% block content %}
+<div class="import-head">
+  <h1>Uploads</h1>
+  <div class="import-actions">
+    <a href="{% url 'results_import:new' %}" class="btn btn-primary">Upload results</a>
+    <a href="{% url 'results_import:rules' %}" class="btn btn-secondary">Remembered decisions</a>
+  </div>
+</div>
+
+{% if uploads %}
+<div class="table-responsive">
+  <table class="table import-table w-100">
+    <thead>
+      <tr>
+        <th>Race</th>
+        <th>Status</th>
+        <th>File</th>
+        <th>Uploaded</th>
+        <th>Published</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for upload in uploads %}
+      <tr>
+        <td><a href="{% url 'results_import:detail' pk=upload.pk %}">{{ upload.race_name }} {{ upload.season_label }}</a></td>
+        <td><span class="import-status import-status--{{ upload.status }}">{{ upload.get_status_display }}</span></td>
+        <td>{{ upload.original_filename }}</td>
+        <td>{{ upload.uploaded_at|date:"j M Y, H:i" }}{% if upload.uploaded_by %} by {{ upload.uploaded_by }}{% endif %}</td>
+        <td>{% if upload.published_at %}{{ upload.published_at|date:"j M Y, H:i" }}{% endif %}</td>
+        <td><a href="{% url 'results_import:detail' pk=upload.pk %}">{% if upload.is_draft %}Review{% else %}See changes{% endif %}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p>No results have been uploaded here yet. Races added with the old form are not listed.</p>
+{% endif %}
+{% endblock %}

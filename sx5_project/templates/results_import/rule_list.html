@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Remembered decisions, South by Five{% endblock %}
+
+{% block content %}
+<p class="import-crumb"><a href="{% url 'results_import:list' %}">Uploads</a></p>
+<h1>Remembered decisions</h1>
+<p class="import-note">
+  These are applied to new uploads without asking. Each use is still listed
+  with that upload's changes and can be reverted there.
+</p>
+
+{% if rules %}
+<div class="table-responsive">
+  <table class="table import-table w-100">
+    <thead>
+      <tr>
+        <th>Kind</th>
+        <th>In the file</th>
+        <th>Becomes</th>
+        <th>Decided</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rule in rules %}
+      <tr>
+        <td>{{ rule.get_kind_display }}</td>
+        <td>{{ rule.from_label }}</td>
+        <td>{% if rule.kind == "different" %}not the same person as {{ rule.to_label }}{% else %}{{ rule.to_label }}{% endif %}</td>
+        <td>
+          {{ rule.created_at|date:"j M Y" }}{% if rule.created_from %},
+          <a href="{% url 'results_import:detail' pk=rule.created_from.row.upload_id %}">{{ rule.created_from.row.upload.race_name }} {{ rule.created_from.row.upload.season_label }}</a>{% endif %}
+        </td>
+        <td>
+          <form method="post" action="{% url 'results_import:rule_forget' rule_id=rule.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="import-link">Forget</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p>Nothing is remembered yet. Decisions you make while reviewing an upload appear here.</p>
+{% endif %}
+{% endblock %}

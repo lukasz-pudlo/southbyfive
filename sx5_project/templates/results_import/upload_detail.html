@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+
+{% block title %}{{ upload.race_name }} {{ upload.season_label }} upload, South by Five{% endblock %}
+
+{% block content %}
+<p class="import-crumb"><a href="{% url 'results_import:list' %}">Uploads</a></p>
+<div class="import-head">
+  <h1>{{ upload.race_name }} {{ upload.season_label }}</h1>
+  <span class="import-status import-status--{{ upload.status }}">{{ upload.get_status_display }}</span>
+</div>
+<p class="import-note">
+  {{ upload.original_filename }}, uploaded {{ upload.uploaded_at|date:"j M Y, H:i" }}{% if upload.uploaded_by %} by {{ upload.uploaded_by }}{% endif %}.
+  {% if upload.published_at %}Published {{ upload.published_at|date:"j M Y, H:i" }}{% if upload.published_by %} by {{ upload.published_by }}{% endif %}.{% endif %}
+  {% if upload.status == "reverted" %}Reverted {{ upload.reverted_at|date:"j M Y, H:i" }}{% if upload.reverted_by %} by {{ upload.reverted_by }}{% endif %}.{% endif %}
+  {% if upload.reopened_from_id %}Reopened from <a href="{% url 'results_import:detail' pk=upload.reopened_from_id %}">an earlier upload</a>.{% endif %}
+  {% if upload.ignored_headers %}Columns not used: {{ upload.ignored_headers|join:", " }}.{% endif %}
+</p>
+
+<dl class="import-stats">
+  <div><dt>Rows</dt><dd>{{ rows|length }}</dd></div>
+  <div{% if pending_count %} class="is-alert"{% endif %}><dt>Need a decision</dt><dd>{{ pending_count }}</dd></div>
+  <div{% if problem_rows %} class="is-alert"{% endif %}><dt>Rows with a problem</dt><dd>{{ problem_rows|length }}</dd></div>
+  <div><dt>Changes made</dt><dd>{{ applied_count }}</dd></div>
+  <div><dt>New runners</dt><dd>{{ new_count }}</dd></div>
+  <div><dt>Tied times</dt><dd>{{ tie_count }}</dd></div>
+</dl>
+
+<div class="panel import-panel">
+  {% if upload.is_draft %}
+    {% if blockers %}
+      <p><strong>Not ready to publish.</strong> {{ blockers|join:" " }}</p>
+    {% else %}
+      <p><strong>Ready to publish.</strong> Nothing is on the site yet.</p>
+    {% endif %}
+    {% if existing_race and not replaces %}
+      <p>{{ upload.race_name }} {{ upload.season_label }} already has results that were added before the results import existed, so this draft can't replace them from here.</p>
+    {% endif %}
+    <div class="import-actions">
+      <form method="post" action="{% url 'results_import:publish' pk=upload.pk %}" class="import-actions">
+        {% csrf_token %}
+        {% if replaces %}
+        <label class="import-check">
+          <input type="checkbox" name="replace" value="1" required>
+          Replace the results already published for this race
+          (<a href="{% url 'results_import:detail' pk=replaces.pk %}">that upload</a> is reverted first)
+        </label>
+        {% endif %}
+        <button type="submit" class="btn btn-primary"{% if blockers %} disabled{% endif %}>Publish</button>
+      </form>
+      <a href="{% url 'results_import:converted' pk=upload.pk %}" class="btn btn-secondary">Download converted file</a>
+      <a href="{% url 'results_import:original' pk=upload.pk %}" class="btn btn-secondary">Download original</a>
+      <form method="post" action="{% url 'results_import:discard' pk=upload.pk %}" onsubmit="return confirm('Discard this draft? The record of it is kept and it can be reopened.');">
+        {% csrf_token %}
+        <button type="submit" class="import-link">Discard draft</button>
+      </form>
+    </div>
+  {% elif upload.is_published %}
+    <p>
+      <strong>On the site.</strong>
+      {% if upload.race %}<a href="{{ upload.race.get_absolute_url }}">See the race page</a>.{% endif %}
+      This page is the record of what was changed.
+    </p>
+    {% if revert_blocker %}<p>This upload can't be reverted yet. {{ revert_blocker }}</p>{% endif %}
+    <div class="import-actions">
+      <a href="{% url 'results_import:converted' pk=upload.pk %}" class="btn btn-secondary">Download converted file</a>
+      <a href="{% url 'results_import:original' pk=upload.pk %}" class="btn btn-secondary">Download original</a>
+      {% if not revert_blocker %}
+      <form method="post" action="{% url 'results_import:revert' pk=upload.pk %}" onsubmit="return confirm('Take {{ upload.race_name|escapejs }} {{ upload.season_label }} off the site? Its results, the runners it added and its effect on the standings are removed. This record stays, and you can reopen it as a draft.');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Revert this upload</button>
+      </form>
+      {% endif %}
+    </div>
+  {% else %}
+    <p>
+      <strong>{% if upload.status == "reverted" %}Taken off the site.{% else %}Discarded.{% endif %}</strong>
+      Nothing from this upload is on the site. The record below is kept.
+      {% if reopened_as %}It was reopened as <a href="{% url 'results_import:detail' pk=reopened_as.pk %}">a new draft</a>.{% endif %}
+    </p>
+    <div class="import-actions">
+      <form method="post" action="{% url 'results_import:reopen' pk=upload.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Reopen as a draft</button>
+      </form>
+      <a href="{% url 'results_import:converted' pk=upload.pk %}" class="btn btn-secondary">Download converted file</a>
+      <a href="{% url 'results_import:original' pk=upload.pk %}" class="btn btn-secondary">Download original</a>
+    </div>
+  {% endif %}
+</div>
+
+{% if decisions %}
+<section id="decisions" class="import-section">
+  <h2>Needs your decision <span class="import-count">{{ pending_count }}</span></h2>
+  <div class="import-decisions">
+    {% for group in decisions %}
+    {% with change=group.change %}
+    <form method="post" action="{% url 'results_import:change_decide' pk=upload.pk change_id=change.pk %}" class="panel import-decision">
+      {% csrf_token %}
+      <p class="import-decision__what">
+        {{ change.get_field_display }}:
+        <strong>{{ change.before_text|default:"(blank)" }}</strong>
+      </p>
+      <p class="import-decision__why">{{ change.reason }}.</p>
+      <p class="import-decision__rows">
+        {% for row in group.rows %}<a href="#row-{{ row.number }}">Row {{ row.number }}</a>{% if change.field != "name" %} {{ row.first_name }} {{ row.last_name }}{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}
+      </p>
+      <fieldset>
+        <legend class="visually-hidden">Choose what to use</legend>
+        {% for option in change.options %}
+        <label class="import-option">
+          <input type="radio" name="option" value="{{ forloop.counter0 }}" required>
+          <span>{{ option.label }}</span>
+        </label>
+        {% endfor %}
+      </fieldset>
+      <label class="import-check">
+        <input type="checkbox" name="remember" value="1" checked>
+        Remember this for future uploads
+      </label>
+      <button type="submit" class="btn btn-primary">Save decision</button>
+      <p class="import-decision__hint">None of these? Edit the row by hand in the table below.</p>
+    </form>
+    {% endwith %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if problem_rows %}
+<section id="problems" class="import-section">
+  <h2>Rows with a problem <span class="import-count">{{ problem_rows|length }}</span></h2>
+  <ul class="import-problems">
+    {% for row in problem_rows %}
+    <li>
+      <a href="#row-{{ row.number }}">Row {{ row.number }}</a>
+      {{ row.first_name }} {{ row.last_name }}:
+      {{ row.problems|join:" " }}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section id="changes" class="import-section">
+  <h2>Changes made <span class="import-count">{{ applied_count }}</span></h2>
+  {% if made %}
+  <div class="table-responsive">
+    <table class="table import-table w-100">
+      <thead>
+        <tr>
+          <th>Row</th>
+          <th>What</th>
+          <th>Before</th>
+          <th>After</th>
+          <th>Why</th>
+          <th>How</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for change in made %}
+        <tr{% if change.status == "reverted" %} class="is-reverted"{% endif %}>
+          <td><a href="#row-{{ change.row.number }}">{{ change.row.number }}</a></td>
+          <td>{{ change.get_field_display }}{% if change.field != "name" %}<br><small>{{ change.row.first_name }} {{ change.row.last_name }}</small>{% endif %}</td>
+          <td class="import-before{% if change.before == change.after %} is-kept{% endif %}">{{ change.before_text|default:"(blank)" }}</td>
+          <td class="import-after">{{ change.after_text|default:"(blank)" }}</td>
+          <td>
+            {{ change.reason }}
+            {% if change.chosen_option.label %}<br><small>You chose: {{ change.chosen_option.label }}</small>{% endif %}
+            {% if change.scope == "all" %}<br><small>Also applied to earlier seasons.</small>{% endif %}
+            {% if change.affected %}<br><small>{% for item in change.affected %}{% if item.season %}{{ item.season }}: {% endif %}{% if item.field == "name" %}{{ item.old|join:" " }}{% else %}{{ item.old|default:"(blank)" }}{% endif %} changed{% if not forloop.last %}; {% endif %}{% endfor %}</small>{% endif %}
+            {% if change.note %}<br><small>{{ change.note }}</small>{% endif %}
+          </td>
+          <td>
+            {{ change.get_source_display }}
+            {% if change.status == "reverted" %}<br><small>Reverted{% if change.updated_by %} by {{ change.updated_by }}{% endif %}, {{ change.updated_at|date:"j M Y" }}</small>{% endif %}
+          </td>
+          <td>
+            {% if change.can_revert %}
+            <form method="post" action="{% url 'results_import:change_revert' pk=upload.pk change_id=change.pk %}"{% if upload.is_published %} onsubmit="return confirm('This changes the live site. Revert this change?');"{% endif %}>
+              {% csrf_token %}
+              <button type="submit" class="import-link">Revert</button>
+            </form>
+            {% elif change.can_reapply %}
+            <form method="post" action="{% url 'results_import:change_reapply' pk=upload.pk change_id=change.pk %}"{% if upload.is_published %} onsubmit="return confirm('This changes the live site. Apply this change again?');"{% endif %}>
+              {% csrf_token %}
+              <button type="submit" class="import-link">Apply again</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p>No names, clubs or categories needed changing.</p>
+  {% endif %}
+  <p class="import-note">
+    Times are not listed here one by one: every time is shown below beside the
+    file's own value, as Excel displays it in whole seconds.
+  </p>
+</section>
+
+{% if differences or blank_differences %}
+<section id="differences" class="import-section">
+  <h2>Differs from this season's record <span class="import-count">{{ differences|length }}</span></h2>
+  <p class="import-note">
+    These runners already have a record this season. The site keeps showing the
+    record unless you take the file's value.
+  </p>
+  {% if differences %}
+  <div class="table-responsive">
+    <table class="table import-table w-100">
+      <thead>
+        <tr><th>Row</th><th>Runner</th><th>What</th><th>Record</th><th>This file</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for item in differences %}
+        <tr>
+          <td><a href="#row-{{ item.row.number }}">{{ item.row.number }}</a></td>
+          <td>{{ item.row.first_name }} {{ item.row.last_name }}</td>
+          <td>{{ item.label }}</td>
+          <td>{{ item.on_record|default:"(blank)" }}</td>
+          <td>{{ item.in_file|default:"(blank)" }}</td>
+          <td>
+            {% if item.change %}
+              Using the file's value
+            {% elif upload.is_draft and item.can_use_file %}
+            <form method="post" action="{% url 'results_import:row_use_file' pk=upload.pk row_id=item.row.pk field=item.field %}">
+              {% csrf_token %}
+              <button type="submit" class="import-link">Use the file's value</button>
+            </form>
+            {% elif item.field == "category" %}
+              <small>Categories change positions; correct the record in the admin if it is wrong.</small>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+  {% if blank_differences %}
+  <details class="import-details">
+    <summary>{{ blank_differences|length }} blank in this file, kept from the record</summary>
+    <ul>
+      {% for item in blank_differences %}
+      <li>Row {{ item.row.number }}, {{ item.row.first_name }} {{ item.row.last_name }}: {{ item.label|lower }} stays {{ item.on_record }}</li>
+      {% endfor %}
+    </ul>
+  </details>
+  {% endif %}
+</section>
+{% endif %}
+
+<section id="rows" class="import-section">
+  <h2>All rows <span class="import-count">{{ rows|length }}</span></h2>
+  <div class="results-toolbar">
+    <div class="results-toolbar__filters" role="group" aria-label="Show rows">
+      <button type="button" class="filter-btn is-active" data-show="all">All</button>
+      <button type="button" class="filter-btn" data-show="changed">Changed</button>
+      <button type="button" class="filter-btn" data-show="pending">Need a decision</button>
+      <button type="button" class="filter-btn" data-show="problem">Problems</button>
+      <button type="button" class="filter-btn" data-show="new">New runners</button>
+      <button type="button" class="filter-btn" data-show="tie">Tied times</button>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table import-table import-rows w-100">
+      <thead>
+        <tr>
+          <th>Row</th>
+          <th>Name</th>
+          <th>Number</th>
+          <th>Category</th>
+          <th>Club</th>
+          <th>Time in file</th>
+          <th>Time on site</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr id="row-{{ row.number }}"
+            class="{% if row.problems %}has-problem{% endif %}"
+            data-changed="{{ row.is_changed|yesno:'1,0' }}"
+            data-pending="{{ row.is_pending|yesno:'1,0' }}"
+            data-problem="{{ row.problems|yesno:'1,0' }}"
+            data-new="{{ row.is_new|yesno:'1,0' }}"
+            data-tie="{{ row.is_tie|yesno:'1,0' }}">
+          <td>{{ row.number }}</td>
+          <td>
+            {{ row.first_name }} {{ row.last_name }}
+            {% if row.is_new %}<span class="import-tag">new</span>{% endif %}
+            {% if row.is_pending %}<span class="import-tag import-tag--alert">decide</span>{% endif %}
+            {% if row.name_differs %}<br><small class="import-before">{{ row.raw_name|default:"(blank)" }}</small>{% endif %}
+            {% for problem in row.problems %}<br><small class="import-problem">{{ problem }}</small>{% endfor %}
+          </td>
+          <td>{{ row.bib }}</td>
+          <td>{{ row.category }}{% if row.category_differs %}<br><small class="import-before">{{ row.raw.category|default:"(blank)" }}</small>{% endif %}</td>
+          <td>{{ row.club }}{% if row.club_differs %}<br><small class="import-before">{{ row.raw.club|default:"(blank)" }}</small>{% endif %}</td>
+          <td>{{ row.raw.time }}</td>
+          <td><strong>{{ row.time_text }}</strong></td>
+          <td>
+            {% if upload.is_draft %}
+            <button type="button" class="import-link" data-edit
+                    data-action="{% url 'results_import:row_edit' pk=upload.pk row_id=row.pk %}"
+                    data-number="{{ row.number }}"
+                    data-first="{{ row.first_name }}" data-last="{{ row.last_name }}"
+                    data-bib="{{ row.bib }}" data-category="{{ row.category }}"
+                    data-club="{{ row.club }}" data-time="{{ row.time_text }}">Edit</button>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{% if upload.is_draft %}
+<dialog id="row-editor" class="import-dialog">
+  <form method="post">
+    {% csrf_token %}
+    <h2>Edit row <span data-slot="number"></span></h2>
+    <p class="import-note">Each value you change is recorded as a change made by hand and can be reverted.</p>
+    <div class="import-dialog__grid">
+      <label>First name <input class="form-control" name="first_name" required></label>
+      <label>Last name <input class="form-control" name="last_name" required></label>
+      <label>Number <input class="form-control" name="bib"></label>
+      <label>Category
+        <select class="form-select" name="category">
+          <option value=""></option>
+          {% for category in categories %}<option value="{{ category }}">{{ category }}</option>{% endfor %}
+        </select>
+      </label>
+      <label class="is-wide">Club <input class="form-control" name="club"></label>
+      <label class="is-wide">Time on site
+        <input class="form-control" name="time_text" placeholder="00:23:45">
+        <small>Like 00:23:45, 00:23:45 1 for a tie, or DNF.</small>
+      </label>
+    </div>
+    <div class="import-actions">
+      <button type="submit" class="btn btn-primary">Save row</button>
+      <button type="button" class="btn btn-secondary" data-close>Cancel</button>
+    </div>
+  </form>
+</dialog>
+{% endif %}
+{% endblock %}
+
+{% block javascript %}
+<script>
+  (function () {
+    // Row filters.
+    var buttons = document.querySelectorAll('.filter-btn[data-show]');
+    var rows = document.querySelectorAll('.import-rows tbody tr');
+    buttons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        var show = button.dataset.show;
+        buttons.forEach(function (b) { b.classList.toggle('is-active', b === button); });
+        rows.forEach(function (row) {
+          row.hidden = show !== 'all' && row.dataset[show] !== '1';
+        });
+      });
+    });
+
+    // One editor dialog, filled in from the row that opened it.
+    var dialog = document.getElementById('row-editor');
+    if (!dialog) { return; }
+    var form = dialog.querySelector('form');
+    document.querySelectorAll('[data-edit]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var d = button.dataset;
+        form.action = d.action;
+        dialog.querySelector('[data-slot="number"]').textContent = d.number;
+        form.elements.first_name.value = d.first;
+        form.elements.last_name.value = d.last;
+        form.elements.bib.value = d.bib;
+        form.elements.club.value = d.club;
+        form.elements.time_text.value = d.time;
+        var select = form.elements.category;
+        if (d.category && !select.querySelector('option[value="' + CSS.escape(d.category) + '"]')) {
+          select.add(new Option(d.category + ' (not valid)', d.category));
+        }
+        select.value = d.category;
+        dialog.showModal();
+      });
+    });
+    dialog.querySelector('[data-close]').addEventListener('click', function () { dialog.close(); });
+  })();
+</script>
+{% endblock %}

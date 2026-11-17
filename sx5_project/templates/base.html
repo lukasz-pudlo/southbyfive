@@ -54,7 +54,11 @@
                     <li class="nav-item">
                         <a class="nav-link{% if request.resolver_match.namespace == 'info' %} active{% endif %}" href="{% url 'info:contact' %}">Info</a>
                     </li>
-                    {% if user.is_authenticated %}
+                    {% if user.is_staff %}
+                    <li class="nav-item">
+                        <a class="nav-link{% if request.resolver_match.namespace == 'results_import' %} active{% endif %}" href="{% url 'results_import:list' %}">Uploads</a>
+                    </li>
+                    {% elif user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'races:new' %}">Add race</a>
                     </li>
@@ -89,6 +93,13 @@
     {% endif %}
 
     <main class="page">
+        {% if messages %}
+        <ul class="site-messages" role="status">
+            {% for message in messages %}
+            <li class="site-message site-message--{{ message.level_tag }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
         {% block content %}{% endblock %}
     </main>
 
