@@ -994,6 +994,23 @@ table.dataTable.no-footer {
   font-weight: 400;
 }
 
+.race-dates__row {
+  display: grid;
+  grid-template-columns: minmax(9rem, 1fr) minmax(10rem, 14rem);
+  align-items: center;
+  gap: 0.25rem 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.race-dates__row label {
+  font-weight: 700;
+}
+
+.race-dates__row small {
+  grid-column: 2;
+  color: rgba(0, 0, 0, 0.65);
+}
+
 /* ---------- Footer ---------- */
 
 .site-footer {

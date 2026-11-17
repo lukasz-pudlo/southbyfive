@@ -2,12 +2,14 @@ import sys
 import traceback
 
 import pandas as pd
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db import transaction
 from django.http import HttpResponseServerError
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.defaults import server_error
 from django.views.generic import (
     CreateView,
@@ -18,7 +20,7 @@ from django.views.generic import (
 )
 
 from classifications.models import ClassificationResult
-from races.forms import RaceForm
+from races.forms import RaceDatesForm, RaceForm
 from races.importing import create_results_for_race, get_or_create_runner  # noqa: F401
 from races.models import Race, Season
 from races.utils import create_result_versions
@@ -191,6 +193,55 @@ class RaceDeleteView(StaffRequiredMixin, DeleteView):
     slug_field = "slug"
     slug_url_kwarg = "slug"
     success_url = reverse_lazy("races:list")
+
+
+class RaceDatesView(StaffRequiredMixin, View):
+    """Enter the planned dates of a season's races. They show in the
+    navigation for parks whose results are not up yet."""
+
+    template_name = "races/race_dates.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        seasons = Season.objects.order_by("-season_start_year")
+        year = kwargs.get("year")
+        if year is None:
+            self.season = seasons.first()
+        else:
+            self.season = seasons.filter(season_start_year=year).first()
+        self.seasons = seasons
+        return super().dispatch(request, *args, **kwargs)
+
+    def render(self, request, form):
+        published = {}
+        if self.season is not None:
+            published = {
+                race.name: race for race in Race.objects.filter(season=self.season)
+            }
+        rows = [
+            {"field": field, "race": published.get(field.label)} for field in form or []
+        ]
+        return render(
+            request,
+            self.template_name,
+            {"season": self.season, "seasons": self.seasons, "form": form, "rows": rows},
+        )
+
+    def get(self, request, *args, **kwargs):
+        if self.season is None:
+            if kwargs.get("year") is not None:
+                return redirect("races:dates")
+            return self.render(request, None)
+        return self.render(request, RaceDatesForm(season=self.season))
+
+    def post(self, request, *args, **kwargs):
+        if self.season is None:
+            return redirect("races:dates")
+        form = RaceDatesForm(request.POST, season=self.season)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Race dates saved.")
+            return redirect("races:season_dates", year=self.season.season_start_year)
+        return self.render(request, form)
 
 
 def custom_404(request, exception):

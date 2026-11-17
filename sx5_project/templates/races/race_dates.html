@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Race dates, South by Five{% endblock %}
+
+{% block content %}
+<div class="prose">
+  <p class="import-crumb"><a href="{% url 'results_import:list' %}">Uploads</a></p>
+  {% if season %}
+  <h1>Race dates {{ season.season_start_year }}/{{ season.season_start_year|add:1 }}</h1>
+  <p class="import-note">
+    The planned date shows when someone hovers over a race in the navigation
+    that has no results yet. Leave a date blank and nothing is shown for that race.
+  </p>
+  <form method="post" class="panel race-dates">
+    {% csrf_token %}
+    {% for row in rows %}
+    <div class="race-dates__row">
+      <label for="{{ row.field.id_for_label }}">{{ row.field.label }}</label>
+      {{ row.field }}
+      {% if row.race %}
+      <small>Results are up{% if row.race.race_date %}, dated {{ row.race.race_date|date:"j M Y" }}{% endif %}.</small>
+      {% endif %}
+      {% for error in row.field.errors %}<small class="import-problem">{{ error }}</small>{% endfor %}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Save dates</button>
+  </form>
+  {% if seasons|length > 1 %}
+  <p class="import-note mt-4">
+    Other seasons:
+    {% for other in seasons %}{% if other != season %}
+    <a href="{% url 'races:season_dates' year=other.season_start_year %}">{{ other.season_start_year }}/{{ other.season_start_year|add:1 }}</a>
+    {% endif %}{% endfor %}
+  </p>
+  {% endif %}
+  {% else %}
+  <h1>Race dates</h1>
+  <p>There is no season yet. Add one in the admin first.</p>
+  {% endif %}
+</div>
+{% endblock %}

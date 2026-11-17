@@ -1,16 +1,6 @@
 from datetime import date
 
-from .models import Race, Season
-
-# Define a dictionary of scheduled dates for each park
-RACE_SCHEDULE_DATES = {
-    "King's Park": date(2023, 11, 5),
-    "Linn Park": date(2023, 11, 19),
-    "Rouken Glen": date(2023, 12, 3),
-    "Pollok Park": date(2023, 12, 17),
-    "Bellahouston Park": date(2024, 1, 7),
-    "Queen's Park": date(2024, 1, 21),
-}
+from .models import PARK_NAMES, Race, ScheduledRace, Season
 
 
 def race_list(request):
@@ -95,17 +85,17 @@ def race_navbar_with_dates(request):
 
     season = int(season)
 
-    park_names = [
-        "King's Park",
-        "Linn Park",
-        "Rouken Glen",
-        "Pollok Park",
-        "Bellahouston Park",
-        "Queen's Park",
-    ]
+    # Planned dates entered for this season (see ScheduledRace). A park with
+    # no planned date shows no date.
+    planned = dict(
+        ScheduledRace.objects.filter(season__season_start_year=season).values_list(
+            "name", "race_date"
+        )
+    )
+    today = date.today()
 
     races = {}
-    for name in park_names:
+    for name in PARK_NAMES:
         race = (
             Race.objects.filter(name=name, season_start_year=season)
             .order_by("-race_date")
@@ -117,12 +107,12 @@ def race_navbar_with_dates(request):
             races[name] = {"race": race, "available": True,
                            "race_date": race.race_date}
         else:
-            # Use scheduled date from RACE_SCHEDULE_DATES if race is not yet available
-            scheduled_race_date = RACE_SCHEDULE_DATES.get(name)
+            planned_date = planned.get(name)
             races[name] = {
                 "race": None,
                 "available": False,
-                "race_date": scheduled_race_date,  # Date from predefined schedule
+                "race_date": planned_date,
+                "is_upcoming": planned_date is not None and planned_date >= today,
             }
 
     return {"race_navbar": races, "selected_season": season}

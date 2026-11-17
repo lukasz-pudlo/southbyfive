@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from races.models import Runner
+from races.models import Runner, ScheduledRace
 from results_import import normalise, services
 from results_import.forms import UploadForm
 from results_import.models import ImportRule, ResultsUpload, RowChange, UploadRow
@@ -66,13 +66,20 @@ def upload_new(request):
     if request.method == "POST" and form.is_valid():
         uploaded = form.cleaned_data["results_file"]
         data = uploaded.read()
+        race_date = form.cleaned_data["race_date"]
+        if race_date is None:
+            planned = ScheduledRace.objects.filter(
+                season=form.cleaned_data["season"],
+                name=form.cleaned_data["race_name"],
+            ).first()
+            race_date = planned.race_date if planned else None
         try:
             upload = services.create_draft(
                 data=data,
                 filename=uploaded.name,
                 season=form.cleaned_data["season"],
                 race_name=form.cleaned_data["race_name"],
-                race_date=form.cleaned_data["race_date"],
+                race_date=race_date,
                 description=form.cleaned_data["description"],
                 user=request.user,
             )

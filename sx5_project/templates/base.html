@@ -41,11 +41,13 @@
                             <a class="nav-link park-{{ park_name|slugify }}"
                                href="{% url 'races:detail' year=details.race.season_start_year slug=details.race.slug %}">{{ park_name }}</a>
                             {% endif %}
-                        {% else %}
+                        {% elif details.race_date %}
                             <span class="race-tooltip" tabindex="0" data-bs-toggle="tooltip"
-                                  title="{% if details.race_date %}This race will take place on {{ details.race_date|date:"d M Y" }}{% else %}This race hasn't taken place yet{% endif %}">
+                                  title="{% if details.is_upcoming %}This race will take place on {{ details.race_date|date:"j M Y" }}{% else %}This race took place on {{ details.race_date|date:"j M Y" }}. The results are not up yet.{% endif %}">
                                 <a class="nav-link disabled" href="#" aria-disabled="true" tabindex="-1">{{ park_name }}</a>
                             </span>
+                        {% else %}
+                            <a class="nav-link disabled" href="#" aria-disabled="true" tabindex="-1">{{ park_name }}</a>
                         {% endif %}
                     </li>
                     {% endfor %}

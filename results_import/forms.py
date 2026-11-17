@@ -1,15 +1,7 @@
 from django import forms
 
-from races.models import Race, Season
+from races.models import PARK_NAMES, Race, Season
 
-PARKS = [
-    "King's Park",
-    "Linn Park",
-    "Rouken Glen",
-    "Pollok Park",
-    "Bellahouston Park",
-    "Queen's Park",
-]
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 
 
@@ -19,12 +11,14 @@ class UploadForm(forms.Form):
         help_text="The Excel file as the organiser sent it. It is stored "
         "unchanged; nothing is published until you have reviewed it.",
     )
-    race_name = forms.ChoiceField(label="Race", choices=[(p, p) for p in PARKS])
+    race_name = forms.ChoiceField(label="Race", choices=[(p, p) for p in PARK_NAMES])
     season = forms.ModelChoiceField(
         queryset=Season.objects.order_by("-season_start_year"), empty_label=None
     )
     race_date = forms.DateField(
-        required=False, widget=forms.DateInput(attrs={"type": "date"})
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date"}),
+        help_text="Leave blank to use the planned date entered for this race.",
     )
     description = forms.CharField(
         required=False, widget=forms.Textarea(attrs={"rows": 2})
@@ -41,7 +35,7 @@ class UploadForm(forms.Form):
             done = set(
                 Race.objects.filter(season=latest).values_list("name", flat=True)
             )
-            upcoming = [park for park in PARKS if park not in done]
+            upcoming = [park for park in PARK_NAMES if park not in done]
             if upcoming:
                 self.fields["race_name"].initial = upcoming[0]
 
