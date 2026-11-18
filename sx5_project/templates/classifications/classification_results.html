@@ -7,6 +7,7 @@
     </div>
     {# The DataTables search box is moved in here by initComplete. #}
 </div>
+<p class="results-hint">Hover over a runner for two seconds, or tap, to see how their points add up.</p>
 
 <div class="table-responsive">
     <table id="classificationTable" class="table w-100">
@@ -24,7 +25,7 @@
         <tbody>
             {% for result in classification_results %}
                 {% if result.general_points != 0 or result.gender_points != 0 or result.category_points != 0 %}
-                <tr class="{{ race.hover_class }}">
+                <tr class="{{ race.hover_class }}" data-explain-url="{% url 'races:standings_explain' race.season_start_year race.slug result.runner_id %}">
                     <td>{{ result.runner }}</td>
                     <td>{{ forloop.counter }}</td>
                     <td>{{ result.general_points }}</td>
@@ -158,6 +159,107 @@
         $('#filterClearClassification').on('click', function() {
             window.location.href = '{{ request.path }}?tab=classification-results';
         });
+
+        // How a runner's points add up: shown after two seconds over a row
+        // with a mouse, or on a tap. The working comes from the server.
+        (function () {
+            var HOVER_MS = 2000;
+            var PREFETCH_MS = 300; // fetch early so the panel is ready on time
+            var rows = '#classificationTable tbody tr[data-explain-url]';
+            var fetched = new Map();
+            var hoverTimer = null;
+            var prefetchTimer = null;
+            var popover = null;
+            var openRow = null;
+            var lastPointer = 'mouse';
+
+            function load(url) {
+                if (!fetched.has(url)) {
+                    fetched.set(url, fetch(url).then(function (response) {
+                        if (!response.ok || response.redirected) { throw new Error(response.status); }
+                        return response.text();
+                    }).catch(function (error) {
+                        fetched.delete(url);
+                        throw error;
+                    }));
+                }
+                return fetched.get(url);
+            }
+
+            function close() {
+                clearTimeout(hoverTimer);
+                clearTimeout(prefetchTimer);
+                if (popover) { popover.dispose(); popover = null; }
+                openRow = null;
+            }
+
+            function open(row) {
+                close();
+                openRow = row;
+                load(row.dataset.explainUrl).then(function (html) {
+                    if (openRow !== row || !row.isConnected) { return; }
+                    // A node, not a string: Bootstrap's sanitizer strips tables from strings.
+                    var content = document.createElement('div');
+                    content.innerHTML = html;
+                    popover = new bootstrap.Popover(row.cells[0], {
+                        trigger: 'manual',
+                        animation: false,
+                        container: 'body',
+                        html: true,
+                        content: content,
+                        placement: 'bottom',
+                        fallbackPlacements: ['top-start'],
+                        customClass: 'points-popover',
+                        // Under the name, or above it near the foot of the window. If
+                        // neither has room, slide over the row to stay in the window.
+                        popperConfig: function (defaults) {
+                            defaults.placement = 'bottom-start';
+                            defaults.modifiers.push({
+                                name: 'preventOverflow',
+                                options: { altAxis: true, tether: false, padding: 8 }
+                            });
+                            return defaults;
+                        }
+                    });
+                    popover.show();
+                }).catch(function () {
+                    if (openRow === row) { openRow = null; }
+                });
+            }
+
+            document.addEventListener('pointerdown', function (event) {
+                lastPointer = event.pointerType || 'mouse';
+                // A tap or click anywhere else puts the panel away.
+                if (openRow && !openRow.contains(event.target)) { close(); }
+            }, true);
+
+            $(document).on('mouseenter', rows, function () {
+                if (lastPointer !== 'mouse') { return; } // touch gets the tap below
+                var row = this;
+                close();
+                prefetchTimer = setTimeout(function () {
+                    load(row.dataset.explainUrl).catch(function () {});
+                }, PREFETCH_MS);
+                hoverTimer = setTimeout(function () { open(row); }, HOVER_MS);
+            });
+
+            $(document).on('mouseleave', rows, function () {
+                if (lastPointer !== 'mouse') { return; }
+                close();
+            });
+
+            $(document).on('click', rows, function () {
+                if (lastPointer === 'mouse') { return; }
+                if (openRow === this) { close(); } else { open(this); }
+            });
+
+            $(document).on('keydown', function (event) {
+                if (event.key === 'Escape') { close(); }
+            });
+
+            // Sorting, searching and filtering move the rows.
+            classificationTable.on('draw', close);
+        })();
 
 </script>
 

@@ -5,7 +5,7 @@ import pandas as pd
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db import transaction
-from django.http import HttpResponseServerError
+from django.http import HttpResponseNotFound, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
@@ -19,6 +19,7 @@ from django.views.generic import (
     UpdateView,
 )
 
+from classifications.breakdown import standings_breakdown
 from classifications.models import ClassificationResult
 from races.forms import RaceDatesForm, RaceForm
 from races.importing import create_results_for_race, get_or_create_runner  # noqa: F401
@@ -125,6 +126,18 @@ class RaceDetailView(DetailView):
         context["active_tab"] = self.request.GET.get("tab", "race-results")
 
         return context
+
+
+def standings_explain(request, year, slug, runner_id):
+    """The working behind one runner's points in a race's Series standings,
+    as a fragment for the popover on the standings table."""
+    race = Race.objects.filter(slug=slug, season_start_year=year).first()
+    breakdown = standings_breakdown(race, runner_id) if race else None
+    if breakdown is None:
+        # A plain 404: the site's handler redirects home, and the popover
+        # would then show the home page.
+        return HttpResponseNotFound("This runner is not in these standings.")
+    return render(request, "classifications/_points_explanation.html", {"b": breakdown})
 
 
 class StaffRequiredMixin(UserPassesTestMixin):

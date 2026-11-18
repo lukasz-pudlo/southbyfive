@@ -218,6 +218,96 @@ main.page {
   --bs-tooltip-opacity: 1;
 }
 
+/* How a runner's points add up, shown from a row of the standings table. */
+.points-popover {
+  --bs-popover-bg: var(--sx5-black);
+  --bs-popover-body-color: var(--sx5-cream);
+  --bs-popover-border-color: var(--sx5-black);
+  --bs-popover-border-radius: var(--sx5-radius);
+  --bs-popover-inner-border-radius: var(--sx5-radius);
+  --bs-popover-body-padding-x: 1rem;
+  --bs-popover-body-padding-y: 0.85rem;
+  --bs-popover-font-size: 0.8125rem;
+  --bs-popover-max-width: min(27rem, calc(100vw - 1.5rem));
+  font-family: var(--sx5-font);
+  pointer-events: none; /* never comes between the pointer and the row */
+}
+
+.points-explain p {
+  margin: 0;
+}
+
+.points-explain__title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.points-explain__sub,
+.points-explain small,
+.points-explain__absent {
+  opacity: 0.7;
+}
+
+.points-explain__table {
+  width: 100%;
+  margin: 0.65rem 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.points-explain__table th,
+.points-explain__table td {
+  padding: 0.25rem 0 0.25rem 0.75rem;
+  text-align: right;
+  vertical-align: top;
+  font-weight: 400;
+}
+
+.points-explain__table td {
+  white-space: nowrap;
+}
+
+.points-explain__table th:first-child {
+  padding-left: 0;
+  text-align: left;
+}
+
+.points-explain__table thead th,
+.points-explain__table tfoot th,
+.points-explain__table tfoot td {
+  font-weight: 700;
+}
+
+.points-explain__table tbody tr,
+.points-explain__table tfoot tr {
+  border-top: 1px solid rgba(255, 253, 248, 0.25);
+}
+
+.points-explain__table small {
+  font-size: 0.6875rem;
+  font-weight: 400;
+}
+
+.points-explain__table thead small {
+  display: block;
+}
+
+.points-explain__table s {
+  opacity: 0.6;
+}
+
+.points-explain__table .points-explain__absent {
+  text-align: center;
+}
+
+.points-explain__rules {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.points-explain__rules li + li {
+  margin-top: 0.3rem;
+}
+
 /* ---------- Race band ---------- */
 
 .band {
@@ -382,6 +472,12 @@ main.page {
   outline: none;
   border-color: var(--sx5-purple);
   box-shadow: 0 0 0 2px var(--sx5-purple);
+}
+
+.results-hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  opacity: 0.7;
 }
 
 @media (max-width: 767px) {
