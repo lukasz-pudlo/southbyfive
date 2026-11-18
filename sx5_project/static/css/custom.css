@@ -177,6 +177,18 @@ main.page {
   .site-nav .navbar-collapse {
     padding-top: 0;
   }
+
+  /* When the bar is tight the park names wrap onto two lines inside a pill
+     that stays wider than the wrapped text. Keep the name in the middle of
+     the pill, and the pills level with each other when only some wrap. */
+  .site-nav__parks {
+    align-items: center;
+  }
+
+  .site-nav__parks .nav-link {
+    text-align: center;
+    text-wrap: balance;
+  }
 }
 
 .site-nav .dropdown-menu {
