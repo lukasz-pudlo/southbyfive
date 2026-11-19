@@ -230,7 +230,7 @@ main.page {
   --bs-tooltip-opacity: 1;
 }
 
-/* How a runner's points add up, shown from a row of the standings table. */
+/* How a runner's points add up, opened by a click on a row of the standings table. */
 .points-popover {
   --bs-popover-bg: var(--sx5-black);
   --bs-popover-body-color: var(--sx5-cream);
@@ -242,7 +242,10 @@ main.page {
   --bs-popover-font-size: 0.8125rem;
   --bs-popover-max-width: min(27rem, calc(100vw - 1.5rem));
   font-family: var(--sx5-font);
-  pointer-events: none; /* never comes between the pointer and the row */
+}
+
+.points-explain {
+  position: relative;
 }
 
 .points-explain p {
@@ -252,6 +255,31 @@ main.page {
 .points-explain__title {
   font-size: 1rem;
   font-weight: 700;
+  padding-right: 2.25rem; /* room for the close button */
+}
+
+.points-explain__close {
+  position: absolute;
+  top: -0.2rem;
+  right: -0.3rem;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--sx5-cream);
+  color: var(--sx5-black);
+}
+
+.points-explain__close:hover {
+  background: #fff;
+}
+
+.points-explain__close:focus-visible {
+  outline: 3px solid var(--sx5-cream);
+  outline-offset: 2px;
 }
 
 .points-explain__sub,
@@ -488,8 +516,7 @@ main.page {
 
 .results-hint {
   margin: 0 0 0.75rem;
-  font-size: 0.875rem;
-  opacity: 0.7;
+  font-size: 0.95rem;
 }
 
 @media (max-width: 767px) {
@@ -573,14 +600,40 @@ table.dataTable.no-footer {
   color: inherit;
 }
 
-/* Row hover in the park colour (classes come from Race.hover_class). */
-.kings-park-hover:hover td        { background-color: rgba(223, 31, 30, 0.25); }
-.linn-park-hover:hover td         { background-color: rgba(237, 165, 31, 0.25); }
-.rouken-glen-hover:hover td       { background-color: rgba(236, 224, 32, 0.35); }
-.pollok-park-hover:hover td       { background-color: rgba(73, 173, 60, 0.25); }
-.bellahouston-park-hover:hover td { background-color: rgba(65, 143, 207, 0.25); }
-.queens-park-hover:hover td       { background-color: rgba(104, 38, 126, 0.22); }
-.default-hover:hover td           { background-color: var(--sx5-sand); }
+/* Row hover in the park colour (classes come from Race.hover_class). A row
+   whose points panel is open keeps the colour. */
+.kings-park-hover:hover td,
+.kings-park-hover.is-open td        { background-color: rgba(223, 31, 30, 0.25); }
+.linn-park-hover:hover td,
+.linn-park-hover.is-open td         { background-color: rgba(237, 165, 31, 0.25); }
+.rouken-glen-hover:hover td,
+.rouken-glen-hover.is-open td       { background-color: rgba(236, 224, 32, 0.35); }
+.pollok-park-hover:hover td,
+.pollok-park-hover.is-open td       { background-color: rgba(73, 173, 60, 0.25); }
+.bellahouston-park-hover:hover td,
+.bellahouston-park-hover.is-open td { background-color: rgba(65, 143, 207, 0.25); }
+.queens-park-hover:hover td,
+.queens-park-hover.is-open td       { background-color: rgba(104, 38, 126, 0.22); }
+.default-hover:hover td,
+.default-hover.is-open td           { background-color: var(--sx5-sand); }
+
+/* A standings row opens the working behind its points. The name is a real
+   button so the keyboard can reach it; it looks like the text it holds. */
+#classificationTable tbody tr[data-explain-url] {
+  cursor: pointer;
+}
+
+.runner-explain {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-user-select: text;
+  user-select: text;
+}
 
 /* Hide sorting arrows when sorting is disabled */
 #classificationTable th.sorting_disabled.sorting::after,

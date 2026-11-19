@@ -7,7 +7,7 @@
     </div>
     {# The DataTables search box is moved in here by initComplete. #}
 </div>
-<p class="results-hint">Hover over a runner for two seconds, or tap, to see how their points add up.</p>
+<p class="results-hint">Click or tap a runner to see how their points add up.</p>
 
 <div class="table-responsive">
     <table id="classificationTable" class="table w-100">
@@ -26,7 +26,7 @@
             {% for result in classification_results %}
                 {% if result.general_points != 0 or result.gender_points != 0 or result.category_points != 0 %}
                 <tr class="{{ race.hover_class }}" data-explain-url="{% url 'races:standings_explain' race.season_start_year race.slug result.runner_id %}">
-                    <td>{{ result.runner }}</td>
+                    <td><button type="button" class="runner-explain" aria-expanded="false">{{ result.runner }}</button></td>
                     <td>{{ forloop.counter }}</td>
                     <td>{{ result.general_points }}</td>
                     <td>{{ result.gender_points }}</td>
@@ -160,18 +160,16 @@
             window.location.href = '{{ request.path }}?tab=classification-results';
         });
 
-        // How a runner's points add up: shown after two seconds over a row
-        // with a mouse, or on a tap. The working comes from the server.
+        // How a runner's points add up: a click or tap on a row opens the panel;
+        // its ×, a click anywhere else or Escape puts it away. The working comes
+        // from the server.
         (function () {
-            var HOVER_MS = 2000;
-            var PREFETCH_MS = 300; // fetch early so the panel is ready on time
+            var PREFETCH_MS = 300; // fetch once the pointer rests, so the click finds it ready
             var rows = '#classificationTable tbody tr[data-explain-url]';
             var fetched = new Map();
-            var hoverTimer = null;
             var prefetchTimer = null;
             var popover = null;
             var openRow = null;
-            var lastPointer = 'mouse';
 
             function load(url) {
                 if (!fetched.has(url)) {
@@ -186,16 +184,23 @@
                 return fetched.get(url);
             }
 
+            function nameButton(row) {
+                return row.querySelector('.runner-explain');
+            }
+
             function close() {
-                clearTimeout(hoverTimer);
-                clearTimeout(prefetchTimer);
                 if (popover) { popover.dispose(); popover = null; }
+                if (openRow) {
+                    openRow.classList.remove('is-open');
+                    nameButton(openRow).setAttribute('aria-expanded', 'false');
+                }
                 openRow = null;
             }
 
             function open(row) {
                 close();
                 openRow = row;
+                row.classList.add('is-open');
                 load(row.dataset.explainUrl).then(function (html) {
                     if (openRow !== row || !row.isConnected) { return; }
                     // A node, not a string: Bootstrap's sanitizer strips tables from strings.
@@ -222,35 +227,42 @@
                         }
                     });
                     popover.show();
+                    nameButton(row).setAttribute('aria-expanded', 'true');
                 }).catch(function () {
-                    if (openRow === row) { openRow = null; }
+                    if (openRow === row) { close(); }
                 });
             }
 
+            // A press anywhere but the open row or its panel puts the panel away.
             document.addEventListener('pointerdown', function (event) {
-                lastPointer = event.pointerType || 'mouse';
-                // A tap or click anywhere else puts the panel away.
-                if (openRow && !openRow.contains(event.target)) { close(); }
+                if (!openRow || openRow.contains(event.target)) { return; }
+                if (event.target.closest && event.target.closest('.points-popover')) { return; }
+                close();
             }, true);
 
-            $(document).on('mouseenter', rows, function () {
-                if (lastPointer !== 'mouse') { return; } // touch gets the tap below
-                var row = this;
+            $(document).on('click', rows, function () {
+                // Dragging across a name to copy it ends in a click too.
+                var selection = window.getSelection();
+                if (selection && !selection.isCollapsed && this.contains(selection.anchorNode)) { return; }
+                if (openRow === this) { close(); } else { open(this); }
+            });
+
+            $(document).on('click', '.points-explain__close', function () {
+                var row = openRow;
                 close();
+                if (row) { nameButton(row).focus(); }
+            });
+
+            $(document).on('mouseenter', rows, function () {
+                var row = this;
+                clearTimeout(prefetchTimer);
                 prefetchTimer = setTimeout(function () {
                     load(row.dataset.explainUrl).catch(function () {});
                 }, PREFETCH_MS);
-                hoverTimer = setTimeout(function () { open(row); }, HOVER_MS);
             });
 
             $(document).on('mouseleave', rows, function () {
-                if (lastPointer !== 'mouse') { return; }
-                close();
-            });
-
-            $(document).on('click', rows, function () {
-                if (lastPointer === 'mouse') { return; }
-                if (openRow === this) { close(); } else { open(this); }
+                clearTimeout(prefetchTimer);
             });
 
             $(document).on('keydown', function (event) {
