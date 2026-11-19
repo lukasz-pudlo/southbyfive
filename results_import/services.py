@@ -372,6 +372,12 @@ def revert_change(change, user):
     if upload.status not in (ResultsUpload.DRAFT, ResultsUpload.PUBLISHED):
         raise ImportProblem("This upload is closed, so its changes can't be altered.")
 
+    if change.rule == RowChange.ADDED:
+        # Undoing an added row takes the row, and its later edits, out again.
+        if upload.is_published:
+            raise ImportProblem(POINTS_MESSAGE)
+        row.delete()
+        return
     if change.rule == RowChange.UPDATE_RECORD:
         if upload.is_published:
             _restore_affected(change)
@@ -445,6 +451,27 @@ def reapply_change(change, user):
     change.save()
 
 
+def _typed_value(field, value):
+    """A hand-typed value, tidied the way the site holds it."""
+    if field == "name":
+        return [normalise.squeeze_spaces(part) for part in value]
+    value = normalise.squeeze_spaces(value)
+    if field == "category":
+        value = value.upper()
+    if field == "time" and value.upper() == normalise.DNF:
+        value = normalise.DNF
+    return value
+
+
+def _check_typed_value(field, value):
+    if field == "name" and not all(value):
+        raise ImportProblem("A runner needs both a first name and a last name.")
+    if field == "category" and value not in VALID_CATEGORIES:
+        raise ImportProblem(f"\"{value}\" isn't one of the site's categories.")
+    if field == "time" and not normalise.is_valid_time_text(value):
+        raise ImportProblem("The time has to look like 00:23:45, 00:23:45 1 or DNF.")
+
+
 @transaction.atomic
 def edit_row(row, field, value, user):
     """Type a value in by hand. Recorded as a change like any other; if the
@@ -452,23 +479,10 @@ def edit_row(row, field, value, user):
     when the value is what the row already holds."""
     _require_draft(row.upload)
     before = row.get_value(field)
-    if field == "name":
-        value = [normalise.squeeze_spaces(part) for part in value]
-    else:
-        value = normalise.squeeze_spaces(value)
-        if field == "category":
-            value = value.upper()
-        if field == "time" and value.upper() == normalise.DNF:
-            value = normalise.DNF
+    value = _typed_value(field, value)
     if value == before:
         return None
-
-    if field == "name" and not all(value):
-        raise ImportProblem("A runner needs both a first name and a last name.")
-    if field == "category" and value not in VALID_CATEGORIES:
-        raise ImportProblem(f"\"{value}\" isn't one of the site's categories.")
-    if field == "time" and not normalise.is_valid_time_text(value):
-        raise ImportProblem("The time has to look like 00:23:45, 00:23:45 1 or DNF.")
+    _check_typed_value(field, value)
 
     change = row.changes.filter(field=field, status=PENDING).first()
     if change is not None:
@@ -494,6 +508,48 @@ def edit_row(row, field, value, user):
     row.set_value(field, value)
     row.save()
     return change
+
+
+@transaction.atomic
+def add_row(upload, values, user):
+    """Add a finisher the file left out. ``values`` holds name, bib, category,
+    club and time as typed. The row goes after the file's own rows; where the
+    runner finished comes from the time, as for every other row."""
+    _require_draft(upload)
+    typed = {field: _typed_value(field, values[field]) for field, _ in RowChange.FIELDS}
+    for field, value in typed.items():
+        _check_typed_value(field, value)
+    last = upload.rows.aggregate(Max("number"))["number__max"] or 1
+    row = UploadRow(
+        upload=upload,
+        number=last + 1,
+        raw={
+            "first_name": "",
+            "last_name": "",
+            "bib": "",
+            "category": "",
+            "club": "",
+            "time": "",
+            "time_error": "",
+            "time_is_precise": False,
+            "added": True,
+        },
+    )
+    for field, value in typed.items():
+        row.set_value(field, value)
+    row.save()
+    RowChange.objects.create(
+        row=row,
+        field="name",
+        before=None,
+        after=typed["name"],
+        rule=RowChange.ADDED,
+        reason="Added by hand: this finisher isn't in the file",
+        source=MANUAL,
+        status=APPLIED,
+        updated_by=user,
+    )
+    return row
 
 
 @transaction.atomic

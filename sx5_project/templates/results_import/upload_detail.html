@@ -162,7 +162,11 @@
         <tr{% if change.status == "reverted" %} class="is-reverted"{% endif %}>
           <td><a href="#row-{{ change.row.number }}">{{ change.row.number }}</a></td>
           <td>{{ change.get_field_display }}{% if change.field != "name" %}<br><small>{{ change.row.first_name }} {{ change.row.last_name }}</small>{% endif %}</td>
+          {% if change.rule == "added" %}
+          <td><small>not in the file</small></td>
+          {% else %}
           <td class="import-before{% if change.before == change.after %} is-kept{% endif %}">{{ change.before_text|default:"(blank)" }}</td>
+          {% endif %}
           <td class="import-after">{{ change.after_text|default:"(blank)" }}</td>
           <td>
             {{ change.reason }}
@@ -177,9 +181,9 @@
           </td>
           <td>
             {% if change.can_revert %}
-            <form method="post" action="{% url 'results_import:change_revert' pk=upload.pk change_id=change.pk %}"{% if upload.is_published %} onsubmit="return confirm('This changes the live site. Revert this change?');"{% endif %}>
+            <form method="post" action="{% url 'results_import:change_revert' pk=upload.pk change_id=change.pk %}"{% if upload.is_published %} onsubmit="return confirm('This changes the live site. Revert this change?');"{% elif change.revert_label %} onsubmit="return confirm('Remove this added row from the draft?');"{% endif %}>
               {% csrf_token %}
-              <button type="submit" class="import-link">Revert</button>
+              <button type="submit" class="import-link">{{ change.revert_label|default:"Revert" }}</button>
             </form>
             {% elif change.can_reapply %}
             <form method="post" action="{% url 'results_import:change_reapply' pk=upload.pk change_id=change.pk %}"{% if upload.is_published %} onsubmit="return confirm('This changes the live site. Apply this change again?');"{% endif %}>
@@ -265,6 +269,10 @@
       <button type="button" class="filter-btn" data-show="new">New runners</button>
       <button type="button" class="filter-btn" data-show="tie">Tied times</button>
     </div>
+    {% if upload.is_draft %}
+    <button type="button" class="btn btn-secondary" data-add
+            data-action="{% url 'results_import:row_add' pk=upload.pk %}">Add a finisher</button>
+    {% endif %}
   </div>
   <div class="table-responsive">
     <table class="table import-table import-rows w-100">
@@ -293,6 +301,7 @@
           <td>
             {{ row.first_name }} {{ row.last_name }}
             {% if row.is_new %}<span class="import-tag">new</span>{% endif %}
+            {% if row.is_added %}<span class="import-tag">added by hand</span>{% endif %}
             {% if row.is_pending %}<span class="import-tag import-tag--alert">decide</span>{% endif %}
             {% if row.name_differs %}<br><small class="import-before">{{ row.raw_name|default:"(blank)" }}</small>{% endif %}
             {% for problem in row.problems %}<br><small class="import-problem">{{ problem }}</small>{% endfor %}
@@ -300,7 +309,7 @@
           <td>{{ row.bib }}</td>
           <td>{{ row.category }}{% if row.category_differs %}<br><small class="import-before">{{ row.raw.category|default:"(blank)" }}</small>{% endif %}</td>
           <td>{{ row.club }}{% if row.club_differs %}<br><small class="import-before">{{ row.raw.club|default:"(blank)" }}</small>{% endif %}</td>
-          <td>{{ row.raw.time }}</td>
+          <td>{% if row.is_added %}<small>not in the file</small>{% else %}{{ row.raw.time }}{% endif %}</td>
           <td><strong>{{ row.time_text }}</strong></td>
           <td>
             {% if upload.is_draft %}
@@ -323,8 +332,8 @@
 <dialog id="row-editor" class="import-dialog">
   <form method="post">
     {% csrf_token %}
-    <h2>Edit row <span data-slot="number"></span></h2>
-    <p class="import-note">Each value you change is recorded as a change made by hand and can be reverted.</p>
+    <h2 data-slot="title"></h2>
+    <p class="import-note" data-slot="note"></p>
     <div class="import-dialog__grid">
       <label>First name <input class="form-control" name="first_name" required></label>
       <label>Last name <input class="form-control" name="last_name" required></label>
@@ -342,7 +351,7 @@
       </label>
     </div>
     <div class="import-actions">
-      <button type="submit" class="btn btn-primary">Save row</button>
+      <button type="submit" class="btn btn-primary" data-slot="save">Save row</button>
       <button type="button" class="btn btn-secondary" data-close>Cancel</button>
     </div>
   </form>
@@ -370,11 +379,32 @@
     var dialog = document.getElementById('row-editor');
     if (!dialog) { return; }
     var form = dialog.querySelector('form');
+    function label(title, note, save) {
+      dialog.querySelector('[data-slot="title"]').textContent = title;
+      dialog.querySelector('[data-slot="note"]').textContent = note;
+      dialog.querySelector('[data-slot="save"]').textContent = save;
+    }
+    document.querySelectorAll('[data-add]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        form.reset();
+        form.action = button.dataset.action;
+        label(
+          'Add a finisher',
+          'For someone who finished but is not in the file. Their place comes from the time. The row is recorded as added by hand and can be removed again.',
+          'Add row'
+        );
+        dialog.showModal();
+      });
+    });
     document.querySelectorAll('[data-edit]').forEach(function (button) {
       button.addEventListener('click', function () {
         var d = button.dataset;
         form.action = d.action;
-        dialog.querySelector('[data-slot="number"]').textContent = d.number;
+        label(
+          'Edit row ' + d.number,
+          'Each value you change is recorded as a change made by hand and can be reverted.',
+          'Save row'
+        );
         form.elements.first_name.value = d.first;
         form.elements.last_name.value = d.last;
         form.elements.bib.value = d.bib;

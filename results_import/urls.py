@@ -31,6 +31,7 @@ urlpatterns = [
         views.change_reapply,
         name="change_reapply",
     ),
+    path("<int:pk>/rows/add/", views.row_add, name="row_add"),
     path("<int:pk>/rows/<int:row_id>/edit/", views.row_edit, name="row_edit"),
     path(
         "<int:pk>/rows/<int:row_id>/use-file/<str:field>/",

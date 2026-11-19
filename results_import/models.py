@@ -111,6 +111,11 @@ class UploadRow(models.Model):
     def __str__(self):
         return f"Row {self.number}: {self.first_name} {self.last_name}"
 
+    @property
+    def is_added(self):
+        """Typed in by hand; the file has no such row."""
+        return bool(self.raw.get("added"))
+
     def get_value(self, field):
         if field == "name":
             return [self.first_name, self.last_name]
@@ -156,6 +161,9 @@ class RowChange(models.Model):
     # Rule that makes the site use the file's club or number for a runner who
     # already has a record this season.
     UPDATE_RECORD = "update_record"
+    # Rule of the change that records a row added by hand: a finisher the
+    # file left out. Reverting it removes the row.
+    ADDED = "added"
 
     row = models.ForeignKey(UploadRow, on_delete=models.CASCADE, related_name="changes")
     field = models.CharField(max_length=10, choices=FIELDS)

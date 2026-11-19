@@ -142,6 +142,9 @@ def upload_detail(request, pk):
                 or change.row.get_value(change.field) == change.after
             )
         )
+        if change.rule == RowChange.ADDED:
+            change.can_revert = change.status == APPLIED and upload.is_draft
+            change.revert_label = "Remove row"
         change.can_reapply = (
             change.status == REVERTED
             and upload.status in (ResultsUpload.DRAFT, ResultsUpload.PUBLISHED)
@@ -174,12 +177,15 @@ def upload_detail(request, pk):
         row.raw_name = normalise.full_name(
             [row.raw["first_name"], row.raw["last_name"]]
         )
-        row.name_differs = [row.first_name, row.last_name] != [
+        # A row added by hand has no file values to compare with.
+        row.name_differs = not row.is_added and [row.first_name, row.last_name] != [
             row.raw["first_name"],
             row.raw["last_name"],
         ]
-        row.club_differs = row.club != row.raw["club"]
-        row.category_differs = row.category != row.raw["category"]
+        row.club_differs = not row.is_added and row.club != row.raw["club"]
+        row.category_differs = (
+            not row.is_added and row.category != row.raw["category"]
+        )
 
     current = services.existing_race(upload) if upload.is_draft else None
     replaces = None
@@ -293,6 +299,27 @@ def row_edit(request, pk, row_id):
     if saved:
         messages.success(request, f"Row {row.number} updated.")
     return _back(row.upload, f"row-{row.number}")
+
+
+@staff_required
+@require_POST
+def row_add(request, pk):
+    upload = get_object_or_404(
+        ResultsUpload.objects.select_related("season").defer("original_file"), pk=pk
+    )
+    values = {
+        "name": [request.POST.get("first_name", ""), request.POST.get("last_name", "")],
+        "club": request.POST.get("club", ""),
+        "category": request.POST.get("category", ""),
+        "bib": request.POST.get("bib", ""),
+        "time": request.POST.get("time_text", ""),
+    }
+    row = _attempt(
+        request,
+        lambda: services.add_row(upload, values, request.user),
+        lambda row: f"Row {row.number} added: {row.first_name} {row.last_name}.",
+    )
+    return _back(upload, f"row-{row.number}" if row else "rows")
 
 
 @staff_required

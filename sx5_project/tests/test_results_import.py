@@ -322,6 +322,88 @@ def test_rows_can_be_edited_by_hand_and_problems_block(staff_client, season, sta
     ]
 
 
+LATE = {
+    "first_name": " Finn ",
+    "last_name": "Fraser",
+    "bib": "6",
+    "category": "m40",
+    "club": "",
+    "time_text": "00:21:30",
+}
+
+
+def test_a_finisher_missing_from_the_file_can_be_added(staff_client, season, staff):
+    upload = draft(season, staff)
+    response = staff_client.post(
+        reverse("results_import:row_add", args=[upload.pk]), LATE
+    )
+    assert response.url.endswith("#row-7")
+    row = upload.rows.get(number=7)
+    assert row.is_added
+    assert (row.first_name, row.category, row.time_text) == ("Finn", "M40", "00:21:30")
+    change = row.changes.get()
+    assert (change.rule, change.source, change.after) == (
+        "added",
+        "manual",
+        ["Finn", "Fraser"],
+    )
+    page = staff_client.get(reverse("results_import:detail", args=[upload.pk]))
+    assert "added by hand" in page.content.decode()
+
+    services.publish_upload(upload, staff)
+    result = Result.objects.get(runner__last_name="Fraser")
+    # 21:30 falls between Cat Cooper's 21:01 and Dan Dixon's 21:40.
+    assert result.general_position == 4
+    assert result.category_position == 1
+    assert Result.objects.get(runner__last_name="Dixon").category_position == 2
+    assert Result.objects.get(runner__last_name="Ellis").general_position == 6
+    row.refresh_from_db()
+    assert row.result == result
+
+
+def test_an_added_row_is_checked_like_any_other(staff_client, season, staff):
+    upload = draft(season, staff)
+    url = reverse("results_import:row_add", args=[upload.pk])
+    for wrong in ({"category": "M35"}, {"time_text": "21.30"}, {"last_name": " "}):
+        staff_client.post(url, {**LATE, **wrong})
+    assert upload.rows.count() == len(FIELD)
+
+    # Same name or same time as a row in the file: added, but it blocks.
+    staff_client.post(url, {**LATE, "first_name": "Ann", "last_name": "Archer"})
+    assert 7 in services.blocking_problems(upload)
+
+
+def test_an_added_row_can_be_removed_and_survives_reopening(season, staff):
+    values = {
+        "name": ["Finn", "Fraser"],
+        "bib": "6",
+        "category": "M40",
+        "club": "Club B",
+        "time": "00:21:30",
+    }
+    upload = draft(season, staff)
+    row = services.add_row(upload, values, staff)
+    services.edit_row(row, "time", "00:21:31", staff)
+    services.revert_change(row.changes.get(rule="added"), staff)
+    assert upload.rows.count() == len(FIELD)
+    assert not RowChange.objects.filter(source="manual").exists()
+
+    services.add_row(upload, values, staff)
+    services.publish_upload(upload, staff)
+    with pytest.raises(ImportProblem):
+        services.revert_change(RowChange.objects.get(rule="added"), staff)
+    with pytest.raises(ImportProblem):
+        services.add_row(upload, values, staff)
+    services.revert_upload(upload, staff)
+    assert not Runner.objects.filter(last_name="Fraser").exists()
+
+    again = services.reopen_as_draft(upload, staff)
+    added = again.rows.get(number=7)
+    assert added.is_added and added.club == "Club B"
+    services.publish_upload(again, staff)
+    assert Result.objects.get(runner__last_name="Fraser").general_position == 4
+
+
 def test_a_number_too_long_for_the_site_blocks_publishing(season, staff):
     upload = draft(
         season, staff, [("Ann", "Archer", "", "FS", "Bellahouston Harriers", 1200.0)]
