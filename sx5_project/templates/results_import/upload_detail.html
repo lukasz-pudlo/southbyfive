@@ -3,7 +3,7 @@
 {% block title %}{{ upload.race_name }} {{ upload.season_label }} upload, South by Five{% endblock %}
 
 {% block content %}
-<p class="import-crumb"><a href="{% url 'results_import:list' %}">Uploads</a></p>
+<nav class="import-crumb" aria-label="Breadcrumb"><a href="{% url 'results_import:list' %}">Uploads</a></nav>
 <div class="import-head">
   <h1>{{ upload.race_name }} {{ upload.season_label }}</h1>
   <span class="import-status import-status--{{ upload.status }}">{{ upload.get_status_display }}</span>
@@ -42,7 +42,7 @@
         <label class="import-check">
           <input type="checkbox" name="replace" value="1" required>
           Replace the results already published for this race
-          (<a href="{% url 'results_import:detail' pk=replaces.pk %}">that upload</a> is reverted first)
+          (<a href="{% url 'results_import:detail' pk=replaces.pk %}">the published upload</a> is reverted first)
         </label>
         {% endif %}
         <button type="submit" class="btn btn-primary"{% if blockers %} disabled{% endif %}>Publish</button>
@@ -117,7 +117,7 @@
         <input type="checkbox" name="remember" value="1" checked>
         Remember this for future uploads
       </label>
-      <button type="submit" class="btn btn-primary">Save decision</button>
+      <button type="submit" class="btn btn-primary">Save decision<span class="visually-hidden"> for {{ change.get_field_display|lower }} {{ change.before_text|default:"(blank)" }}</span></button>
       <p class="import-decision__hint">None of these? Edit the row by hand in the table below.</p>
     </form>
     {% endwith %}
@@ -148,19 +148,19 @@
     <table class="table import-table w-100">
       <thead>
         <tr>
-          <th>Row</th>
-          <th>What</th>
-          <th>Before</th>
-          <th>After</th>
-          <th>Why</th>
-          <th>How</th>
-          <th></th>
+          <th scope="col">Row</th>
+          <th scope="col">What</th>
+          <th scope="col">Before</th>
+          <th scope="col">After</th>
+          <th scope="col">Why</th>
+          <th scope="col">How</th>
+          <th scope="col"><span class="visually-hidden">Actions</span></th>
         </tr>
       </thead>
       <tbody>
         {% for change in made %}
         <tr{% if change.status == "reverted" %} class="is-reverted"{% endif %}>
-          <td><a href="#row-{{ change.row.number }}">{{ change.row.number }}</a></td>
+          <td><a href="#row-{{ change.row.number }}"><span class="visually-hidden">Row </span>{{ change.row.number }}</a></td>
           <td>{{ change.get_field_display }}{% if change.field != "name" %}<br><small>{{ change.row.first_name }} {{ change.row.last_name }}</small>{% endif %}</td>
           {% if change.rule == "added" %}
           <td><small>not in the file</small></td>
@@ -183,12 +183,12 @@
             {% if change.can_revert %}
             <form method="post" action="{% url 'results_import:change_revert' pk=upload.pk change_id=change.pk %}"{% if upload.is_published %} onsubmit="return confirm('This changes the live site. Revert this change?');"{% elif change.revert_label %} onsubmit="return confirm('Remove this added row from the draft?');"{% endif %}>
               {% csrf_token %}
-              <button type="submit" class="import-link">{{ change.revert_label|default:"Revert" }}</button>
+              <button type="submit" class="import-link">{{ change.revert_label|default:"Revert" }}<span class="visually-hidden">{% if change.revert_label %} {{ change.row.number }}{% else %} the {{ change.get_field_display|lower }} change in row {{ change.row.number }}{% endif %}</span></button>
             </form>
             {% elif change.can_reapply %}
             <form method="post" action="{% url 'results_import:change_reapply' pk=upload.pk change_id=change.pk %}"{% if upload.is_published %} onsubmit="return confirm('This changes the live site. Apply this change again?');"{% endif %}>
               {% csrf_token %}
-              <button type="submit" class="import-link">Apply again</button>
+              <button type="submit" class="import-link">Apply again<span class="visually-hidden"> the {{ change.get_field_display|lower }} change in row {{ change.row.number }}</span></button>
             </form>
             {% endif %}
           </td>
@@ -217,12 +217,12 @@
   <div class="table-responsive">
     <table class="table import-table w-100">
       <thead>
-        <tr><th>Row</th><th>Runner</th><th>What</th><th>Record</th><th>This file</th><th></th></tr>
+        <tr><th scope="col">Row</th><th scope="col">Runner</th><th scope="col">What</th><th scope="col">Record</th><th scope="col">This file</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr>
       </thead>
       <tbody>
         {% for item in differences %}
         <tr>
-          <td><a href="#row-{{ item.row.number }}">{{ item.row.number }}</a></td>
+          <td><a href="#row-{{ item.row.number }}"><span class="visually-hidden">Row </span>{{ item.row.number }}</a></td>
           <td>{{ item.row.first_name }} {{ item.row.last_name }}</td>
           <td>{{ item.label }}</td>
           <td>{{ item.on_record|default:"(blank)" }}</td>
@@ -233,7 +233,7 @@
             {% elif upload.is_draft and item.can_use_file %}
             <form method="post" action="{% url 'results_import:row_use_file' pk=upload.pk row_id=item.row.pk field=item.field %}">
               {% csrf_token %}
-              <button type="submit" class="import-link">Use the file's value</button>
+              <button type="submit" class="import-link">Use the file's value<span class="visually-hidden"> for the {{ item.label|lower }} in row {{ item.row.number }}</span></button>
             </form>
             {% elif item.field == "category" %}
               <small>Categories change positions; correct the record in the admin if it is wrong.</small>
@@ -262,30 +262,31 @@
   <h2>All rows <span class="import-count">{{ rows|length }}</span></h2>
   <div class="results-toolbar">
     <div class="results-toolbar__filters" role="group" aria-label="Show rows">
-      <button type="button" class="filter-btn is-active" data-show="all">All</button>
-      <button type="button" class="filter-btn" data-show="changed">Changed</button>
-      <button type="button" class="filter-btn" data-show="pending">Need a decision</button>
-      <button type="button" class="filter-btn" data-show="problem">Problems</button>
-      <button type="button" class="filter-btn" data-show="new">New runners</button>
-      <button type="button" class="filter-btn" data-show="tie">Tied times</button>
+      <button type="button" class="filter-btn is-active" data-show="all" aria-pressed="true">All</button>
+      <button type="button" class="filter-btn" data-show="changed" aria-pressed="false">Changed</button>
+      <button type="button" class="filter-btn" data-show="pending" aria-pressed="false">Need a decision</button>
+      <button type="button" class="filter-btn" data-show="problem" aria-pressed="false">Problems</button>
+      <button type="button" class="filter-btn" data-show="new" aria-pressed="false">New runners</button>
+      <button type="button" class="filter-btn" data-show="tie" aria-pressed="false">Tied times</button>
     </div>
     {% if upload.is_draft %}
     <button type="button" class="btn btn-secondary" data-add
             data-action="{% url 'results_import:row_add' pk=upload.pk %}">Add a finisher</button>
     {% endif %}
   </div>
-  <div class="table-responsive">
+  <p class="results-hint"><span id="rowsCount" role="status"></span></p>
+  <div class="table-responsive" tabindex="0" role="region" aria-label="All rows table">
     <table class="table import-table import-rows w-100">
       <thead>
         <tr>
-          <th>Row</th>
-          <th>Name</th>
-          <th>Number</th>
-          <th>Category</th>
-          <th>Club</th>
-          <th>Time in file</th>
-          <th>Time on site</th>
-          <th></th>
+          <th scope="col">Row</th>
+          <th scope="col">Name</th>
+          <th scope="col">Number</th>
+          <th scope="col">Category</th>
+          <th scope="col">Club</th>
+          <th scope="col">Time in file</th>
+          <th scope="col">Time on site</th>
+          <th scope="col"><span class="visually-hidden">Actions</span></th>
         </tr>
       </thead>
       <tbody>
@@ -318,7 +319,7 @@
                     data-number="{{ row.number }}"
                     data-first="{{ row.first_name }}" data-last="{{ row.last_name }}"
                     data-bib="{{ row.bib }}" data-category="{{ row.category }}"
-                    data-club="{{ row.club }}" data-time="{{ row.time_text }}">Edit</button>
+                    data-club="{{ row.club }}" data-time="{{ row.time_text }}">Edit<span class="visually-hidden"> row {{ row.number }}, {{ row.first_name }} {{ row.last_name }}</span></button>
             {% endif %}
           </td>
         </tr>
@@ -329,14 +330,14 @@
 </section>
 
 {% if upload.is_draft %}
-<dialog id="row-editor" class="import-dialog">
+<dialog id="row-editor" class="import-dialog" aria-labelledby="row-editor-title" aria-describedby="row-editor-note">
   <form method="post">
     {% csrf_token %}
-    <h2 data-slot="title"></h2>
-    <p class="import-note" data-slot="note"></p>
+    <h2 id="row-editor-title" data-slot="title"></h2>
+    <p class="import-note" id="row-editor-note" data-slot="note"></p>
     <div class="import-dialog__grid">
-      <label>First name <input class="form-control" name="first_name" required></label>
-      <label>Last name <input class="form-control" name="last_name" required></label>
+      <label>First name <span class="import-required">(required)</span> <input class="form-control" name="first_name" required></label>
+      <label>Last name <span class="import-required">(required)</span> <input class="form-control" name="last_name" required></label>
       <label>Number <input class="form-control" name="bib"></label>
       <label>Category
         <select class="form-select" name="category">
@@ -345,10 +346,12 @@
         </select>
       </label>
       <label class="is-wide">Club <input class="form-control" name="club"></label>
-      <label class="is-wide">Time on site
-        <input class="form-control" name="time_text" placeholder="00:23:45">
-        <small>Like 00:23:45, 00:23:45 1 for a tie, or DNF.</small>
-      </label>
+      <div class="is-wide">
+        <label>Time on site
+          <input class="form-control" name="time_text" aria-describedby="row-editor-time-hint">
+        </label>
+        <small id="row-editor-time-hint">Like 00:23:45, 00:23:45 1 for a tie, or DNF.</small>
+      </div>
     </div>
     <div class="import-actions">
       <button type="submit" class="btn btn-primary" data-slot="save">Save row</button>
@@ -365,13 +368,21 @@
     // Row filters.
     var buttons = document.querySelectorAll('.filter-btn[data-show]');
     var rows = document.querySelectorAll('.import-rows tbody tr');
+    var count = document.getElementById('rowsCount');
     buttons.forEach(function (button) {
       button.addEventListener('click', function () {
         var show = button.dataset.show;
-        buttons.forEach(function (b) { b.classList.toggle('is-active', b === button); });
+        var shown = 0;
+        buttons.forEach(function (b) {
+          b.classList.toggle('is-active', b === button);
+          b.setAttribute('aria-pressed', b === button ? 'true' : 'false');
+        });
         rows.forEach(function (row) {
           row.hidden = show !== 'all' && row.dataset[show] !== '1';
+          if (!row.hidden) { shown += 1; }
         });
+        // Say what the filter left, for people who can't see the table change.
+        count.textContent = show === 'all' ? '' : 'Showing ' + shown + ' of ' + rows.length + ' rows.';
       });
     });
 

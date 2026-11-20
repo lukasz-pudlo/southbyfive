@@ -19,6 +19,11 @@
   --sx5-pill: 999px;
   --sx5-font: Montserrat, system-ui, -apple-system, "Segoe UI", sans-serif;
   --sx5-gutter: clamp(1rem, 4vw, 3rem);
+  /* Text on a park colour is bold and at least this big. At 19px bold it counts
+     as large text, which is what lets red and blue keep their exact colours. */
+  --sx5-on-colour: 1.1875rem;
+  /* The smallest side of anything you can press. */
+  --sx5-target: 2.75rem;
 
   /* Bootstrap hooks */
   --bs-body-bg: var(--sx5-cream);
@@ -33,15 +38,20 @@
   --bs-border-radius: var(--sx5-radius);
   --bs-border-color: var(--sx5-rule);
   --bs-focus-ring-color: rgba(0, 0, 0, 0.35);
+  /* Bootstrap's muted text (form help, placeholders), dark enough for 7:1 on sand. */
+  --bs-secondary-color: rgba(0, 0, 0, 0.72);
 }
 
-/* Park colours. One class per park, applied to nav links, the race band and race rows. */
-.park-kings-park        { --park: var(--sx5-red); }
-.park-linn-park         { --park: var(--sx5-orange); }
-.park-rouken-glen       { --park: var(--sx5-yellow); --park-ink: var(--sx5-black); --contour-ink: rgba(0, 0, 0, 0.09); }
-.park-pollok-park       { --park: var(--sx5-green); }
-.park-bellahouston-park { --park: var(--sx5-blue); }
-.park-queens-park       { --park: var(--sx5-purple); }
+/* Park colours. One class per park, applied to nav links, the race band and race rows.
+   Each park names the ink that reads on it: cream on red and purple, black on the rest.
+   Contour lines and the hover shade always move the colour away from the ink (darker
+   under cream, lighter under black), so they can only add contrast. */
+.park-kings-park        { --park: var(--sx5-red);    --park-ink: var(--sx5-cream); --contour-ink: rgba(0, 0, 0, 0.16); --park-shade: rgba(0, 0, 0, 0.16); }
+.park-linn-park         { --park: var(--sx5-orange); --park-ink: var(--sx5-black); --park-shade: rgba(255, 255, 255, 0.3); }
+.park-rouken-glen       { --park: var(--sx5-yellow); --park-ink: var(--sx5-black); --contour-ink: rgba(0, 0, 0, 0.09); --park-shade: rgba(255, 255, 255, 0.45); }
+.park-pollok-park       { --park: var(--sx5-green);  --park-ink: var(--sx5-black); --park-shade: rgba(255, 255, 255, 0.3); }
+.park-bellahouston-park { --park: var(--sx5-blue);   --park-ink: var(--sx5-black); --park-shade: rgba(255, 255, 255, 0.3); }
+.park-queens-park       { --park: var(--sx5-purple); --park-ink: var(--sx5-cream); --contour-ink: rgba(0, 0, 0, 0.2); --park-shade: rgba(0, 0, 0, 0.16); }
 
 /* ---------- Base ---------- */
 
@@ -58,6 +68,34 @@ body {
 
 main {
   flex: 1 0 auto;
+}
+
+/* The skip link sends focus here; the page itself needs no ring. */
+main:focus {
+  outline: none;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 1100;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--sx5-target);
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--sx5-pill);
+  background: var(--sx5-cream);
+  color: var(--sx5-black);
+  font-weight: 700;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+  color: var(--sx5-black);
+  outline: 3px solid var(--sx5-black);
+  box-shadow: 0 0 0 6px var(--sx5-cream);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -84,7 +122,7 @@ a {
   margin-inline: auto;
 }
 
-main.page {
+.main-body {
   padding-block: 1.5rem 3rem;
 }
 
@@ -97,13 +135,15 @@ main.page {
 
 /* ---------- Navigation ---------- */
 
-.site-nav {
+/* .navbar.site-nav, not .site-nav alone: Bootstrap's dark navbar sets these same
+   properties with two selectors, and its grey links are short of 7:1 on black. */
+.navbar.site-nav {
   background: var(--sx5-black);
   padding-block: 0.75rem;
   --bs-navbar-color: var(--sx5-cream);
   --bs-navbar-hover-color: #fff;
   --bs-navbar-active-color: var(--sx5-cream);
-  --bs-navbar-disabled-color: rgba(255, 253, 248, 0.45);
+  --bs-navbar-disabled-color: rgba(255, 253, 248, 0.62);
   --bs-navbar-brand-color: var(--sx5-cream);
   --bs-navbar-brand-hover-color: #fff;
   --bs-navbar-toggler-border-color: transparent;
@@ -121,6 +161,7 @@ main.page {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
+  min-height: var(--sx5-target);
   padding: 0;
   margin-right: 1.5rem;
   font-size: 1.35rem;
@@ -134,15 +175,21 @@ main.page {
   width: auto;
 }
 
+.site-nav .navbar-toggler {
+  min-width: var(--sx5-target);
+  min-height: var(--sx5-target);
+}
+
 .site-nav .navbar-toggler:focus-visible {
   outline: 3px solid var(--sx5-cream);
 }
 
 .site-nav .navbar-nav {
+  --bs-nav-link-font-size: var(--sx5-on-colour);
   --bs-nav-link-font-weight: 700;
   --bs-nav-link-padding-x: 0.85rem;
-  --bs-nav-link-padding-y: 0.45rem;
-  gap: 0.15rem;
+  --bs-nav-link-padding-y: 0.7rem;
+  gap: 0.25rem;
 }
 
 .site-nav .nav-link {
@@ -154,15 +201,31 @@ main.page {
   outline-color: var(--sx5-cream);
 }
 
-/* The current park keeps its filled pill in the park colour. */
+/* The current park keeps its filled pill in the park colour. The cream ring
+   marks it out where the colour alone is too close to the black bar. */
 .site-nav .nav-link.active {
   background: var(--park, var(--sx5-purple));
   color: var(--park-ink, var(--sx5-cream));
+  box-shadow: inset 0 0 0 2px var(--sx5-cream);
+}
+
+/* A park with no results yet: its name, and its date in a tooltip when there is one. */
+.site-nav .nav-link--pending,
+.site-nav .nav-link--pending:hover,
+.site-nav .nav-link--pending:focus {
+  color: var(--bs-navbar-disabled-color);
+  cursor: default;
+}
+
+.site-nav button.nav-link--pending {
+  width: 100%;
+  text-align: inherit;
 }
 
 /* Non-park links (Info) mark the current page with an underline instead. */
 .site-nav__right .nav-link.active {
   background: transparent;
+  box-shadow: none;
   color: var(--sx5-cream);
   text-decoration: underline;
   text-decoration-thickness: 3px;
@@ -178,9 +241,9 @@ main.page {
     padding-top: 0;
   }
 
-  /* When the bar is tight the park names wrap onto two lines inside a pill
-     that stays wider than the wrapped text. Keep the name in the middle of
-     the pill, and the pills level with each other when only some wrap. */
+  /* The park names wrap onto two lines inside a pill that stays wider than
+     the wrapped text. Keep the name in the middle of the pill, and the pills
+     level with each other when only some wrap. */
   .site-nav__parks {
     align-items: center;
   }
@@ -188,6 +251,19 @@ main.page {
   .site-nav__parks .nav-link {
     text-align: center;
     text-wrap: balance;
+  }
+}
+
+/* Just past the point where the bar opens out, eight links only fit with less air. */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .site-nav .navbar-nav {
+    --bs-nav-link-padding-x: 0.5rem;
+    gap: 0;
+  }
+
+  .site-nav .navbar-brand {
+    margin-right: 0.5rem;
+    font-size: 1.2rem;
   }
 }
 
@@ -203,7 +279,7 @@ main.page {
   --bs-dropdown-border-radius: var(--sx5-radius);
   --bs-dropdown-padding-y: 0.5rem;
   --bs-dropdown-item-padding-x: 1.1rem;
-  --bs-dropdown-item-padding-y: 0.45rem;
+  --bs-dropdown-item-padding-y: 0.6rem;
   font-weight: 700;
 }
 
@@ -228,6 +304,7 @@ main.page {
   --bs-tooltip-padding-y: 0.5rem;
   --bs-tooltip-font-size: 0.875rem;
   --bs-tooltip-opacity: 1;
+  font-family: var(--sx5-font);
 }
 
 /* How a runner's points add up, opened by a click on a row of the standings table. */
@@ -253,33 +330,55 @@ main.page {
 }
 
 .points-explain__title {
+  margin: 0;
   font-size: 1rem;
   font-weight: 700;
+  line-height: inherit;
+  letter-spacing: 0;
+  color: inherit;
   padding-right: 2.25rem; /* room for the close button */
 }
 
+/* The panel takes focus when it opens; the row it belongs to shows where you are. */
+.points-popover:focus {
+  outline: none;
+}
+
+/* A full-size target around the small cream disc. */
 .points-explain__close {
   position: absolute;
-  top: -0.2rem;
-  right: -0.3rem;
+  top: -0.7rem;
+  right: -0.8rem;
   display: grid;
   place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: var(--sx5-target);
+  height: var(--sx5-target);
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: var(--sx5-cream);
+  background: none;
   color: var(--sx5-black);
 }
 
-.points-explain__close:hover {
+.points-explain__close::before {
+  content: "";
+  position: absolute;
+  inset: 0.5rem;
+  border-radius: 50%;
+  background: var(--sx5-cream);
+}
+
+.points-explain__close svg {
+  position: relative;
+}
+
+.points-explain__close:hover::before {
   background: #fff;
 }
 
 .points-explain__close:focus-visible {
   outline: 3px solid var(--sx5-cream);
-  outline-offset: 2px;
+  outline-offset: -3px;
 }
 
 .points-explain__sub,
@@ -311,6 +410,24 @@ main.page {
   text-align: left;
 }
 
+/* On a narrow phone the three columns of figures need the room: a long park
+   name breaks, and the gaps between columns close up. */
+.points-explain__table th:first-child {
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+@media (max-width: 400px) {
+  .points-popover {
+    --bs-popover-body-padding-x: 0.75rem;
+  }
+
+  .points-explain__table th,
+  .points-explain__table td {
+    padding-left: 0.45rem;
+  }
+}
+
 .points-explain__table thead th,
 .points-explain__table tfoot th,
 .points-explain__table tfoot td {
@@ -323,7 +440,7 @@ main.page {
 }
 
 .points-explain__table small {
-  font-size: 0.6875rem;
+  font-size: 0.8125rem;
   font-weight: 400;
 }
 
@@ -388,7 +505,8 @@ main.page {
 .band__desc {
   max-width: 60ch;
   margin: 0;
-  font-size: 1.05rem;
+  font-size: var(--sx5-on-colour);
+  font-weight: 700;
 }
 
 .band__desc {
@@ -406,7 +524,8 @@ main.page {
 
 .band__tab {
   display: inline-block;
-  padding: 0.85rem 1.4rem;
+  padding: 0.85rem clamp(0.7rem, 3vw, 1.4rem);
+  font-size: var(--sx5-on-colour);
   font-weight: 700;
   color: inherit;
   text-decoration: none;
@@ -417,7 +536,7 @@ main.page {
 .band__tab:hover,
 .band__tab:focus-visible {
   color: inherit;
-  background: rgba(0, 0, 0, 0.14);
+  background: var(--park-shade, rgba(255, 255, 255, 0.16));
 }
 
 .band__tab:focus-visible {
@@ -454,16 +573,17 @@ main.page {
   color: var(--sx5-cream);
   border: 2px solid var(--btn);
   border-radius: var(--sx5-pill);
+  min-height: var(--sx5-target);
   padding: 0.5rem 1.25rem;
   font: inherit;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: var(--sx5-on-colour);
   line-height: 1.2;
   transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
 .filter-btn-male      { --btn: var(--sx5-red); }
-.filter-btn-female    { --btn: var(--sx5-blue); }
+.filter-btn-female    { --btn: var(--sx5-blue); color: var(--sx5-black); }
 .filter-btn-nonbinary { --btn: var(--sx5-purple); }
 
 .filter-btn-clear {
@@ -486,6 +606,17 @@ main.page {
   box-shadow: 0 0 0 3px var(--sx5-cream), 0 0 0 6px var(--btn);
 }
 
+/* Forced colours drop the fill and the ring, so say it with the system's own. */
+@media (forced-colors: active) {
+  .filter-btn[aria-pressed="true"] {
+    forced-color-adjust: none;
+    background: Highlight;
+    border-color: Highlight;
+    color: HighlightText;
+    box-shadow: none;
+  }
+}
+
 .results-toolbar .dataTables_filter {
   float: none;
   margin-left: auto;
@@ -493,8 +624,12 @@ main.page {
 }
 
 .results-toolbar .dataTables_filter label {
-  display: block;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
   margin: 0;
+  font-weight: 700;
 }
 
 .results-toolbar .dataTables_filter input[type="search"] {
@@ -517,6 +652,10 @@ main.page {
 .results-hint {
   margin: 0 0 0.75rem;
   font-size: 0.95rem;
+}
+
+.results-hint a {
+  white-space: nowrap;
 }
 
 @media (max-width: 767px) {
@@ -596,6 +735,32 @@ table.dataTable.no-footer {
   border-bottom: 0;
 }
 
+/* Sort arrows in the page's own black; the ones DataTables ships are pale grey. */
+table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc {
+  background-position: right 0.3rem center;
+  background-size: 1rem 1rem;
+}
+
+table.dataTable thead .sorting {
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2016%2016%22%3E%3Cpath%20d=%22M8%201.5l3.5%204.5h-7zM8%2014.5L4.5%2010h7z%22%20fill-opacity=%22.55%22/%3E%3C/svg%3E");
+}
+
+table.dataTable thead .sorting_asc {
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2016%2016%22%3E%3Cpath%20d=%22M8%203l5%207H3z%22/%3E%3C/svg%3E");
+}
+
+table.dataTable thead .sorting_desc {
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2016%2016%22%3E%3Cpath%20d=%22M8%2013L3%206h10z%22/%3E%3C/svg%3E");
+}
+
+/* A wide table scrolls sideways inside its wrapper, which takes focus so the
+   arrow keys can scroll it. Its ring sits inside, where the wrapper can't clip it. */
+.table-responsive:focus-visible {
+  outline-offset: -3px;
+}
+
 .dataTables_wrapper {
   color: inherit;
 }
@@ -623,8 +788,15 @@ table.dataTable.no-footer {
   cursor: pointer;
 }
 
-.runner-explain {
+#classificationTable tbody td:first-child {
   padding: 0;
+}
+
+.runner-explain {
+  display: block;
+  width: 100%;
+  min-height: var(--sx5-target);
+  padding: 0.65rem 0.5rem;
   border: 0;
   background: none;
   font: inherit;
@@ -633,6 +805,10 @@ table.dataTable.no-footer {
   cursor: pointer;
   -webkit-user-select: text;
   user-select: text;
+}
+
+.runner-explain:focus-visible {
+  outline-offset: -3px;
 }
 
 /* Hide sorting arrows when sorting is disabled */
@@ -685,6 +861,45 @@ table.dataTable.no-footer {
 
 .prose li::marker {
   color: var(--sx5-purple);
+}
+
+/* Paragraphs in running text sit one and a half lines apart. */
+.prose p,
+.prose ul,
+.prose dl,
+.awards p {
+  margin-bottom: 2.3em;
+}
+
+.prose p:has(+ ul),
+.prose p:has(+ dl) {
+  margin-bottom: 0.5em;
+}
+
+/* A list that is nothing but links: each one a full-size target. */
+.prose .link-list li {
+  margin-bottom: 0;
+}
+
+.link-list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--sx5-target);
+}
+
+/* What the codes in the results mean. */
+.key {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.35rem 1.25rem;
+}
+
+.key dt {
+  font-weight: 700;
+}
+
+.key dd {
+  margin: 0;
 }
 
 .awards {
@@ -745,6 +960,10 @@ table.dataTable.no-footer {
   margin: 0;
 }
 
+.race-row__desc {
+  max-width: 70ch;
+}
+
 /* ---------- Buttons, cards, forms (list, form and admin-ish pages) ---------- */
 
 .btn-primary,
@@ -787,6 +1006,7 @@ table.dataTable.no-footer {
 }
 
 .btn-danger {
+  --bs-btn-font-size: var(--sx5-on-colour);
   --bs-btn-color: var(--sx5-cream);
   --bs-btn-bg: var(--sx5-red);
   --bs-btn-border-color: var(--sx5-red);
@@ -820,6 +1040,11 @@ table.dataTable.no-footer {
   border-radius: var(--sx5-radius);
   padding: 0.5rem 0.9rem;
   font: inherit;
+}
+
+.form-control,
+.form-select {
+  min-height: var(--sx5-target);
 }
 
 .form-control:focus,
@@ -873,8 +1098,16 @@ table.dataTable.no-footer {
   font-weight: 700;
 }
 
+.import-crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--sx5-target);
+}
+
+/* The arrow is for the eye; the second line gives it no spoken name. */
 .import-crumb a::before {
   content: "\2190\00a0";
+  content: "\2190\00a0" / "";
 }
 
 .import-head {
@@ -999,6 +1232,11 @@ table.dataTable.no-footer {
   font-size: 0.9rem;
 }
 
+.import-decision__rows a {
+  display: inline-block;
+  padding-block: 0.7rem;
+}
+
 .import-decision fieldset {
   margin: 0.75rem 0;
 }
@@ -1008,7 +1246,8 @@ table.dataTable.no-footer {
   display: flex;
   align-items: baseline;
   gap: 0.6rem;
-  padding: 0.3rem 0;
+  min-height: var(--sx5-target);
+  padding: 0.6rem 0;
 }
 
 .import-option input,
@@ -1027,7 +1266,7 @@ table.dataTable.no-footer {
 }
 
 .import-problem {
-  color: #a31313;
+  color: #8f1010;
   font-weight: 700;
 }
 
@@ -1039,13 +1278,17 @@ table.dataTable.no-footer {
 
 .import-table small {
   font-size: 0.85em;
-  color: rgba(0, 0, 0, 0.65);
+  color: rgba(0, 0, 0, 0.72);
 }
 
 .import-table .import-before {
   text-decoration: line-through;
   text-decoration-color: rgba(0, 0, 0, 0.45);
-  color: rgba(0, 0, 0, 0.65);
+  color: rgba(0, 0, 0, 0.72);
+}
+
+.import-table small.import-problem {
+  color: #8f1010;
 }
 
 .import-table .import-before.is-kept {
@@ -1059,7 +1302,7 @@ table.dataTable.no-footer {
 .import-table tr.is-reverted .import-after {
   font-weight: 400;
   text-decoration: line-through;
-  color: rgba(0, 0, 0, 0.65);
+  color: rgba(0, 0, 0, 0.72);
 }
 
 .import-table tr.is-reverted .import-before {
@@ -1110,11 +1353,28 @@ table.dataTable.no-footer {
   color: var(--sx5-black);
 }
 
+/* Links and buttons that stand alone get a full-size target. Inside a table
+   the extra height is taken back out of the row. */
+.import-link,
+.import-table td > a {
+  display: inline-flex;
+  align-items: center;
+  min-width: var(--sx5-target);
+  min-height: var(--sx5-target);
+  text-align: left;
+}
+
+.import-table .import-link,
+.import-table td > a {
+  margin-block: -0.6rem;
+}
+
 .import-details {
   margin-top: 0.75rem;
 }
 
 .import-details summary {
+  padding-block: 0.6rem;
   font-weight: 700;
   cursor: pointer;
 }
@@ -1152,6 +1412,11 @@ table.dataTable.no-footer {
 }
 
 .import-dialog__grid small {
+  display: block;
+  font-weight: 400;
+}
+
+.import-required {
   font-weight: 400;
 }
 
@@ -1169,7 +1434,11 @@ table.dataTable.no-footer {
 
 .race-dates__row small {
   grid-column: 2;
-  color: rgba(0, 0, 0, 0.65);
+  color: rgba(0, 0, 0, 0.72);
+}
+
+.race-dates__row small.import-problem {
+  color: #8f1010;
 }
 
 /* ---------- Footer ---------- */
@@ -1207,11 +1476,18 @@ table.dataTable.no-footer {
 .site-footer__links {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem 1.5rem;
+  gap: 0 1.5rem;
   list-style: none;
   padding: 0;
   margin: 0;
   font-weight: 700;
+}
+
+.site-footer__links a {
+  display: inline-flex;
+  align-items: center;
+  min-width: var(--sx5-target);
+  min-height: var(--sx5-target);
 }
 
 .site-footer a {

@@ -3,7 +3,7 @@
     <button type="button" class="points-explain__close" aria-label="Close">
         <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M1.5 1.5l9 9m0-9l-9 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </button>
-    <p class="points-explain__title">{{ b.runner }}</p>
+    <h2 class="points-explain__title" id="points-explain-title">{{ b.runner }}</h2>
     <p class="points-explain__sub">
         Series standings after {{ b.race.name }}, {{ b.total_races }} race{{ b.total_races|pluralize }} so far
     </p>
@@ -21,12 +21,12 @@
         <tbody>
             {% for row in b.rows %}
             <tr>
-                <th scope="row">{{ row.race.name }}{% if row.dnf %} <small>DNF</small>{% endif %}</th>
+                <th scope="row">{{ row.race.name }}{% if row.dnf %} <small><abbr title="Did not finish">DNF</abbr></small>{% endif %}</th>
                 {% if row.ran %}
                     {% for cell in row.cells %}
                     <td>
                         {% if cell.place_on_the_day %}<small>{{ cell.place_on_the_day }} <span aria-hidden="true">&rarr;</span><span class="visually-hidden">on the day, counted as</span></small>{% endif %}
-                        {% if cell.dropped %}<s title="Left out">{{ cell.points }}</s>{% else %}{{ cell.points }}{% endif %}
+                        {% if cell.dropped %}<s>{{ cell.points }}</s><span class="visually-hidden"> left out</span>{% else %}{{ cell.points }}{% endif %}
                     </td>
                     {% endfor %}
                 {% else %}

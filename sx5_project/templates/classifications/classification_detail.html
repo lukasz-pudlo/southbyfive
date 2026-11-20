@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 
+{% block title %}Classification after {{ classification.race.name }}, South by Five{% endblock %}
+
 {% block content %}
   <div class="card">
     <div class="card-body">
-      <h5 class="card-title">Classification after {{ classification.race.name }}</h5>
+      <h1 class="card-title h5">Classification after {{ classification.race.name }}</h1>
       <table class="table">
           <thead>
               <tr>

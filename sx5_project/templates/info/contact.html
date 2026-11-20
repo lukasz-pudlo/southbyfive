@@ -7,27 +7,29 @@
     <h1>Info</h1>
 
     <div class="panel">
-        <h2>Classification calculation</h2>
-        <h3>Calculation rules</h3>
-        <p>
-            Runners will be allocated points after each race, based on their general position, position in their gender category,
-            and position in their age category. The runner who finished 1st in a given category will be allocated 1 point,
-            the runner who finished 2nd will be allocated 2 points, etc. For each of the categories, the runner with the lowest amount of points at the end of the race series becomes the winner.
-        </p>
-        <p>
-            Runners need to take part in at least 5 out of 6 races to be included in the final classification. If a runner takes part in all 6 races, their best 5 results will be used when calculating the overall classification result.
-            For a runner that has taken part in all races at any given point, the worst result will be removed when calculating the overall classification result.
-        </p>
-        <p>
-            You can track changes in the classification by clicking on "Series standings" on the race results page for each race. If at any point in the race series you have participated in all the races, your worst result
-            will be removed from the general classification. If a runner who was ahead of you in the general classification fails to participate in the minimum amount of races at any
-            point in the race series, for example, if someone was ahead of you in King's Park, but then didn't take part in Linn Park and Rouken Glen, they are removed from the general
-            classification, and you will move up one position.
-        </p>
+        <h2>How the points work</h2>
+        <h3>The rules</h3>
+        <ul>
+            <li>After each race you get points on three lists: everyone, your gender, and your age category.</li>
+            <li>Your points are your finishing place. First place gets 1 point, second place gets 2 points, and so on.</li>
+            <li>On each list, the runner with the fewest points at the end of the series wins.</li>
+            <li>You need to run at least 5 of the 6 races to be in the final standings.</li>
+            <li>If you run all 6 races, your worst result is left out and your best 5 count.</li>
+        </ul>
 
-        <h3>Scenario 1: consistent participation with varied results</h3>
-        <p>Races participated: Alex runs in all 6 races.</p>
-        <p>Race results:</p>
+        <h3>During the series</h3>
+        <ul>
+            <li>Open a race and choose "Series standings" to see the standings after that race.</li>
+            <li>If you have run every race so far, your worst result is already left out.</li>
+            <li>
+                A runner who has missed too many races to reach 5 is taken out of the standings, and everyone
+                behind them moves up one place. Say someone beat you at King's Park, then missed Linn Park and
+                Rouken Glen. They are taken out, and you move up.
+            </li>
+            <li>Select a runner in the standings to see how their points add up.</li>
+        </ul>
+
+        <h3>Example 1: Alex runs all 6 races</h3>
         <ul>
             <li>King's Park: 3rd overall.</li>
             <li>Linn Park: 5th overall.</li>
@@ -37,34 +39,70 @@
             <li>Queen's Park: 1st overall.</li>
         </ul>
         <p>
-            Points calculation: Alex's worst result (6th at Bellahouston Park) is dropped. Points from the best 5 races are:<br>
-            Total = 3 (King's Park) + 5 (Linn Park) + 4 (Rouken Glen) + 2 (Pollok Park) + 1 (Queen's Park) = 15 points.
+            Alex's worst result, 6th at Bellahouston Park, is left out. The other five add up:
+            3 + 5 + 4 + 2 + 1 = 15 points.
         </p>
 
-        <h3>Scenario 2: Alex runs in 5 races</h3>
-        <p>Races participated: Alex misses 1 race.</p>
-        <p>Race results:</p>
+        <h3>Example 2: Alex misses one race</h3>
         <ul>
             <li>King's Park: 2nd overall.</li>
-            <li>Linn Park: did not participate.</li>
+            <li>Linn Park: did not run.</li>
             <li>Rouken Glen: 3rd overall.</li>
             <li>Pollok Park: 4th overall.</li>
             <li>Bellahouston Park: 1st overall.</li>
             <li>Queen's Park: 5th overall.</li>
         </ul>
         <p>
-            Points calculation: since Alex ran in 5 races, points from all these races are counted:<br>
-            Total = 2 (King's Park) + 3 (Rouken Glen) + 4 (Pollok Park) + 1 (Bellahouston Park) + 5 (Queen's Park) = 15 points.
+            Alex ran 5 races, so all 5 count and nothing is left out:
+            2 + 3 + 4 + 1 + 5 = 15 points.
         </p>
+    </div>
+
+    <div class="panel" id="key">
+        <h2>Reading the results</h2>
+        <h3>Positions and points</h3>
+        <dl class="key">
+            <dt>General</dt>
+            <dd>Your place among everyone in the race.</dd>
+            <dt>Gender</dt>
+            <dd>Your place among male, female or non-binary runners.</dd>
+            <dt>Category</dt>
+            <dd>Your place in your age category.</dd>
+            <dt><abbr title="Did not finish">DNF</abbr></dt>
+            <dd>Did not finish. A DNF is scored as a 2-hour finish.</dd>
+        </dl>
+
+        <h3>Category codes</h3>
+        <p>A code is a gender followed by an age group. F40 is a female runner aged 40 to 49.</p>
+        <dl class="key">
+            <dt>M</dt>
+            <dd>Male</dd>
+            <dt>F</dt>
+            <dd>Female</dd>
+            <dt>NB</dt>
+            <dd>Non-binary</dd>
+            <dt>S</dt>
+            <dd>Senior, under 40</dd>
+            <dt>40</dt>
+            <dd>Aged 40 to 49</dd>
+            <dt>50</dt>
+            <dd>Aged 50 to 59</dd>
+            <dt>60</dt>
+            <dd>Aged 60 to 69</dd>
+            <dt>70</dt>
+            <dd>Aged 70 to 79</dd>
+            <dt>80</dt>
+            <dd>Aged 80 and over</dd>
+        </dl>
     </div>
 
     <div class="panel">
         <h2>Social media</h2>
         <p>We are on a variety of social media platforms:</p>
-        <ul>
-            <li><a href="https://www.facebook.com/acorntrails" target="_blank" rel="noopener">Facebook</a></li>
-            <li><a href="https://www.instagram.com/acorntrails/" target="_blank" rel="noopener">Instagram</a></li>
-            <li><a href="https://www.strava.com/clubs/acorntrails" target="_blank" rel="noopener">Strava</a></li>
+        <ul class="link-list">
+            <li><a href="https://www.facebook.com/acorntrails" rel="noopener">Facebook</a></li>
+            <li><a href="https://www.instagram.com/acorntrails/" rel="noopener">Instagram</a></li>
+            <li><a href="https://www.strava.com/clubs/acorntrails" rel="noopener">Strava</a></li>
         </ul>
     </div>
 

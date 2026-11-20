@@ -1,7 +1,7 @@
 {% load static %}
 {% load bootstrap5 %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,6 +19,7 @@
     <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
 </head>
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
 
     <nav class="navbar navbar-expand-lg site-nav" data-bs-theme="dark" aria-label="Main">
         <div class="page">
@@ -42,23 +43,22 @@
                                href="{% url 'races:detail' year=details.race.season_start_year slug=details.race.slug %}">{{ park_name }}</a>
                             {% endif %}
                         {% elif details.race_date %}
-                            <span class="race-tooltip" tabindex="0" data-bs-toggle="tooltip"
-                                  title="{% if details.is_upcoming %}This race will take place on {{ details.race_date|date:"j M Y" }}{% else %}This race took place on {{ details.race_date|date:"j M Y" }}. The results are not up yet.{% endif %}">
-                                <a class="nav-link disabled" href="#" aria-disabled="true" tabindex="-1">{{ park_name }}</a>
-                            </span>
+                            {# A button, so the keyboard reaches the date. It goes nowhere, hence aria-disabled. #}
+                            <button type="button" class="nav-link nav-link--pending race-tooltip" aria-disabled="true"
+                                    title="{% if details.is_upcoming %}This race will take place on {{ details.race_date|date:"j M Y" }}{% else %}This race took place on {{ details.race_date|date:"j M Y" }}. The results are not up yet.{% endif %}">{{ park_name }}</button>
                         {% else %}
-                            <a class="nav-link disabled" href="#" aria-disabled="true" tabindex="-1">{{ park_name }}</a>
+                            <span class="nav-link nav-link--pending">{{ park_name }}<span class="visually-hidden">, no results yet</span></span>
                         {% endif %}
                     </li>
                     {% endfor %}
                 </ul>
                 <ul class="navbar-nav ms-lg-auto site-nav__right">
                     <li class="nav-item">
-                        <a class="nav-link{% if request.resolver_match.namespace == 'info' %} active{% endif %}" href="{% url 'info:contact' %}">Info</a>
+                        <a class="nav-link{% if request.resolver_match.namespace == 'info' %} active{% endif %}"{% if request.resolver_match.namespace == 'info' %} aria-current="{% if request.resolver_match.url_name == 'contact' %}page{% else %}true{% endif %}"{% endif %} href="{% url 'info:contact' %}">Info</a>
                     </li>
                     {% if user.is_staff %}
                     <li class="nav-item">
-                        <a class="nav-link{% if request.resolver_match.namespace == 'results_import' %} active{% endif %}" href="{% url 'results_import:list' %}">Uploads</a>
+                        <a class="nav-link{% if request.resolver_match.namespace == 'results_import' %} active{% endif %}"{% if request.resolver_match.namespace == 'results_import' %} aria-current="{% if request.resolver_match.url_name == 'list' %}page{% else %}true{% endif %}"{% endif %} href="{% url 'results_import:list' %}">Uploads</a>
                     </li>
                     {% elif user.is_authenticated %}
                     <li class="nav-item">
@@ -71,7 +71,7 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-lg-end" aria-labelledby="seasonDropdown">
                             {% for season_start_year in seasons %}
-                            <li><a class="dropdown-item{% if season_start_year == selected_season %} active{% endif %}" href="{% url 'races:season_races' season=season_start_year %}">{{ season_start_year }}/{{ season_start_year|add:1 }}</a></li>
+                            <li><a class="dropdown-item{% if season_start_year == selected_season %} active{% endif %}"{% if season_start_year == selected_season %} aria-current="true"{% endif %} href="{% url 'races:season_races' season=season_start_year %}">{{ season_start_year }}/{{ season_start_year|add:1 }}</a></li>
                             {% endfor %}
                         </ul>
                     </li>
@@ -81,28 +81,31 @@
     </nav>
     <div class="rainbow-stripe" aria-hidden="true"></div>
 
-    {% block band %}{% endblock %}
+    {# main starts at the band, so the page's heading is inside it and the skip link lands on it. #}
+    <main id="main" tabindex="-1">
+        {% block band %}{% endblock %}
 
-    {% if bella_exists and not queens_exists %}
-    <section class="page">
-        <div class="awards panel">
-            <h2>South by Five Awards</h2>
-            <p>South by Five rewards many participants, not just those who excel and take the podium spots. This is your chance to have a say in those awards.</p>
-            <p>If you don't know the name of the person you wish to nominate, try your best to describe them, and hopefully we'll work it out!</p>
-            <a class="btn btn-primary" href="https://forms.office.com/r/wu2DRECkJX" target="_blank" rel="noopener">Open the nomination form</a>
-        </div>
-    </section>
-    {% endif %}
-
-    <main class="page">
-        {% if messages %}
-        <ul class="site-messages" role="status">
-            {% for message in messages %}
-            <li class="site-message site-message--{{ message.level_tag }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
+        {% if bella_exists and not queens_exists %}
+        <aside class="page" aria-labelledby="awards-title">
+            <div class="awards panel">
+                <h2 id="awards-title">South by Five Awards</h2>
+                <p>South by Five rewards many participants, not just those who excel and take the podium spots. This is your chance to have a say in those awards.</p>
+                <p>If you don't know the name of the person you wish to nominate, try your best to describe them, and hopefully we'll work it out!</p>
+                <a class="btn btn-primary" href="https://forms.office.com/r/wu2DRECkJX" rel="noopener">Open the nomination form</a>
+            </div>
+        </aside>
         {% endif %}
-        {% block content %}{% endblock %}
+
+        <div class="page main-body">
+            {% if messages %}
+            <ul class="site-messages" role="status">
+                {% for message in messages %}
+                <li class="site-message site-message--{{ message.level_tag }}"><span class="visually-hidden">{% if message.level_tag == 'error' %}Error:{% elif message.level_tag == 'warning' %}Warning:{% elif message.level_tag == 'success' %}Done:{% else %}Note:{% endif %}</span> {{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
     <footer class="site-footer">
@@ -113,20 +116,36 @@
             </p>
             <ul class="site-footer__links">
                 <li><a href="{% url 'info:contact' %}">Info</a></li>
-                <li><a href="https://www.facebook.com/acorntrails" target="_blank" rel="noopener">Facebook</a></li>
-                <li><a href="https://www.instagram.com/acorntrails/" target="_blank" rel="noopener">Instagram</a></li>
-                <li><a href="https://www.strava.com/clubs/acorntrails" target="_blank" rel="noopener">Strava</a></li>
+                <li><a href="https://www.facebook.com/acorntrails" rel="noopener">Facebook</a></li>
+                <li><a href="https://www.instagram.com/acorntrails/" rel="noopener">Instagram</a></li>
+                <li><a href="https://www.strava.com/clubs/acorntrails" rel="noopener">Strava</a></li>
             </ul>
-            <p class="site-footer__credit">Website by <a href="https://lukaszpudlo.com/" target="_blank" rel="noopener">Lukasz Pudlo</a></p>
+            <p class="site-footer__credit">Website by <a href="https://lukaszpudlo.com/" rel="noopener">Lukasz Pudlo</a></p>
         </div>
     </footer>
 
     {% block javascript %}{% endblock %}
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Tooltips for races that haven't happened yet (on the wrapper, since disabled links get no pointer events).
+            // The date of a race with no results yet. Shown on hover, focus or tap; it
+            // stays while the pointer is on the tooltip itself, and Escape puts it away.
+            var HIDE_MS = 150;
             document.querySelectorAll('.race-tooltip').forEach(function (el) {
-                new bootstrap.Tooltip(el, { customClass: 'custom-tooltip' });
+                var tooltip = new bootstrap.Tooltip(el, { customClass: 'custom-tooltip', trigger: 'manual', placement: 'bottom' });
+                var timer = null;
+                function show() { clearTimeout(timer); tooltip.show(); }
+                function hideSoon() { clearTimeout(timer); timer = setTimeout(function () { tooltip.hide(); }, HIDE_MS); }
+                ['mouseenter', 'focus', 'click'].forEach(function (type) { el.addEventListener(type, show); });
+                ['mouseleave', 'blur'].forEach(function (type) { el.addEventListener(type, hideSoon); });
+                el.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape') { clearTimeout(timer); tooltip.hide(); }
+                });
+                el.addEventListener('shown.bs.tooltip', function () {
+                    var tip = document.getElementById(el.getAttribute('aria-describedby'));
+                    if (!tip) { return; }
+                    tip.addEventListener('mouseenter', function () { clearTimeout(timer); });
+                    tip.addEventListener('mouseleave', hideSoon);
+                });
             });
         });
     </script>

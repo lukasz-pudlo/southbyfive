@@ -146,7 +146,7 @@ def test_the_panel_shows_the_working(client, four_races):
     assert "Bob Baker" in html
     assert "Series standings after Pollok Park, 4 races so far" in html
     assert "<small>3rd " in html and "on the day, counted as" in html
-    assert "<s title=\"Left out\">2</s>" in html
+    assert '<s>2</s><span class="visually-hidden"> left out</span>' in html
     assert "among the 5" in html and "at least 3 of the" in html
     assert "has run all 4 races" in html
     assert 'class="points-explain__close" aria-label="Close"' in html
@@ -186,4 +186,4 @@ def test_each_standings_row_links_to_its_working(client, four_races):
     assert url(PARKS[3], "Bob") in html
     # The name is a button, so the keyboard can open the working too.
     assert html.count('<button type="button" class="runner-explain"') == 5
-    assert "Click or tap a runner to see how their points add up." in html
+    assert "Select a runner to see how their points add up." in html

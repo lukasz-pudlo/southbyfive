@@ -1,16 +1,21 @@
 <div class="results-toolbar" id="classificationToolbar">
     <div class="results-toolbar__filters" role="group" aria-label="Filter by gender category">
-        <button id="filterMaleClassification" type="button" class="filter-btn filter-btn-male">Male</button>
-        <button id="filterFemaleClassification" type="button" class="filter-btn filter-btn-female">Female</button>
-        <button id="filterNonBinaryClassification" type="button" class="filter-btn filter-btn-nonbinary">Non-binary</button>
+        <button id="filterMaleClassification" type="button" class="filter-btn filter-btn-male" aria-pressed="false">Male</button>
+        <button id="filterFemaleClassification" type="button" class="filter-btn filter-btn-female" aria-pressed="false">Female</button>
+        <button id="filterNonBinaryClassification" type="button" class="filter-btn filter-btn-nonbinary" aria-pressed="false">Non-binary</button>
         <button id="filterClearClassification" type="button" class="filter-btn filter-btn-clear">Clear filter</button>
     </div>
     {# The DataTables search box is moved in here by initComplete. #}
 </div>
-<p class="results-hint">Click or tap a runner to see how their points add up.</p>
+<p class="results-hint">
+    <span id="classificationCount" role="status"></span>
+    Select a runner to see how their points add up.
+    <a href="{% url 'info:contact' %}#key">What the category codes mean</a>
+</p>
 
-<div class="table-responsive">
+<div class="table-responsive" tabindex="0" role="region" aria-label="Series standings table">
     <table id="classificationTable" class="table w-100">
+        <caption class="visually-hidden">Series standings after {{ race.name }}</caption>
         <thead>
             <tr>
                 <th scope="col">Runner</th>
@@ -72,11 +77,9 @@
             "order": [[2, 'asc']], // Set the default sorting to the 3rd column (index 2)
             "pageLength": -1,
             "dom": "frt",
-            "language": { "search": "", "searchPlaceholder": "Search runners or clubs" },
+            "language": { "search": "Search runners or clubs" },
             "initComplete": function() {
-                var filter = $(this.api().table().container()).find('.dataTables_filter');
-                filter.find('input').attr('aria-label', 'Search runners or clubs');
-                filter.appendTo('#classificationToolbar');
+                $(this.api().table().container()).find('.dataTables_filter').appendTo('#classificationToolbar');
             },
             "drawCallback": function(settings) {
                 if (isFilterActive) {
@@ -103,14 +106,31 @@
         }
 
         function markActive(btn) {
-            $('#classificationToolbar .filter-btn').removeClass('is-active');
-            if (btn) { $(btn).addClass('is-active'); }
+            $('#classificationToolbar .filter-btn').removeClass('is-active').filter('[aria-pressed]').attr('aria-pressed', 'false');
+            if (btn) { $(btn).addClass('is-active').attr('aria-pressed', 'true'); }
         }
 
         function setColumnName(gender) {
             var columnName = gender ? gender + " Position" : "Overall Position";
             $('#classificationTable th').eq(2).text(columnName);
+            // DataTables names each header for screen readers from its own copy of the title.
+            classificationTable.settings()[0].aoColumns[2].sTitle = columnName;
         }
+
+        // Say how many runners the search and filters leave, for people who can't see the table change.
+        var COUNT_MS = 400; // wait for a pause in typing
+        var countTimer = null;
+        function showCount() {
+            var shown = classificationTable.rows({ search: 'applied' }).count();
+            var all = classificationTable.rows().count();
+            var runners = all === 1 ? ' runner' : ' runners';
+            $('#classificationCount').text(shown === all ? all + runners + '.' : 'Showing ' + shown + ' of ' + all + runners + '.');
+        }
+        showCount();
+        classificationTable.on('draw', function () {
+            clearTimeout(countTimer);
+            countTimer = setTimeout(showCount, COUNT_MS);
+        });
 
         function toggleSorting(enable) {
             classificationTable.columns().every(function (index) {
@@ -125,6 +145,9 @@
             }
 
 
+            // With sorting off the headers do nothing, so take them out of the tab order.
+            if (!enable) { $('#classificationTable thead th').removeAttr('tabindex'); }
+
             // Redraw table to apply the updated settings
             classificationTable.draw();
 
@@ -132,20 +155,20 @@
 
         // Adjust IDs in event handlers
         $('#filterMaleClassification').on('click', function() {
-            filterByGenderClassification('^M');
             setColumnName("Male");
+            filterByGenderClassification('^M');
             markActive(this);
         });
 
         $('#filterFemaleClassification').on('click', function() {
-            filterByGenderClassification('^F');
             setColumnName("Female");
+            filterByGenderClassification('^F');
             markActive(this);
         });
 
         $('#filterNonBinaryClassification').on('click', function() {
-            filterByGenderClassification('^N');
             setColumnName("Non-Binary");
+            filterByGenderClassification('^N');
             markActive(this);
         });
 
@@ -160,15 +183,17 @@
             window.location.href = '{{ request.path }}?tab=classification-results';
         });
 
-        // How a runner's points add up: a click or tap on a row opens the panel;
-        // its ×, a click anywhere else or Escape puts it away. The working comes
-        // from the server.
+        // How a runner's points add up: a click or tap on a row, or Enter on the
+        // name, opens the panel and moves focus into it. Its ×, a click anywhere
+        // else, Escape or tabbing out puts it away, and focus goes back to the
+        // name. The working comes from the server.
         (function () {
             var PREFETCH_MS = 300; // fetch once the pointer rests, so the click finds it ready
             var rows = '#classificationTable tbody tr[data-explain-url]';
             var fetched = new Map();
             var prefetchTimer = null;
             var popover = null;
+            var panel = null; // the popover's element while it is open
             var openRow = null;
 
             function load(url) {
@@ -190,11 +215,31 @@
 
             function close() {
                 if (popover) { popover.dispose(); popover = null; }
+                panel = null;
                 if (openRow) {
                     openRow.classList.remove('is-open');
                     nameButton(openRow).setAttribute('aria-expanded', 'false');
+                    nameButton(openRow).removeAttribute('aria-controls');
                 }
                 openRow = null;
+            }
+
+            // Close, and put focus back on the name the panel belonged to.
+            function dismiss() {
+                var row = openRow;
+                close();
+                if (row && row.isConnected) { nameButton(row).focus(); }
+            }
+
+            // The panel sits at the end of the page, so Tab is steered: from the
+            // panel to its ×, and from the × back to the name in the table.
+            function steerTab(event) {
+                if (event.key !== 'Tab') { return; }
+                var closeButton = panel.querySelector('.points-explain__close');
+                if (!event.shiftKey && document.activeElement === panel) { return; }
+                event.preventDefault();
+                if (event.shiftKey && document.activeElement === closeButton) { panel.focus(); return; }
+                dismiss();
             }
 
             function open(row) {
@@ -227,7 +272,17 @@
                         }
                     });
                     popover.show();
+                    // Bootstrap calls it a tooltip; it is a small dialog with a name and a way out.
+                    panel = content.closest('.popover');
+                    panel.setAttribute('role', 'dialog');
+                    panel.setAttribute('aria-labelledby', 'points-explain-title');
+                    panel.setAttribute('tabindex', '-1');
+                    panel.addEventListener('keydown', steerTab);
+                    row.cells[0].removeAttribute('aria-describedby');
                     nameButton(row).setAttribute('aria-expanded', 'true');
+                    nameButton(row).setAttribute('aria-controls', panel.id);
+                    // Popper places the panel a moment later; don't scroll to where it isn't yet.
+                    panel.focus({ preventScroll: true });
                 }).catch(function () {
                     if (openRow === row) { close(); }
                 });
@@ -247,11 +302,7 @@
                 if (openRow === this) { close(); } else { open(this); }
             });
 
-            $(document).on('click', '.points-explain__close', function () {
-                var row = openRow;
-                close();
-                if (row) { nameButton(row).focus(); }
-            });
+            $(document).on('click', '.points-explain__close', dismiss);
 
             $(document).on('mouseenter', rows, function () {
                 var row = this;
@@ -266,7 +317,8 @@
             });
 
             $(document).on('keydown', function (event) {
-                if (event.key === 'Escape') { close(); }
+                if (event.key !== 'Escape' || !openRow) { return; }
+                if (panel && panel.contains(document.activeElement)) { dismiss(); } else { close(); }
             });
 
             // Sorting, searching and filtering move the rows.

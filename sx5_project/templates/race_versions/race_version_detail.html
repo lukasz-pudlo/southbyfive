@@ -1,13 +1,15 @@
 {% extends "base.html" %}
 
+{% block title %}{{ race_version.race.name }}, version {{ race_version.version_number }}, South by Five{% endblock %}
+
 {% block content %}
   <h1>Race Version Details</h1>
 
   <div class="card">
     <div class="card-body">
-      <h5 class="card-title">{{ race_version.race.name }} - Version {{ race_version.version_number }}</h5>
+      <h2 class="card-title h5">{{ race_version.race.name }} - Version {{ race_version.version_number }}</h2>
 
-      <h5>Results</h5>
+      <h3 class="h5">Results</h3>
       <table class="table">
           <thead>
               <tr>

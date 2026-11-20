@@ -2,16 +2,21 @@
 
 <div class="results-toolbar" id="resultsToolbar">
     <div class="results-toolbar__filters" role="group" aria-label="Filter by gender category">
-        <button id="filterMale" type="button" class="filter-btn filter-btn-male">Male</button>
-        <button id="filterFemale" type="button" class="filter-btn filter-btn-female">Female</button>
-        <button id="filterNonBinary" type="button" class="filter-btn filter-btn-nonbinary">Non-binary</button>
+        <button id="filterMale" type="button" class="filter-btn filter-btn-male" aria-pressed="false">Male</button>
+        <button id="filterFemale" type="button" class="filter-btn filter-btn-female" aria-pressed="false">Female</button>
+        <button id="filterNonBinary" type="button" class="filter-btn filter-btn-nonbinary" aria-pressed="false">Non-binary</button>
         <button id="filterClear" type="button" class="filter-btn filter-btn-clear">Clear filter</button>
     </div>
     {# The DataTables search box is moved in here by initComplete. #}
 </div>
+<p class="results-hint">
+    <span id="resultsCount" role="status"></span>
+    <a href="{% url 'info:contact' %}#key">What the category codes mean</a>
+</p>
 
-<div class="table-responsive">
+<div class="table-responsive" tabindex="0" role="region" aria-label="Race results table">
     <table id="resultsTable" class="table w-100">
+        <caption class="visually-hidden">{{ race.name }} race results</caption>
         <thead>
             <tr>
                 <th scope="col">Name</th>
@@ -19,7 +24,7 @@
                 <th scope="col">General Position</th>
                 <th scope="col">Gender Position</th>
                 <th scope="col">Category Position</th>
-                <th scope="col">No.</th>
+                <th scope="col">Number</th>
                 <th scope="col">Category</th>
                 <th scope="col">Club</th>
             </tr>
@@ -31,12 +36,12 @@
                 <td>
                     {% if result.time %}
                         {% if result.time|format_timedelta == "02:00:00" %}
-                            DNF
+                            <abbr title="Did not finish">DNF</abbr>
                         {% else %}
                             {{ result.time|format_timedelta }}
                         {% endif %}
                     {% else %}
-                        DNF
+                        <abbr title="Did not finish">DNF</abbr>
                     {% endif %}
                 </td>
                 <td>{% if result.general_position != None %}{{ result.general_position }}{% endif %}</td>
@@ -72,17 +77,30 @@
             "info": false,
             "pageLength": -1,
             "dom": "frt",
-            "language": { "search": "", "searchPlaceholder": "Search runners or clubs" },
+            "language": { "search": "Search runners or clubs" },
             "order": [[2, 'asc']], // Default sort: General Position
             "columnDefs": [{
                 "type": "category-pre",
                 "targets": [6]
             }],
             "initComplete": function() {
-                var filter = $(this.api().table().container()).find('.dataTables_filter');
-                filter.find('input').attr('aria-label', 'Search runners or clubs');
-                filter.appendTo('#resultsToolbar');
+                $(this.api().table().container()).find('.dataTables_filter').appendTo('#resultsToolbar');
             }
+        });
+
+        // Say how many runners the search and filters leave, for people who can't see the table change.
+        var COUNT_MS = 400; // wait for a pause in typing
+        var countTimer = null;
+        function showCount() {
+            var shown = table.rows({ search: 'applied' }).count();
+            var all = table.rows().count();
+            var runners = all === 1 ? ' runner' : ' runners';
+            $('#resultsCount').text(shown === all ? all + runners + '.' : 'Showing ' + shown + ' of ' + all + runners + '.');
+        }
+        showCount();
+        table.on('draw', function () {
+            clearTimeout(countTimer);
+            countTimer = setTimeout(showCount, COUNT_MS);
         });
 
         function filterByGender(genderPrefix) {
@@ -90,8 +108,8 @@
         }
 
         function markActive(btn) {
-            $('#resultsToolbar .filter-btn').removeClass('is-active');
-            if (btn) { $(btn).addClass('is-active'); }
+            $('#resultsToolbar .filter-btn').removeClass('is-active').filter('[aria-pressed]').attr('aria-pressed', 'false');
+            if (btn) { $(btn).addClass('is-active').attr('aria-pressed', 'true'); }
         }
 
         $('#filterMale').on('click', function() { filterByGender('^M'); markActive(this); });

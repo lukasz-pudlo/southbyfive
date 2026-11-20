@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="prose">
-  <p class="import-crumb"><a href="{% url 'results_import:list' %}">Uploads</a></p>
+  <nav class="import-crumb" aria-label="Breadcrumb"><a href="{% url 'results_import:list' %}">Uploads</a></nav>
   {% if season %}
   <h1>Race dates {{ season.season_start_year }}/{{ season.season_start_year|add:1 }}</h1>
   <p class="import-note">

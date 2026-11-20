@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ race.name }} results, South by Five{% endblock %}
+{% block title %}{% if active_tab == 'classification-results' and classification_results %}Series standings after {{ race.name }}{% else %}{{ race.name }} race results{% endif %}{% if race.season_start_year %} {{ race.season_start_year }}/{{ race.season_start_year|add:1 }}{% endif %}, South by Five{% endblock %}
 
 {% block band %}
 <header class="band park-{{ race.name|slugify }}">
