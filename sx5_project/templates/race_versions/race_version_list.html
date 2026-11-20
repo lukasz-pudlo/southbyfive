@@ -1,13 +1,15 @@
 {% extends "base.html" %}
 
+{% block title %}Race versions, South by Five{% endblock %}
+
 {% block content %}
   <h1>Race Versions</h1>
 
   {% for race_version in race_versions %}
     <div class="card mb-3">
       <div class="card-body">
-        <h5 class="card-title">{{ race_version.race.name }} - Version {{ race_version.version_number }}</h5>
-        <a href="{% url 'race-versions:race_version_detail' race_version.pk %}" class="btn btn-primary">Details</a>
+        <h2 class="card-title h5">{{ race_version.race.name }} - Version {{ race_version.version_number }}</h2>
+        <a href="{% url 'race-versions:race_version_detail' race_version.pk %}" class="btn btn-primary">Details<span class="visually-hidden"> of {{ race_version.race.name }}, version {{ race_version.version_number }}</span></a>
       </div>
     </div>
   {% endfor %}

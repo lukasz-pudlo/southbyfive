@@ -2,13 +2,14 @@ import sys
 import traceback
 
 import pandas as pd
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.db import IntegrityError, transaction
-from django.http import HttpResponseServerError
-from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db import transaction
+from django.http import HttpResponseNotFound, HttpResponseServerError
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.defaults import server_error
 from django.views.generic import (
     CreateView,
@@ -17,11 +18,12 @@ from django.views.generic import (
     ListView,
     UpdateView,
 )
-from pandas import isnull
 
+from classifications.breakdown import standings_breakdown
 from classifications.models import ClassificationResult
-from races.forms import RaceForm
-from races.models import Race, Result, Runner, Season
+from races.forms import RaceDatesForm, RaceForm
+from races.importing import create_results_for_race, get_or_create_runner  # noqa: F401
+from races.models import Race, Season
 from races.utils import create_result_versions
 
 
@@ -126,39 +128,23 @@ class RaceDetailView(DetailView):
         return context
 
 
-# Ensure all runners are created or fetched without issues
+def standings_explain(request, year, slug, runner_id):
+    """The working behind one runner's points in a race's Series standings,
+    as a fragment for the popover on the standings table."""
+    race = Race.objects.filter(slug=slug, season_start_year=year).first()
+    breakdown = standings_breakdown(race, runner_id) if race else None
+    if breakdown is None:
+        # A plain 404: the site's handler redirects home, and the popover
+        # would then show the home page.
+        return HttpResponseNotFound("This runner is not in these standings.")
+    return render(request, "classifications/_points_explanation.html", {"b": breakdown})
 
 
-def get_or_create_runner(
-    first_name, last_name, participant_number, category, club, season
-):
-    try:
-        with transaction.atomic():
-            # Try to get or create the runner
-            runner, created = Runner.objects.get_or_create(
-                first_name=first_name,
-                last_name=last_name,
-                season=season,
-                defaults={
-                    "participant_number": participant_number,
-                    "category": category,
-                    "club": club,
-                    "season": season,
-                },
-            )
-    except IntegrityError:
-        # Handle race condition where another process creates the runner
-        runner = Runner.objects.get(
-            first_name=first_name,
-            last_name=last_name,
-        )
-        # Optionally update details if needed
-        runner.participant_number = participant_number
-        runner.category = category
-        runner.club = club
-        runner.save()
-        created = False
-    return runner, created
+class StaffRequiredMixin(UserPassesTestMixin):
+    """Staff only: anyone else is sent to log in, or refused if logged in."""
+
+    def test_func(self):
+        return self.request.user.is_active and self.request.user.is_staff
 
 
 class RaceCreateView(LoginRequiredMixin, CreateView):
@@ -180,58 +166,20 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
         self.object = race
 
         if self.request.FILES:
-            excel_file = self.request.FILES["race_file"]
-            if isinstance(excel_file, InMemoryUploadedFile):
-                df = pd.read_excel(excel_file)
-                results = []
-                for _, row in df.iterrows():
-                    first_name = row["First Name"]
-                    last_name = row["Last Name"]
-                    participant_number = row["Participant Number"]
-                    category = row["Category"]
-                    club = row["Club"] if not isnull(row["Club"]) else "Unaffiliated"
-                    time_str = row["Time"]
+            df = pd.read_excel(self.request.FILES["race_file"])
+            rows = [
+                {
+                    "first_name": row["First Name"],
+                    "last_name": row["Last Name"],
+                    "participant_number": row["Participant Number"],
+                    "category": row["Category"],
+                    "club": row["Club"],
+                    "time": row["Time"],
+                }
+                for _, row in df.iterrows()
+            ]
+            create_results_for_race(self.object, season_object, rows)
 
-                    if time_str == "DNF":
-                        time = "02:00:00"
-                        dnf = False
-                    else:
-                        # Handle tie-breaking numbers (e.g., "00:19:20 1", "00:19:20 2")
-                        # Parse the time and add microseconds based on the tie-break number
-                        time_parts = str(time_str).split()
-                        base_time = time_parts[0]
-                        time = pd.to_timedelta(base_time)
-
-                        # If there's a tie-breaking number, add microseconds to preserve order
-                        if len(time_parts) > 1:
-                            try:
-                                tie_break_num = int(time_parts[1])
-                                # Add microseconds equal to the tie-break number
-                                # This keeps times visually the same but maintains order
-                                time += pd.Timedelta(microseconds=tie_break_num)
-                            except ValueError:
-                                pass  # If not a valid number, just use base time
-
-                        dnf = False
-
-                    # Use get_or_create to handle duplicates gracefully
-                    runner, created = get_or_create_runner(
-                        first_name=first_name,
-                        last_name=last_name,
-                        participant_number=participant_number,
-                        category=category,
-                        club=club,
-                        season=season_object,
-                    )
-
-                    result = Result(race=self.object, runner=runner, time=time, dnf=dnf)
-                    results.append(result)
-
-            # Save all results at once
-            Result.objects.bulk_create(results)
-
-            # Refresh results from db
-            results = list(self.object.result_set.all())
             self.object.calculate_positions()
 
             # Call create_result_versions with the race's season_start_year
@@ -243,62 +191,70 @@ class RaceCreateView(LoginRequiredMixin, CreateView):
 
 
 class RaceUpdateView(LoginRequiredMixin, UpdateView):
+    # Edits the race's details only. Replacing its results goes through the
+    # results import, which can be reviewed and reverted.
     model = Race
     template_name = "races/race_form.html"
-    fields = ["name", "description", "race_date", "race_file"]
+    fields = ["name", "description", "race_date"]
     slug_field = "slug"
     slug_url_kwarg = "slug"
 
-    def form_valid(self, form):
-        if "race_file" in form.changed_data:
-            self.object = form.save()
 
-            # Remove old results related to this race
-            Result.objects.filter(race=self.object).delete()
-
-            # Get the new data from the file
-            data = pd.read_excel(self.object.race_file.path)
-            for _, row in data.iterrows():
-                first_name, last_name, category, club, time_str = row
-                runner, _ = Runner.objects.get_or_create(
-                    first_name=first_name,
-                    last_name=last_name,
-                    category=category,
-                    club=club,
-                )
-                # Handle tie-breaking numbers (e.g., "00:19:20 1", "00:19:20 2")
-                time_parts = str(time_str).split()
-                base_time = time_parts[0]
-                time = pd.to_timedelta(base_time)
-
-                # If there's a tie-breaking number, add microseconds to preserve order
-                if len(time_parts) > 1:
-                    try:
-                        tie_break_num = int(time_parts[1])
-                        time += pd.Timedelta(microseconds=tie_break_num)
-                    except ValueError:
-                        pass
-
-                Result.objects.get_or_create(race=self.object, runner=runner, time=time)
-
-            self.object.calculate_positions()
-
-            # Call create_result_versions with the race's season_start_year
-            create_result_versions(
-                self.object, season_start_year=self.object.season_start_year
-            )
-
-            return super().form_valid(form)
-        else:
-            return super().form_valid(form)
-
-
-class RaceDeleteView(DeleteView):
+class RaceDeleteView(StaffRequiredMixin, DeleteView):
     model = Race
     template_name = "races/race_confirm_delete.html"
     slug_field = "slug"
     slug_url_kwarg = "slug"
     success_url = reverse_lazy("races:list")
+
+
+class RaceDatesView(StaffRequiredMixin, View):
+    """Enter the planned dates of a season's races. They show in the
+    navigation for parks whose results are not up yet."""
+
+    template_name = "races/race_dates.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        seasons = Season.objects.order_by("-season_start_year")
+        year = kwargs.get("year")
+        if year is None:
+            self.season = seasons.first()
+        else:
+            self.season = seasons.filter(season_start_year=year).first()
+        self.seasons = seasons
+        return super().dispatch(request, *args, **kwargs)
+
+    def render(self, request, form):
+        published = {}
+        if self.season is not None:
+            published = {
+                race.name: race for race in Race.objects.filter(season=self.season)
+            }
+        rows = [
+            {"field": field, "race": published.get(field.label)} for field in form or []
+        ]
+        return render(
+            request,
+            self.template_name,
+            {"season": self.season, "seasons": self.seasons, "form": form, "rows": rows},
+        )
+
+    def get(self, request, *args, **kwargs):
+        if self.season is None:
+            if kwargs.get("year") is not None:
+                return redirect("races:dates")
+            return self.render(request, None)
+        return self.render(request, RaceDatesForm(season=self.season))
+
+    def post(self, request, *args, **kwargs):
+        if self.season is None:
+            return redirect("races:dates")
+        form = RaceDatesForm(request.POST, season=self.season)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Race dates saved.")
+            return redirect("races:season_dates", year=self.season.season_start_year)
+        return self.render(request, form)
 
 
 def custom_404(request, exception):

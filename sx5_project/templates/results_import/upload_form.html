@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load bootstrap5 %}
+
+{% block title %}Upload results, South by Five{% endblock %}
+
+{% block content %}
+<div class="prose">
+  <nav class="import-crumb" aria-label="Breadcrumb"><a href="{% url 'results_import:list' %}">Uploads</a></nav>
+  <h1>Upload results</h1>
+  <form method="post" enctype="multipart/form-data" class="panel">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <button type="submit" class="btn btn-primary">Upload and review</button>
+    <a href="{% url 'results_import:list' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+  <p class="import-note">
+    Uploading only prepares a draft. You see every change before anything
+    appears on the site, and a published race can be taken off again.
+  </p>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{# One runner's points in a race's Series standings, explained. Loaded into a popover by classification_results.html. #}
+<div class="points-explain">
+    <button type="button" class="points-explain__close" aria-label="Close">
+        <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M1.5 1.5l9 9m0-9l-9 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <h2 class="points-explain__title" id="points-explain-title">{{ b.runner }}</h2>
+    <p class="points-explain__sub">
+        Series standings after {{ b.race.name }}, {{ b.total_races }} race{{ b.total_races|pluralize }} so far
+    </p>
+
+    {% if b.reconciles %}
+    <table class="points-explain__table">
+        <thead>
+            <tr>
+                <th scope="col"><span class="visually-hidden">Race</span></th>
+                <th scope="col">General <small>everyone</small></th>
+                <th scope="col">Gender <small>{{ b.gender }}</small></th>
+                <th scope="col">Category <small>{{ b.runner.category }}</small></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in b.rows %}
+            <tr>
+                <th scope="row">{{ row.race.name }}{% if row.dnf %} <small><abbr title="Did not finish">DNF</abbr></small>{% endif %}</th>
+                {% if row.ran %}
+                    {% for cell in row.cells %}
+                    <td>
+                        {% if cell.place_on_the_day %}<small>{{ cell.place_on_the_day }} <span aria-hidden="true">&rarr;</span><span class="visually-hidden">on the day, counted as</span></small>{% endif %}
+                        {% if cell.dropped %}<s>{{ cell.points }}</s><span class="visually-hidden"> left out</span>{% else %}{{ cell.points }}{% endif %}
+                    </td>
+                    {% endfor %}
+                {% else %}
+                    <td colspan="3" class="points-explain__absent">did not run</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th scope="row">Total</th>
+                {% for total in b.totals %}<td>{{ total }}</td>{% endfor %}
+            </tr>
+        </tfoot>
+    </table>
+    {% else %}
+    <p>
+        {{ b.runner }} has {{ b.totals.0 }} general, {{ b.totals.1 }} gender and
+        {{ b.totals.2 }} category point{{ b.totals.2|pluralize }}. The race-by-race
+        working can't be shown for these standings.
+    </p>
+    {% endif %}
+
+    <ul class="points-explain__rules">
+        {% if b.reranked %}
+        <li>
+            Points are finishing places among the {{ b.runners_in_standings }} runners in these
+            standings, who have each run at least {{ b.races_needed }} of the {{ b.total_races }} races:
+            overall, among {{ b.gender|lower }} runners, and in {{ b.runner.category }}. Fewest points wins.
+        </li>
+        {% else %}
+        <li>
+            Points are finishing places: overall, among {{ b.gender|lower }} runners,
+            and in {{ b.runner.category }}. Fewest points wins.
+        </li>
+        {% endif %}
+
+        {% if b.reconciles %}
+            {% if b.moved_up %}
+            <li>
+                A small figure before an arrow is the place on the day, before runners
+                with too few races were taken out and everyone behind them moved up.
+            </li>
+            {% endif %}
+            {% if b.drops_worst %}
+            <li>
+                {{ b.runner }} has run all {{ b.total_races }} races, so the worst result in each
+                column is left out (struck through).
+            </li>
+            {% elif b.total_races > 1 %}
+            <li>
+                {{ b.runner }} did not run {% for race in b.missed %}{% if not forloop.first %}{% if forloop.last %} or {% else %}, {% endif %}{% endif %}{{ race.name }}{% endfor %},
+                so {% if b.races_run == 1 %}the one result counts{% else %}all {{ b.races_run }} results count{% endif %} and nothing is left out.
+            </li>
+            {% endif %}
+            {% if b.has_dnf %}
+            <li>A DNF is scored as a 2-hour finish, so it takes the points of that place.</li>
+            {% endif %}
+        {% else %}
+            <li>
+                Runners with too few races are taken out and everyone behind them moves up.
+                A runner who has run every race so far has their worst result left out,
+                separately for each kind of points.
+            </li>
+        {% endif %}
+    </ul>
+</div>

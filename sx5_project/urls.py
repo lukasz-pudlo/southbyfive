@@ -27,6 +27,10 @@ urlpatterns = [
     ),  # Classifications app
     path("accounts/", include("django.contrib.auth.urls")),  # Authentication
     path("info/", include(("info.urls", "info"), namespace="info")),  # Info app
+    path(
+        "imports/",
+        include(("results_import.urls", "results_import"), namespace="results_import"),
+    ),  # Results import (staff only)
 ]
 
 # Serve static and media files during development

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Uploads, South by Five{% endblock %}
+
+{% block content %}
+<div class="import-head">
+  <h1>Uploads</h1>
+  <div class="import-actions">
+    <a href="{% url 'results_import:new' %}" class="btn btn-primary">Upload results</a>
+    <a href="{% url 'results_import:rules' %}" class="btn btn-secondary">Remembered decisions</a>
+    <a href="{% url 'races:dates' %}" class="btn btn-secondary">Race dates</a>
+  </div>
+</div>
+
+{% if uploads %}
+<div class="table-responsive">
+  <table class="table import-table w-100">
+    <thead>
+      <tr>
+        <th scope="col">Race</th>
+        <th scope="col">Status</th>
+        <th scope="col">File</th>
+        <th scope="col">Uploaded</th>
+        <th scope="col">Published</th>
+        <th scope="col"><span class="visually-hidden">Actions</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for upload in uploads %}
+      <tr>
+        <td><a href="{% url 'results_import:detail' pk=upload.pk %}">{{ upload.race_name }} {{ upload.season_label }}</a></td>
+        <td><span class="import-status import-status--{{ upload.status }}">{{ upload.get_status_display }}</span></td>
+        <td>{{ upload.original_filename }}</td>
+        <td>{{ upload.uploaded_at|date:"j M Y, H:i" }}{% if upload.uploaded_by %} by {{ upload.uploaded_by }}{% endif %}</td>
+        <td>{% if upload.published_at %}{{ upload.published_at|date:"j M Y, H:i" }}{% endif %}</td>
+        <td><a href="{% url 'results_import:detail' pk=upload.pk %}">{% if upload.is_draft %}Review{% else %}See changes{% endif %}<span class="visually-hidden"> {% if upload.is_draft %}the draft for{% else %}in{% endif %} {{ upload.race_name }} {{ upload.season_label }}, uploaded {{ upload.uploaded_at|date:"j M Y, H:i" }}</span></a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p>No results have been uploaded here yet. Races added with the old form are not listed.</p>
+{% endif %}
+{% endblock %}

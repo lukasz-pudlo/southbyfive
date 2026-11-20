@@ -2,6 +2,16 @@ from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
 
+# The six parks of the series, in race order.
+PARK_NAMES = [
+    "King's Park",
+    "Linn Park",
+    "Rouken Glen",
+    "Pollok Park",
+    "Bellahouston Park",
+    "Queen's Park",
+]
+
 
 class Season(models.Model):
     season_start_year = models.PositiveIntegerField(null=True, unique=True)
@@ -92,6 +102,27 @@ class Race(models.Model):
 
     class Meta:
         ordering = ["-date_added"]
+
+
+class ScheduledRace(models.Model):
+    """The planned date of a race in a season, entered before the race is run.
+
+    Shown in the navigation for parks that have no results yet. A park with
+    no entry shows no date at all.
+    """
+
+    season = models.ForeignKey(
+        Season, on_delete=models.CASCADE, related_name="scheduled_races"
+    )
+    name = models.CharField(max_length=255, choices=[(p, p) for p in PARK_NAMES])
+    race_date = models.DateField()
+
+    class Meta:
+        unique_together = ("season", "name")
+        ordering = ["season", "race_date"]
+
+    def __str__(self):
+        return f"{self.name} {self.season}: {self.race_date}"
 
 
 class Runner(models.Model):

@@ -2,11 +2,17 @@ from django.contrib import admin
 
 from race_versions.models import RaceVersion, ResultVersion
 from races.forms import RaceForm, ResultForm
-from races.models import Race, Result, Runner, Season
+from races.models import Race, Result, Runner, ScheduledRace, Season
 
 
 class SeasonAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(ScheduledRace)
+class ScheduledRaceAdmin(admin.ModelAdmin):
+    list_display = ("name", "season", "race_date")
+    list_filter = ("season",)
 
 
 class ResultAdmin(admin.ModelAdmin):

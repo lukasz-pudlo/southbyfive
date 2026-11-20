@@ -5,9 +5,22 @@
 {% block content %}
 <div class="prose">
   <h1>Log in</h1>
+  {% if form.non_field_errors %}
+  <ul class="site-messages" role="alert">
+    {% for error in form.non_field_errors %}
+    <li class="site-message site-message--error"><span class="visually-hidden">Error:</span> {{ error }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
   <form method="post" class="panel login-form">
     {% csrf_token %}
-    {{ form.as_p }}
+    {% for field in form %}
+    <p>
+      {{ field.label_tag }}
+      {{ field }}
+      {% for error in field.errors %}<span class="import-problem">{{ error }}</span>{% endfor %}
+    </p>
+    {% endfor %}
     <button type="submit" class="btn btn-primary">Log in</button>
   </form>
 </div>

@@ -1,12 +1,15 @@
 {% extends "base.html" %}
 
+{% block title %}Classifications, South by Five{% endblock %}
+
 {% block content %}
+  <h1>Classifications</h1>
 
   {% for classification in classifications %}
     <div class="card mb-3">
       <div class="card-body">
-        <h5 class="card-title">Classification after {{ classification.race.name }}</h5>
-        <a href="{% url 'classifications:detail' slug=classification.slug %}" class="btn btn-primary">Details</a>
+        <h2 class="card-title h5">Classification after {{ classification.race.name }}</h2>
+        <a href="{% url 'classifications:detail' slug=classification.slug %}" class="btn btn-primary">Details<span class="visually-hidden"> of the classification after {{ classification.race.name }}</span></a>
       </div>
     </div>
   {% endfor %}
