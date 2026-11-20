@@ -14,8 +14,8 @@
 </p>
 
 <div class="table-responsive" tabindex="0" role="region" aria-label="Series standings table">
-    <table id="classificationTable" class="table w-100">
-        <caption class="visually-hidden">Series standings after {{ race.name }}</caption>
+    {# Named with aria-label, not a hidden caption: a caption adds a pixel of height and the wrapper grows a vertical scrollbar. #}
+    <table id="classificationTable" class="table w-100" aria-label="Series standings after {{ race.name }}">
         <thead>
             <tr>
                 <th scope="col">Runner</th>

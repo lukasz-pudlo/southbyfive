@@ -138,6 +138,9 @@ def test_filters_say_whether_they_are_pressed(client, race):
 def test_the_results_table_can_be_scrolled_from_the_keyboard(client, race):
     html = page(client, race.get_absolute_url())
     assert '<div class="table-responsive" tabindex="0" role="region" aria-label=' in html
+    # A caption, even a hidden one, makes the wrapper a pixel short and it scrolls up and down too.
+    assert "<caption" not in html
+    assert 'aria-label="King&#x27;s Park race results"' in html
 
 
 def test_no_link_opens_a_new_tab_unannounced(client, race):
