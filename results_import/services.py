@@ -107,7 +107,13 @@ def create_draft(data, filename, season, race_name, race_date, description, user
     return upload
 
 
+def kept_rows(upload):
+    """The rows that count: every row except those left out by hand."""
+    return upload.rows.filter(left_out=False)
+
+
 def blocking_problems(upload):
+    kept = list(kept_rows(upload))
     rows = [
         {
             "number": row.number,
@@ -116,11 +122,11 @@ def blocking_problems(upload):
             "category": row.category,
             "time_text": row.time_text,
         }
-        for row in upload.rows.all()
+        for row in kept
     ]
     problems = normalise.check_rows(rows, VALID_CATEGORIES)
     limit = Runner._meta.get_field("participant_number").max_length
-    for row in upload.rows.all():
+    for row in kept:
         if len(row.bib) > limit:
             problems.setdefault(row.number, []).append(
                 f"The number is longer than {limit} characters. "
@@ -130,7 +136,10 @@ def blocking_problems(upload):
 
 
 def pending_changes(upload):
-    return RowChange.objects.filter(row__upload=upload, status=PENDING)
+    """Questions still open. A row that is left out asks nothing."""
+    return RowChange.objects.filter(
+        row__upload=upload, row__left_out=False, status=PENDING
+    )
 
 
 def _clean_bib(value):
@@ -158,7 +167,7 @@ def record_differences(upload):
         )
     }
     differences = []
-    for row in upload.rows.all():
+    for row in kept_rows(upload):
         runner = row.runner if upload.is_published else None
         runner = runner or existing.get((row.first_name, row.last_name))
         if runner is None or runner.id in upload.created_runner_ids:
@@ -204,6 +213,7 @@ def _same_decision(change):
         other
         for other in RowChange.objects.filter(
             row__upload=change.row.upload,
+            row__left_out=False,
             status=PENDING,
             field=change.field,
             rule=change.rule,
@@ -215,6 +225,13 @@ def _same_decision(change):
 def _require_draft(upload):
     if not upload.is_draft:
         raise ImportProblem("This upload is no longer a draft, so it can't be edited.")
+
+
+def _require_kept(row):
+    if row.left_out:
+        raise ImportProblem(
+            f"Row {row.number} is left out. Put it back before changing it."
+        )
 
 
 def _remember(change, option):
@@ -378,7 +395,14 @@ def revert_change(change, user):
             raise ImportProblem(POINTS_MESSAGE)
         row.delete()
         return
-    if change.rule == RowChange.UPDATE_RECORD:
+    if change.rule == RowChange.LEFT_OUT:
+        # Undoing a leave-out puts the row back among the results.
+        if upload.is_published:
+            raise ImportProblem(POINTS_MESSAGE)
+        row.left_out = False
+        row.save(update_fields=["left_out"])
+        change.status = REVERTED
+    elif change.rule == RowChange.UPDATE_RECORD:
         if upload.is_published:
             _restore_affected(change)
         change.status = REVERTED
@@ -426,6 +450,9 @@ def reapply_change(change, user):
         raise ImportProblem("Only a reverted change can be applied again.")
     if upload.status not in (ResultsUpload.DRAFT, ResultsUpload.PUBLISHED):
         raise ImportProblem("This upload is closed, so its changes can't be altered.")
+    if change.rule == RowChange.LEFT_OUT:
+        leave_out(row, user)
+        return
     if change.rule == RowChange.UPDATE_RECORD:
         if upload.is_published:
             raise ImportProblem(
@@ -478,6 +505,7 @@ def edit_row(row, field, value, user):
     field had an open question, the typed value answers it. Returns ``None``
     when the value is what the row already holds."""
     _require_draft(row.upload)
+    _require_kept(row)
     before = row.get_value(field)
     value = _typed_value(field, value)
     if value == before:
@@ -553,11 +581,50 @@ def add_row(upload, values, user):
 
 
 @transaction.atomic
+def leave_out(row, user):
+    """Take a row out of the results: someone the file lists who didn't run.
+    The row stays in the draft, marked, with its values as they were, and
+    can be put back. Everyone behind moves up when the draft is published."""
+    _require_draft(row.upload)
+    if row.left_out:
+        raise ImportProblem(f"Row {row.number} is already left out.")
+    if row.is_added:
+        raise ImportProblem(
+            f"Row {row.number} was added by hand. Remove it in the list of "
+            "changes instead."
+        )
+    change = row.changes.filter(rule=RowChange.LEFT_OUT).first() or RowChange(
+        row=row,
+        field="name",
+        rule=RowChange.LEFT_OUT,
+        reason="Left out by hand: in the file, but didn't run",
+        source=MANUAL,
+    )
+    change.before = row.get_value("name")
+    change.after = None
+    change.status = APPLIED
+    change.updated_by = user
+    change.save()
+    row.left_out = True
+    row.save(update_fields=["left_out"])
+    return change
+
+
+def put_back(row, user):
+    """Undo ``leave_out``."""
+    change = row.changes.filter(rule=RowChange.LEFT_OUT, status=APPLIED).first()
+    if change is None:
+        raise ImportProblem(f"Row {row.number} isn't left out.")
+    revert_change(change, user)
+
+
+@transaction.atomic
 def use_file_value(row, field, user):
     """Make the runner's existing record for the season take the file's club
     or number when this upload is published."""
     upload = row.upload
     _require_draft(upload)
+    _require_kept(row)
     if field not in ("club", "bib"):
         raise ImportProblem("Only the club and the number can be taken from the file.")
     runner = season_runners(upload).get((row.first_name, row.last_name))
@@ -725,9 +792,9 @@ def publish_upload(upload, user, replace=False):
     }
 
     changes = list(
-        RowChange.objects.filter(row__upload=upload, status=APPLIED).select_related(
-            "row"
-        )
+        RowChange.objects.filter(
+            row__upload=upload, row__left_out=False, status=APPLIED
+        ).select_related("row")
     )
     for change in changes:
         if change.field == "name" and change.scope in ("season", "all"):
@@ -746,7 +813,7 @@ def publish_upload(upload, user, replace=False):
     )
     race.save()
 
-    rows = list(upload.rows.all())
+    rows = list(kept_rows(upload))
     _, created = create_results_for_race(
         race,
         season,
@@ -873,6 +940,7 @@ def reopen_as_draft(upload, user):
             category=row.category,
             club=row.club,
             time_text=row.time_text,
+            left_out=row.left_out,
         )
         for change in row.changes.all():
             RowChange.objects.create(
@@ -902,7 +970,7 @@ def converted_workbook(upload):
     sheet = workbook.active
     sheet.title = "Results"
     sheet.append(CONVERTED_HEADERS)
-    for row in upload.rows.all():
+    for row in kept_rows(upload):
         bib = int(row.bib) if row.bib.isdigit() else row.bib or None
         sheet.append(
             [

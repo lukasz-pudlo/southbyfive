@@ -404,6 +404,118 @@ def test_an_added_row_can_be_removed_and_survives_reopening(season, staff):
     assert Result.objects.get(runner__last_name="Fraser").general_position == 4
 
 
+def test_someone_who_did_not_run_can_be_left_out(staff_client, season, staff):
+    upload = draft(season, staff)
+    cat = upload.rows.get(last_name="Cooper")
+    response = staff_client.post(
+        reverse("results_import:row_leave_out", args=[upload.pk, cat.pk])
+    )
+    assert response.url.endswith(f"#row-{cat.number}")
+    cat.refresh_from_db()
+    assert cat.left_out
+    change = cat.changes.get(rule="left_out")
+    assert (change.source, change.status, change.before, change.after) == (
+        "manual",
+        "applied",
+        ["Cat", "Cooper"],
+        None,
+    )
+    page = staff_client.get(
+        reverse("results_import:detail", args=[upload.pk])
+    ).content.decode()
+    assert "is-left-out" in page and "Put back" in page
+    assert "1 row left out by hand" in page
+
+    converted = openpyxl.load_workbook(
+        io.BytesIO(services.converted_workbook(upload))
+    ).active
+    assert "Cooper" not in [row[1] for row in converted.iter_rows(values_only=True)]
+
+    services.publish_upload(upload, staff)
+    assert not Runner.objects.filter(last_name="Cooper").exists()
+    assert Result.objects.count() == len(FIELD) - 1
+    # Everyone behind her moves up a place.
+    assert Result.objects.get(runner__last_name="Dixon").general_position == 3
+    assert Result.objects.get(runner__last_name="Ellis").general_position == 4
+    assert Result.objects.get(runner__last_name="Ellis").gender_position == 2
+    cat.refresh_from_db()
+    assert cat.runner is None and cat.result is None
+
+
+def test_a_left_out_row_can_be_put_back_and_survives_reopening(
+    staff_client, season, staff
+):
+    upload = draft(season, staff)
+    cat = upload.rows.get(last_name="Cooper")
+    services.leave_out(cat, staff)
+    with pytest.raises(ImportProblem):
+        services.leave_out(cat, staff)
+    with pytest.raises(ImportProblem):
+        services.edit_row(cat, "club", "Club C", staff)
+
+    staff_client.post(reverse("results_import:row_put_back", args=[upload.pk, cat.pk]))
+    cat.refresh_from_db()
+    assert not cat.left_out
+    change = cat.changes.get(rule="left_out")
+    assert change.status == "reverted"
+    with pytest.raises(ImportProblem):
+        services.put_back(cat, staff)
+
+    # Leaving the row out again reuses the one record of it.
+    staff_client.post(
+        reverse("results_import:change_reapply", args=[upload.pk, change.pk])
+    )
+    cat.refresh_from_db()
+    assert cat.left_out and cat.changes.filter(rule="left_out").count() == 1
+
+    services.publish_upload(upload, staff)
+    with pytest.raises(ImportProblem):
+        services.put_back(cat, staff)
+    services.revert_upload(upload, staff)
+
+    again = services.reopen_as_draft(upload, staff)
+    copy = again.rows.get(last_name="Cooper")
+    assert copy.left_out
+    services.put_back(copy, staff)
+    services.publish_upload(again, staff)
+    assert Result.objects.get(runner__last_name="Cooper").general_position == 3
+
+
+def test_a_left_out_row_no_longer_blocks_or_asks(season, staff):
+    # Two rows with one name block publishing; so does an open question.
+    rows = FIELD + [
+        ("Ann", "Archer", "Club A", "FS", 6, 1500.0),
+        ("James", "Young", "MIGO", "MS", 9, 1600.0),
+    ]
+    Runner.objects.create(
+        first_name="B",
+        last_name="B",
+        category="FS",
+        club="Migo Run Club",
+        season=Season.objects.get(season_start_year=2025),
+    )
+    upload = draft(season, staff, rows)
+    assert len(services.publish_blockers(upload)) == 2
+    services.leave_out(upload.rows.get(number=7), staff)
+    services.leave_out(upload.rows.get(last_name="Young"), staff)
+    assert services.publish_blockers(upload) == []
+    services.publish_upload(upload, staff)
+    assert Runner.objects.filter(season=season).count() == len(FIELD)
+
+
+def test_an_added_row_is_removed_not_left_out(season, staff):
+    upload = draft(season, staff)
+    values = {
+        "name": ["Finn", "Fraser"],
+        "bib": "6",
+        "category": "M40",
+        "club": "",
+        "time": "00:21:30",
+    }
+    with pytest.raises(ImportProblem):
+        services.leave_out(services.add_row(upload, values, staff), staff)
+
+
 def test_a_number_too_long_for_the_site_blocks_publishing(season, staff):
     upload = draft(
         season, staff, [("Ann", "Archer", "", "FS", "Bellahouston Harriers", 1200.0)]
