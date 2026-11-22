@@ -1314,6 +1314,28 @@ table.dataTable thead .sorting_desc {
   background: rgba(223, 31, 30, 0.08);
 }
 
+/* A row left out by hand: still listed, as a record of the file. The tags
+   and the actions stay plain so they read as current. */
+.import-rows tr.is-left-out td:not(:last-child) {
+  text-decoration: line-through;
+  text-decoration-color: rgba(0, 0, 0, 0.45);
+  color: rgba(0, 0, 0, 0.72);
+}
+
+/* A row's actions sit side by side, so the second doesn't double its height. */
+.import-rows td:last-child {
+  white-space: nowrap;
+}
+
+.import-rows td:last-child form {
+  display: inline-block;
+  margin-left: 1rem;
+}
+
+.import-rows td:last-child form:first-child {
+  margin-left: 0;
+}
+
 .import-rows tr:target td {
   background: rgba(236, 224, 32, 0.35);
 }

@@ -100,6 +100,9 @@ class UploadRow(models.Model):
     category = models.CharField(max_length=255, blank=True)
     club = models.CharField(max_length=255, blank=True)
     time_text = models.CharField(max_length=32, blank=True)
+    # Someone the file lists who didn't run. The row stays in the upload as a
+    # record of the file, and takes no part in checks or publishing.
+    left_out = models.BooleanField(default=False)
 
     runner = models.ForeignKey(Runner, null=True, blank=True, on_delete=models.SET_NULL)
     result = models.ForeignKey(Result, null=True, blank=True, on_delete=models.SET_NULL)
@@ -164,6 +167,9 @@ class RowChange(models.Model):
     # Rule of the change that records a row added by hand: a finisher the
     # file left out. Reverting it removes the row.
     ADDED = "added"
+    # Rule of the change that records a row left out by hand: someone the
+    # file lists who didn't run. Reverting it puts the row back.
+    LEFT_OUT = "left_out"
 
     row = models.ForeignKey(UploadRow, on_delete=models.CASCADE, related_name="changes")
     field = models.CharField(max_length=10, choices=FIELDS)

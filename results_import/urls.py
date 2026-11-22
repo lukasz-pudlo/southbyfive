@@ -34,6 +34,16 @@ urlpatterns = [
     path("<int:pk>/rows/add/", views.row_add, name="row_add"),
     path("<int:pk>/rows/<int:row_id>/edit/", views.row_edit, name="row_edit"),
     path(
+        "<int:pk>/rows/<int:row_id>/leave-out/",
+        views.row_leave_out,
+        name="row_leave_out",
+    ),
+    path(
+        "<int:pk>/rows/<int:row_id>/put-back/",
+        views.row_put_back,
+        name="row_put_back",
+    ),
+    path(
         "<int:pk>/rows/<int:row_id>/use-file/<str:field>/",
         views.row_use_file,
         name="row_use_file",

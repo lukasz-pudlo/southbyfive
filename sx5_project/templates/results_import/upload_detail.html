@@ -167,7 +167,11 @@
           {% else %}
           <td class="import-before{% if change.before == change.after %} is-kept{% endif %}">{{ change.before_text|default:"(blank)" }}</td>
           {% endif %}
+          {% if change.rule == "left_out" %}
+          <td class="import-after"><small>left out</small></td>
+          {% else %}
           <td class="import-after">{{ change.after_text|default:"(blank)" }}</td>
+          {% endif %}
           <td>
             {{ change.reason }}
             {% if change.chosen_option.label %}<br><small>You chose: {{ change.chosen_option.label }}</small>{% endif %}
@@ -181,14 +185,14 @@
           </td>
           <td>
             {% if change.can_revert %}
-            <form method="post" action="{% url 'results_import:change_revert' pk=upload.pk change_id=change.pk %}"{% if upload.is_published %} onsubmit="return confirm('This changes the live site. Revert this change?');"{% elif change.revert_label %} onsubmit="return confirm('Remove this added row from the draft?');"{% endif %}>
+            <form method="post" action="{% url 'results_import:change_revert' pk=upload.pk change_id=change.pk %}"{% if upload.is_published %} onsubmit="return confirm('This changes the live site. Revert this change?');"{% elif change.rule == "added" %} onsubmit="return confirm('Remove this added row from the draft?');"{% endif %}>
               {% csrf_token %}
               <button type="submit" class="import-link">{{ change.revert_label|default:"Revert" }}<span class="visually-hidden">{% if change.revert_label %} {{ change.row.number }}{% else %} the {{ change.get_field_display|lower }} change in row {{ change.row.number }}{% endif %}</span></button>
             </form>
             {% elif change.can_reapply %}
             <form method="post" action="{% url 'results_import:change_reapply' pk=upload.pk change_id=change.pk %}"{% if upload.is_published %} onsubmit="return confirm('This changes the live site. Apply this change again?');"{% endif %}>
               {% csrf_token %}
-              <button type="submit" class="import-link">Apply again<span class="visually-hidden"> the {{ change.get_field_display|lower }} change in row {{ change.row.number }}</span></button>
+              <button type="submit" class="import-link">{{ change.reapply_label|default:"Apply again" }}<span class="visually-hidden">{% if change.reapply_label %} {{ change.row.number }}{% else %} the {{ change.get_field_display|lower }} change in row {{ change.row.number }}{% endif %}</span></button>
             </form>
             {% endif %}
           </td>
@@ -268,12 +272,18 @@
       <button type="button" class="filter-btn" data-show="problem" aria-pressed="false">Problems</button>
       <button type="button" class="filter-btn" data-show="new" aria-pressed="false">New runners</button>
       <button type="button" class="filter-btn" data-show="tie" aria-pressed="false">Tied times</button>
+      {% if left_out_count %}<button type="button" class="filter-btn" data-show="leftout" aria-pressed="false">Left out</button>{% endif %}
     </div>
     {% if upload.is_draft %}
     <button type="button" class="btn btn-secondary" data-add
             data-action="{% url 'results_import:row_add' pk=upload.pk %}">Add a finisher</button>
     {% endif %}
   </div>
+  {% if left_out_count %}
+  <p class="import-note">
+    {{ left_out_count }} row{{ left_out_count|pluralize }} left out by hand: in the file, but not in the results.
+  </p>
+  {% endif %}
   <p class="results-hint"><span id="rowsCount" role="status"></span></p>
   <div class="table-responsive" tabindex="0" role="region" aria-label="All rows table">
     <table class="table import-table import-rows w-100">
@@ -292,17 +302,19 @@
       <tbody>
         {% for row in rows %}
         <tr id="row-{{ row.number }}"
-            class="{% if row.problems %}has-problem{% endif %}"
+            class="{% if row.problems %}has-problem{% endif %}{% if row.left_out %} is-left-out{% endif %}"
             data-changed="{{ row.is_changed|yesno:'1,0' }}"
             data-pending="{{ row.is_pending|yesno:'1,0' }}"
             data-problem="{{ row.problems|yesno:'1,0' }}"
             data-new="{{ row.is_new|yesno:'1,0' }}"
-            data-tie="{{ row.is_tie|yesno:'1,0' }}">
+            data-tie="{{ row.is_tie|yesno:'1,0' }}"
+            data-leftout="{{ row.left_out|yesno:'1,0' }}">
           <td>{{ row.number }}</td>
           <td>
             {{ row.first_name }} {{ row.last_name }}
             {% if row.is_new %}<span class="import-tag">new</span>{% endif %}
             {% if row.is_added %}<span class="import-tag">added by hand</span>{% endif %}
+            {% if row.left_out %}<span class="import-tag">left out</span>{% endif %}
             {% if row.is_pending %}<span class="import-tag import-tag--alert">decide</span>{% endif %}
             {% if row.name_differs %}<br><small class="import-before">{{ row.raw_name|default:"(blank)" }}</small>{% endif %}
             {% for problem in row.problems %}<br><small class="import-problem">{{ problem }}</small>{% endfor %}
@@ -313,13 +325,24 @@
           <td>{% if row.is_added %}<small>not in the file</small>{% else %}{{ row.raw.time }}{% endif %}</td>
           <td><strong>{{ row.time_text }}</strong></td>
           <td>
-            {% if upload.is_draft %}
+            {% if upload.is_draft and row.left_out %}
+            <form method="post" action="{% url 'results_import:row_put_back' pk=upload.pk row_id=row.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="import-link">Put back<span class="visually-hidden"> row {{ row.number }}, {{ row.first_name }} {{ row.last_name }}</span></button>
+            </form>
+            {% elif upload.is_draft %}
             <button type="button" class="import-link" data-edit
                     data-action="{% url 'results_import:row_edit' pk=upload.pk row_id=row.pk %}"
                     data-number="{{ row.number }}"
                     data-first="{{ row.first_name }}" data-last="{{ row.last_name }}"
                     data-bib="{{ row.bib }}" data-category="{{ row.category }}"
                     data-club="{{ row.club }}" data-time="{{ row.time_text }}">Edit<span class="visually-hidden"> row {{ row.number }}, {{ row.first_name }} {{ row.last_name }}</span></button>
+            {% if not row.is_added %}
+            <form method="post" action="{% url 'results_import:row_leave_out' pk=upload.pk row_id=row.pk %}" onsubmit="return confirm('Leave row {{ row.number }}, {{ row.first_name|escapejs }} {{ row.last_name|escapejs }}, out of the results? This is for someone in the file who didn\'t run. Everyone behind moves up a place, and the row can be put back.');">
+              {% csrf_token %}
+              <button type="submit" class="import-link">Leave out<span class="visually-hidden"> row {{ row.number }}, {{ row.first_name }} {{ row.last_name }}</span></button>
+            </form>
+            {% endif %}
             {% endif %}
           </td>
         </tr>

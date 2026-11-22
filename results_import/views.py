@@ -151,8 +151,14 @@ def upload_detail(request, pk):
             and change.rule != RowChange.UPDATE_RECORD
             and change.row.get_value(change.field) == change.before
         )
+        if change.rule == RowChange.LEFT_OUT:
+            change.can_revert = change.status == APPLIED and upload.is_draft
+            change.can_reapply = change.status == REVERTED and upload.is_draft
+            change.revert_label = "Put back row"
+            change.reapply_label = "Leave out row"
 
-    pending = [c for c in changes if c.status == PENDING]
+    # A row that is left out asks nothing until it is put back.
+    pending = [c for c in changes if c.status == PENDING and not c.row.left_out]
     made = [c for c in changes if c.status != PENDING]
     problems = services.blocking_problems(upload) if upload.is_draft else {}
     differences = services.record_differences(upload)
@@ -172,8 +178,8 @@ def upload_detail(request, pk):
         row.problems = problems.get(row.number, [])
         row.is_changed = row.id in changed_rows
         row.is_pending = row.id in pending_rows
-        row.is_new = is_new(row)
-        row.is_tie = " " in row.time_text
+        row.is_new = not row.left_out and is_new(row)
+        row.is_tie = not row.left_out and " " in row.time_text
         row.raw_name = normalise.full_name(
             [row.raw["first_name"], row.raw["last_name"]]
         )
@@ -204,6 +210,7 @@ def upload_detail(request, pk):
         "problem_rows": [row for row in rows if row.problems],
         "differences": [d for d in differences if not d["file_blank"]],
         "blank_differences": [d for d in differences if d["file_blank"]],
+        "left_out_count": sum(1 for row in rows if row.left_out),
         "new_count": sum(1 for row in rows if row.is_new),
         "tie_count": sum(1 for row in rows if row.is_tie),
         "blockers": services.publish_blockers(upload) if upload.is_draft else [],
@@ -320,6 +327,35 @@ def row_add(request, pk):
         lambda row: f"Row {row.number} added: {row.first_name} {row.last_name}.",
     )
     return _back(upload, f"row-{row.number}" if row else "rows")
+
+
+@staff_required
+@require_POST
+def row_leave_out(request, pk, row_id):
+    row = get_object_or_404(
+        UploadRow.objects.select_related("upload__season"), pk=row_id, upload_id=pk
+    )
+    _attempt(
+        request,
+        lambda: services.leave_out(row, request.user),
+        f"Row {row.number} left out: {row.first_name} {row.last_name}. "
+        "Everyone behind moves up a place.",
+    )
+    return _back(row.upload, f"row-{row.number}")
+
+
+@staff_required
+@require_POST
+def row_put_back(request, pk, row_id):
+    row = get_object_or_404(
+        UploadRow.objects.select_related("upload__season"), pk=row_id, upload_id=pk
+    )
+    _attempt(
+        request,
+        lambda: services.put_back(row, request.user),
+        f"Row {row.number} put back: {row.first_name} {row.last_name}.",
+    )
+    return _back(row.upload, f"row-{row.number}")
 
 
 @staff_required
