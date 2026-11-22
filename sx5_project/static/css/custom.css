@@ -1354,6 +1354,10 @@ table.dataTable thead .sorting_desc {
   font-weight: 700;
 }
 
+.import-table br + .import-tag {
+  margin-left: 0;
+}
+
 .import-tag--alert {
   background: var(--sx5-black);
   color: var(--sx5-cream);

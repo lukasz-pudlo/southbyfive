@@ -99,6 +99,14 @@ def upload_new(request):
                     f"({earlier.race_name} {earlier.season_label}, "
                     f"{earlier.get_status_display().lower()}).",
                 )
+            to_check = services.number_warnings(upload)
+            if to_check:
+                numbers = ", ".join(warning["bib"] for warning in to_check)
+                messages.warning(
+                    request,
+                    f"Check the numbers before publishing: No. {numbers}. "
+                    "See “Numbers to check” below.",
+                )
             return _back(upload)
     return render(request, "results_import/upload_form.html", {"form": form})
 
@@ -172,6 +180,8 @@ def upload_detail(request, pk):
             upload.is_draft and (row.first_name, row.last_name) not in known
         )
 
+    number_warnings = services.number_warnings(upload)
+    number_rows = {row.id for warning in number_warnings for row in warning["rows"]}
     changed_rows = {c.row_id for c in changes if c.status == APPLIED}
     pending_rows = {c.row_id for c in pending}
     for row in rows:
@@ -180,6 +190,7 @@ def upload_detail(request, pk):
         row.is_pending = row.id in pending_rows
         row.is_new = not row.left_out and is_new(row)
         row.is_tie = not row.left_out and " " in row.time_text
+        row.check_number = row.id in number_rows
         row.raw_name = normalise.full_name(
             [row.raw["first_name"], row.raw["last_name"]]
         )
@@ -211,6 +222,7 @@ def upload_detail(request, pk):
         "differences": [d for d in differences if not d["file_blank"]],
         "blank_differences": [d for d in differences if d["file_blank"]],
         "left_out_count": sum(1 for row in rows if row.left_out),
+        "number_warnings": number_warnings,
         "new_count": sum(1 for row in rows if row.is_new),
         "tie_count": sum(1 for row in rows if row.is_tie),
         "blockers": services.publish_blockers(upload) if upload.is_draft else [],
