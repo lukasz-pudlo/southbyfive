@@ -20,6 +20,7 @@
   <div><dt>Rows</dt><dd>{{ rows|length }}</dd></div>
   <div{% if pending_count %} class="is-alert"{% endif %}><dt>Need a decision</dt><dd>{{ pending_count }}</dd></div>
   <div{% if problem_rows %} class="is-alert"{% endif %}><dt>Rows with a problem</dt><dd>{{ problem_rows|length }}</dd></div>
+  {% if number_warnings %}<div class="is-alert"><dt>Numbers to check</dt><dd>{{ number_warnings|length }}</dd></div>{% endif %}
   <div><dt>Changes made</dt><dd>{{ applied_count }}</dd></div>
   <div><dt>New runners</dt><dd>{{ new_count }}</dd></div>
   <div><dt>Tied times</dt><dd>{{ tie_count }}</dd></div>
@@ -31,6 +32,9 @@
       <p><strong>Not ready to publish.</strong> {{ blockers|join:" " }}</p>
     {% else %}
       <p><strong>Ready to publish.</strong> Nothing is on the site yet.</p>
+    {% endif %}
+    {% if number_warnings %}
+      <p><strong>Check {{ number_warnings|length }} number{{ number_warnings|length|pluralize }} first.</strong> <a href="#numbers">Numbers to check</a> lists {{ number_warnings|length|pluralize:"it,them" }}. This doesn't stop you publishing.</p>
     {% endif %}
     {% if existing_race and not replaces %}
       <p>{{ upload.race_name }} {{ upload.season_label }} already has results that were added before the results import existed, so this draft can't replace them from here.</p>
@@ -135,6 +139,29 @@
       <a href="#row-{{ row.number }}">Row {{ row.number }}</a>
       {{ row.first_name }} {{ row.last_name }}:
       {{ row.problems|join:" " }}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% if number_warnings %}
+<section id="numbers" class="import-section">
+  <h2>Numbers to check <span class="import-count">{{ number_warnings|length }}</span></h2>
+  <p class="import-note">
+    Each runner should have a number of their own. These don't stop
+    publishing, but a shared number usually means the timing system put one
+    finish against several people, so check the times beside it as well.
+    {% if upload.is_draft %}Correct a number with Edit, or use Leave out for someone who didn't run.{% endif %}
+  </p>
+  <ul class="import-problems">
+    {% for warning in number_warnings %}
+    <li>
+      <strong>No. {{ warning.bib }}</strong>
+      {% if warning.shared %}is on {{ warning.rows|length }} rows:{% else %}is on{% endif %}
+      {% for row in warning.rows %}<a href="#row-{{ row.number }}">Row {{ row.number }}</a> {{ row.first_name }} {{ row.last_name }}{% if not forloop.last %}, {% endif %}{% endfor %}.
+      {% if warning.same_time %}All {{ warning.rows|length }} have the same time in the file, {{ warning.same_time }}.{% endif %}
+      {% if warning.holders %}This season's record has No. {{ warning.bib }} for {% for runner in warning.holders %}{{ runner.first_name }} {{ runner.last_name }}{% if not forloop.last %}, {% endif %}{% endfor %}.{% endif %}
     </li>
     {% endfor %}
   </ul>
@@ -273,6 +300,7 @@
       <button type="button" class="filter-btn" data-show="new" aria-pressed="false">New runners</button>
       <button type="button" class="filter-btn" data-show="tie" aria-pressed="false">Tied times</button>
       {% if left_out_count %}<button type="button" class="filter-btn" data-show="leftout" aria-pressed="false">Left out</button>{% endif %}
+      {% if number_warnings %}<button type="button" class="filter-btn" data-show="bibcheck" aria-pressed="false">Numbers to check</button>{% endif %}
     </div>
     {% if upload.is_draft %}
     <button type="button" class="btn btn-secondary" data-add
@@ -308,7 +336,8 @@
             data-problem="{{ row.problems|yesno:'1,0' }}"
             data-new="{{ row.is_new|yesno:'1,0' }}"
             data-tie="{{ row.is_tie|yesno:'1,0' }}"
-            data-leftout="{{ row.left_out|yesno:'1,0' }}">
+            data-leftout="{{ row.left_out|yesno:'1,0' }}"
+            data-bibcheck="{{ row.check_number|yesno:'1,0' }}">
           <td>{{ row.number }}</td>
           <td>
             {{ row.first_name }} {{ row.last_name }}
@@ -319,7 +348,7 @@
             {% if row.name_differs %}<br><small class="import-before">{{ row.raw_name|default:"(blank)" }}</small>{% endif %}
             {% for problem in row.problems %}<br><small class="import-problem">{{ problem }}</small>{% endfor %}
           </td>
-          <td>{{ row.bib }}</td>
+          <td>{{ row.bib }}{% if row.check_number %}<br><span class="import-tag import-tag--alert">check</span>{% endif %}</td>
           <td>{{ row.category }}{% if row.category_differs %}<br><small class="import-before">{{ row.raw.category|default:"(blank)" }}</small>{% endif %}</td>
           <td>{{ row.club }}{% if row.club_differs %}<br><small class="import-before">{{ row.raw.club|default:"(blank)" }}</small>{% endif %}</td>
           <td>{% if row.is_added %}<small>not in the file</small>{% else %}{{ row.raw.time }}{% endif %}</td>

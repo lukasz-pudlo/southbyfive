@@ -135,6 +135,65 @@ def blocking_problems(upload):
     return problems
 
 
+def number_warnings(upload):
+    """Numbers to check before publishing, one entry per number.
+
+    A number is listed when more than one row of the file carries it, or
+    when, in a draft, this season's records have it for a runner who isn't
+    on the row that carries it here. Neither stops publishing: a number is
+    only shown on the site, never used to work anything out. But a shared
+    number usually means the timing system put one finish against several
+    people, so the times beside it want checking too.
+    """
+    if upload.status not in (ResultsUpload.DRAFT, ResultsUpload.PUBLISHED):
+        return []
+    by_bib = {}
+    for row in kept_rows(upload):
+        if row.bib:
+            by_bib.setdefault(row.bib, []).append(row)
+
+    holders = {}
+    undecided = set()
+    if upload.is_draft:
+        for runner in Runner.objects.filter(season=upload.season):
+            bib = _clean_bib(runner.participant_number)
+            if bib in by_bib:
+                holders.setdefault(bib, []).append(runner)
+        # While a row's name is still a question, a different spelling on the
+        # record is that question, not a second person with the number.
+        undecided = set(
+            pending_changes(upload)
+            .filter(field="name")
+            .values_list("row_id", flat=True)
+        )
+
+    warnings = []
+    for bib, rows in by_bib.items():
+        here = {(row.first_name, row.last_name) for row in rows}
+        others = [
+            runner
+            for runner in holders.get(bib, [])
+            if (runner.first_name, runner.last_name) not in here
+        ]
+        if all(row.id in undecided for row in rows):
+            others = []
+        if len(rows) < 2 and not others:
+            continue
+        times = {row.raw.get("time") or "" for row in rows}
+        same_time = len(rows) > 1 and len(times) == 1 and times not in ({""}, {"DNF"})
+        warnings.append(
+            {
+                "bib": bib,
+                "rows": rows,
+                "shared": len(rows) > 1,
+                "same_time": times.pop() if same_time else "",
+                "holders": others,
+            }
+        )
+    warnings.sort(key=lambda warning: warning["rows"][0].number)
+    return warnings
+
+
 def pending_changes(upload):
     """Questions still open. A row that is left out asks nothing."""
     return RowChange.objects.filter(

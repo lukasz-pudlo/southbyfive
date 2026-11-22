@@ -516,6 +516,101 @@ def test_an_added_row_is_removed_not_left_out(season, staff):
         services.leave_out(services.add_row(upload, values, staff), staff)
 
 
+# One number, one time, three people: the Linn Park 2026 export.
+ONE_NUMBER = FIELD + [
+    ("Richard", "Johnstone", "Club C", "M50", 167, 1872.4),
+    ("Julie", "Laird", "", "F50", 167, 1872.4),
+    ("Robbie", "Martin", "", "MS", 167, 1872.4),
+]
+
+
+def test_a_number_on_more_than_one_row_is_flagged_after_upload(staff_client, season):
+    response = post_file(staff_client, season, ONE_NUMBER, "Linn Park")
+    upload = ResultsUpload.objects.get()
+    (warning,) = services.number_warnings(upload)
+    assert warning["bib"] == "167" and warning["shared"]
+    assert [row.last_name for row in warning["rows"]] == [
+        "Johnstone",
+        "Laird",
+        "Martin",
+    ]
+    assert warning["same_time"] == "0:31:12.4"
+
+    page = staff_client.get(response.url).content.decode()
+    assert "Check the numbers before publishing: No. 167." in page
+    assert "Check 1 number first" in page
+    assert "is on 3 rows" in page and "All 3 have the same time in the file" in page
+    assert page.count('data-bibcheck="1"') == 3
+    # A warning, not a blocker.
+    assert services.publish_blockers(upload) == []
+    assert "Ready to publish" in page
+
+
+def test_the_number_warning_goes_once_the_rows_are_put_right(season, staff):
+    upload = draft(season, staff, ONE_NUMBER, "Linn Park")
+    services.leave_out(upload.rows.get(last_name="Laird"), staff)
+    (warning,) = services.number_warnings(upload)
+    assert len(warning["rows"]) == 2
+    services.edit_row(upload.rows.get(last_name="Johnstone"), "bib", "168", staff)
+    assert services.number_warnings(upload) == []
+
+
+def test_a_shared_number_published_anyway_stays_flagged(staff_client, season, staff):
+    upload = publish(season, staff, ONE_NUMBER, "Linn Park")
+    (warning,) = services.number_warnings(upload)
+    assert warning["shared"] and warning["holders"] == []
+    page = staff_client.get(reverse("results_import:detail", args=[upload.pk]))
+    assert "Numbers to check" in page.content.decode()
+    services.revert_upload(upload, staff)
+    assert services.number_warnings(upload) == []
+
+
+def test_a_number_this_season_has_for_someone_else_is_flagged(
+    staff_client, season, staff
+):
+    publish(season, staff)
+    # Ann Archer has No. 1 from King's Park. At Linn it is on a newcomer;
+    # Bob Baker is back on his own number, and Dan Dixon has a new one.
+    rows = [
+        ("Zoe", "Zeller", "", "FS", 1, 1200.0),
+        ("Bob", "Baker", "Club A", "MS", 2, 1260.4),
+        ("Dan", "Dixon", "Club B", "M40", 44, 1300.2),
+    ]
+    upload = draft(season, staff, rows, "Linn Park")
+    (warning,) = services.number_warnings(upload)
+    assert warning["bib"] == "1" and not warning["shared"]
+    assert [runner.last_name for runner in warning["holders"]] == ["Archer"]
+    page = staff_client.get(reverse("results_import:detail", args=[upload.pk]))
+    assert "This season's record has No. 1 for Ann Archer." in page.content.decode()
+
+
+def test_an_open_name_question_is_not_also_a_number_warning(season, staff):
+    publish(season, staff)
+    upload = draft(
+        season, staff, [("Anne", "Archer", "Club A", "FS", 1, 1200.0)], "Linn Park"
+    )
+    assert services.pending_changes(upload).filter(field="name").exists()
+    assert services.number_warnings(upload) == []
+    # Told they are two people, the shared number is worth a look.
+    change = services.pending_changes(upload).get(field="name")
+    keep = next(
+        i
+        for i, option in enumerate(change.options)
+        if option["value"] == ["Anne", "Archer"]
+    )
+    services.decide(change, keep, staff, remember=False)
+    (warning,) = services.number_warnings(upload)
+    assert [runner.first_name for runner in warning["holders"]] == ["Ann"]
+
+
+def test_rows_without_a_number_are_not_flagged(season, staff):
+    rows = [
+        ("Ann", "Archer", "", "FS", "", 1200.0),
+        ("Bob", "Baker", "", "MS", "", 1260.4),
+    ]
+    assert services.number_warnings(draft(season, staff, rows)) == []
+
+
 def test_a_number_too_long_for_the_site_blocks_publishing(season, staff):
     upload = draft(
         season, staff, [("Ann", "Archer", "", "FS", "Bellahouston Harriers", 1200.0)]
