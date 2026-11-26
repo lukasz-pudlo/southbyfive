@@ -66,11 +66,18 @@ Once the file with the correct headers is in the race_file directory, run the be
    docker compose exec web python manage.py migrate
    docker compose exec web python manage.py createsuperuser
 
-8. **Sevalla Deployment**
+8. **Deployment**
 
-Currently, the project is hosted on Sevalla. The selected project type is Django, with a build from Dockerfile. An instance of postgres database has been created. Sevalla provides a DB_URL variable, which is used by this project in production. 
+The site runs on a VPS as two Docker containers, the Django app (gunicorn) and its own Postgres 17 database, behind Nginx on the host with a Let's Encrypt certificate. The image is built on the server from the `main` branch using the Dockerfile in this repository.
 
-For the time being, the migrations need to be run manually from the terminal on Sevalla. 
+To deploy, merge into `main` and push, then on the server:
+
+   cd /srv/southbyfive.run/repo && git pull --ff-only
+   cd /srv/southbyfive.run && docker compose build && docker compose up -d
+
+The container runs `collectstatic` and `migrate` on start, so migrations do not need to be run by hand. `/healthz/` answers `ok` once the app is up. The database is dumped nightly to `/srv/southbyfive.run/backups/`.
+
+Production reads its database settings from the `DATABASE_*` variables in the server's `.env` file. A `DB_URL` variable, if set, takes precedence.
 
 ## Embedding this site in the portfolio locally
 
