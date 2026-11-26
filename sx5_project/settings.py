@@ -107,8 +107,7 @@ else:
 
 CSRF_TRUSTED_ORIGINS = [
     "https://southbyfive.run",
-    "https://southbyfive-web-service.onrender.com",
-    "https://southbyfive-537sn.sevalla.app",
+    "https://www.southbyfive.run",
 ]
 
 
